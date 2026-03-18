@@ -1,6 +1,10 @@
 # Changelog
 
-## [1.0.2] - 2026-03-17
+## [1.0.2] - 2026-03-18
+
+### Changed
+
+- Improved `Client` readability by splitting it into focused traits and various minor optimizations.
 
 ### Added
 
@@ -13,4 +17,4 @@
 
 ### Generalization
 
-- Added OpcUaClientInterface for Client
+- Added `OpcUaClientInterface` for `Client` rappresentation
