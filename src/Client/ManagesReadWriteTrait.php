@@ -40,6 +40,20 @@ trait ManagesReadWriteTrait
      */
     public function readMulti(array $items): array
     {
+        $batchSize = $this->getEffectiveReadBatchSize();
+        if ($batchSize !== null && count($items) > $batchSize) {
+            return $this->readMultiBatched($items, $batchSize);
+        }
+
+        return $this->readMultiRaw($items);
+    }
+
+    /**
+     * @param array<array{nodeId: NodeId, attributeId?: int}> $items
+     * @return DataValue[]
+     */
+    private function readMultiRaw(array $items): array
+    {
         return $this->executeWithRetry(function () use ($items) {
             $this->ensureConnected();
 
@@ -53,6 +67,22 @@ trait ManagesReadWriteTrait
 
             return $this->readService->decodeReadMultiResponse($decoder);
         });
+    }
+
+    /**
+     * @param array<array{nodeId: NodeId, attributeId?: int}> $items
+     * @param int $batchSize
+     * @return DataValue[]
+     */
+    private function readMultiBatched(array $items, int $batchSize): array
+    {
+        $results = [];
+        foreach (array_chunk($items, $batchSize) as $batch) {
+            $batchResults = $this->readMultiRaw($batch);
+            array_push($results, ...$batchResults);
+        }
+
+        return $results;
     }
 
     /**
@@ -89,18 +119,15 @@ trait ManagesReadWriteTrait
      */
     public function writeMulti(array $items): array
     {
+        $batchSize = $this->getEffectiveWriteBatchSize();
+        if ($batchSize !== null && count($items) > $batchSize) {
+            return $this->writeMultiBatched($items, $batchSize);
+        }
+
         return $this->executeWithRetry(function () use ($items) {
             $this->ensureConnected();
 
-            $writeItems = [];
-            foreach ($items as $item) {
-                $variant = new Variant($item['type'], $item['value']);
-                $writeItems[] = [
-                    'nodeId' => $item['nodeId'],
-                    'dataValue' => new DataValue($variant),
-                    'attributeId' => $item['attributeId'] ?? 13,
-                ];
-            }
+            $writeItems = $this->prepareWriteItems($items);
 
             $requestId = $this->nextRequestId();
             $request = $this->writeService->encodeWriteMultiRequest($requestId, $writeItems, $this->authenticationToken);
@@ -112,6 +139,55 @@ trait ManagesReadWriteTrait
 
             return $this->writeService->decodeWriteResponse($decoder);
         });
+    }
+
+    /**
+     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items
+     * @param int $batchSize
+     * @return int[]
+     */
+    private function writeMultiBatched(array $items, int $batchSize): array
+    {
+        $results = [];
+        foreach (array_chunk($items, $batchSize) as $batch) {
+            $batchResults = $this->executeWithRetry(function () use ($batch) {
+                $this->ensureConnected();
+
+                $writeItems = $this->prepareWriteItems($batch);
+
+                $requestId = $this->nextRequestId();
+                $request = $this->writeService->encodeWriteMultiRequest($requestId, $writeItems, $this->authenticationToken);
+                $this->transport->send($request);
+
+                $response = $this->transport->receive();
+                $responseBody = $this->unwrapResponse($response);
+                $decoder = new BinaryDecoder($responseBody);
+
+                return $this->writeService->decodeWriteResponse($decoder);
+            });
+            array_push($results, ...$batchResults);
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items
+     * @return array<array{nodeId: NodeId, dataValue: DataValue, attributeId: int}>
+     */
+    private function prepareWriteItems(array $items): array
+    {
+        $writeItems = [];
+        foreach ($items as $item) {
+            $variant = new Variant($item['type'], $item['value']);
+            $writeItems[] = [
+                'nodeId' => $item['nodeId'],
+                'dataValue' => new DataValue($variant),
+                'attributeId' => $item['attributeId'] ?? 13,
+            ];
+        }
+
+        return $writeItems;
     }
 
     /**

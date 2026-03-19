@@ -32,6 +32,7 @@ composer require gianfriaur/opcua-php-client
 - **Configurable Timeout**: Customizable timeout for connection and I/O operations
 - **Connection State Management**: Track connection state (Disconnected, Connected, Broken) with `reconnect()` support
 - **Auto-Retry**: Automatic reconnect and retry on connection failures (configurable, default: 1 retry after first connect)
+- **Auto-Batching**: Transparent batching for `readMulti`/`writeMulti` with automatic server operation limits discovery
 
 ## Architecture
 

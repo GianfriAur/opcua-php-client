@@ -138,6 +138,78 @@ $results = $client->writeMulti([
 ]);
 ```
 
+## Automatic Batching
+
+OPC UA servers may impose limits on the number of nodes per request (`MaxNodesPerRead`, `MaxNodesPerWrite`). The client handles this transparently.
+
+### Server Limits Discovery
+
+After `connect()`, the client automatically reads the server's operation limits from the standard OPC UA nodes:
+- `MaxNodesPerRead` (ns=0, i=11705)
+- `MaxNodesPerWrite` (ns=0, i=11707)
+
+A value of `0` means "no limit". You can inspect the discovered values:
+
+```php
+$client->connect('opc.tcp://localhost:4840');
+
+echo $client->getServerMaxNodesPerRead();  // e.g. 100, or null if unknown
+echo $client->getServerMaxNodesPerWrite(); // e.g. 100, or null if unknown
+```
+
+### Transparent Batching
+
+When the number of items in `readMulti()` or `writeMulti()` exceeds the effective batch size, the client automatically splits the request into multiple smaller requests and merges the results:
+
+```php
+$client->connect('opc.tcp://localhost:4840');
+// Server reports MaxNodesPerRead = 100
+
+// This will be split into 10 requests of 100 nodes each
+$results = $client->readMulti($items1000);
+// $results contains all 1000 DataValues in order
+```
+
+### Manual Batch Size
+
+You can override the server limit (or set a batch size when the server doesn't report one) using `setBatchSize()`:
+
+```php
+$client->setBatchSize(50); // max 50 nodes per request
+$client->connect('opc.tcp://localhost:4840');
+
+// readMulti and writeMulti will batch at 50 regardless of server limits
+```
+
+**Priority order:** `setBatchSize(N)` (N > 0) > server-reported limit > no batching
+
+### Disabling Auto-Batching
+
+To disable batching entirely — including skipping the server operation limits discovery on `connect()`:
+
+```php
+$client->setBatchSize(0);
+$client->connect('opc.tcp://localhost:4840');
+
+// No discovery call is made, no batching is applied
+// All items are sent in a single request regardless of server limits
+```
+
+This can be useful to avoid the extra read request during connection, or when you know the server has no limits and want to minimize overhead.
+
+### Batching Behavior
+
+| `getBatchSize()` | Server reports | Discovery | Effective batch size |
+|------------------|----------------|-----------|---------------------|
+| `null` (default) | 100 | Yes | 100 |
+| `null` (default) | 0 (no limit) | Yes | No batching |
+| `null` (default) | Not supported | Yes | No batching |
+| `50` | 100 | Yes | 50 |
+| `50` | 0 | Yes | 50 |
+| `0` (disabled) | Any | **Skipped** | No batching |
+
+> **Note:** Batching applies only to `readMulti()` and `writeMulti()`. Single `read()` and `write()` are always sent as individual requests.
+
 ## Supported Data Types
 
 | BuiltinType | PHP Type | Example |

@@ -20,6 +20,7 @@ The `connect()` method performs the following steps automatically:
 4. Performs the OPC UA Hello/Acknowledge handshake
 5. Opens a secure channel (with or without encryption)
 6. Creates and activates a session
+7. Discovers server operation limits (`MaxNodesPerRead`, `MaxNodesPerWrite`) for automatic batching (skipped if `setBatchSize(0)` was called)
 
 ## Timeout Configuration
 

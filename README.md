@@ -61,6 +61,7 @@ $client->disconnect();
 - **Configurable Timeout** - Customizable timeout for connection and I/O operations
 - **Connection State** - Track connection lifecycle (Disconnected, Connected, Broken) with `reconnect()` support
 - **Auto-Retry** - Automatic reconnect and retry on connection failures (configurable)
+- **Auto-Batching** - Transparent batching for `readMulti`/`writeMulti` with automatic server limits discovery
 
 ## Secure Connection Example
 

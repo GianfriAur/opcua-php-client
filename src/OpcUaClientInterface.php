@@ -37,6 +37,27 @@ interface OpcUaClientInterface
     public function getAutoRetry(): int;
 
     /**
+     * @param int $batchSize 0 to disable.
+     * @return self
+     */
+    public function setBatchSize(int $batchSize): self;
+
+    /**
+     * @return int|null
+     */
+    public function getBatchSize(): ?int;
+
+    /**
+     * @return int|null
+     */
+    public function getServerMaxNodesPerRead(): ?int;
+
+    /**
+     * @return int|null
+     */
+    public function getServerMaxNodesPerWrite(): ?int;
+
+    /**
      * @param string $endpointUrl
      */
     public function connect(string $endpointUrl): void;

@@ -51,6 +51,8 @@ trait ManagesConnectionTrait
 
         $this->lastEndpointUrl = $endpointUrl;
         $this->connectionState = ConnectionState::Connected;
+
+        $this->discoverServerOperationLimits();
     }
 
     public function reconnect(): void
@@ -154,5 +156,6 @@ trait ManagesConnectionTrait
         $this->secureChannelId = 0;
         $this->secureChannel = null;
         $this->serverNonce = null;
+        $this->resetBatchingState();
     }
 }

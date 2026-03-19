@@ -13,6 +13,9 @@
 - `Client::setAutoRetry(int $maxRetries)` and `Client::getAutoRetry()` methods for configurable automatic reconnect+retry on `ConnectionException` during operations. Default: 0 if never connected, 1 if connected at least once.
 - All operations (read, write, browse, call, subscriptions, history, getEndpoints) are wrapped with the auto-retry mechanism.
 - `ensureConnected()` private method with state-aware exception messages: `"Not connected: call connect() first"` (Disconnected) and `"Connection lost: call reconnect() or connect() to re-establish"` (Broken).
+- `Client::setBatchSize(int $batchSize)` and `Client::getBatchSize(): ?int` methods for configurable automatic batching of `readMulti`/`writeMulti`. When the number of items exceeds the batch size, requests are transparently split and results merged. `setBatchSize(0)` disables batching entirely and skips server operation limits discovery on `connect()`.
+- Automatic discovery of server operation limits (`MaxNodesPerRead`, `MaxNodesPerWrite`) after `connect()`. The limits are read from the standard OPC UA nodes (ns=0, i=11705 and i=11707). A server-reported value > 0 is used as the default batch size when `setBatchSize()` is not explicitly called.
+- `Client::getServerMaxNodesPerRead(): ?int` and `Client::getServerMaxNodesPerWrite(): ?int` methods to inspect the discovered server limits.
 - All new methods are also available on `OpcUaClientInterface`.
 - Unit tests for `setTimeout()` and `getTimeout()` covering: default value, setter/getter, fluent chaining, fractional seconds, multiple updates, and `OpcUaClientInterface` compliance.
 - Unit tests for `ConnectionState`: enum cases, initial state, disconnect on never-connected client, state-specific exception messages, `reconnect()` without prior connect, and `setAutoRetry` configuration.
@@ -20,6 +23,8 @@
 - Integration tests for timeout behavior: custom timeout with operations, short but sufficient timeout, connection failure with very short timeout on unreachable host, and timeout persistence across multiple operations.
 - Integration tests for connection state transitions: Connected after connect, Disconnected after disconnect, Broken on failed connect, state-specific messages, reconnect recovery, and operations after reconnect.
 - Integration tests for auto-retry: default values after connect/disconnect/failed connect, override persistence, operations with retry enabled/disabled, state after retry, and no retry after explicit disconnect.
+- Unit tests for batching: default null, fluent chaining, store, disable, update, chaining with other config methods, interface compliance, and server limits null before connect.
+- Integration tests for batching: readMulti/writeMulti with and without batching, batch splitting, batchSize=1, result order preservation, server limits discovery, limits reset after disconnect, and setBatchSize override.
 
 ### Documentation
 
@@ -31,6 +36,9 @@
 - Added `ConnectionState.php` to the project structure in `doc/11-architecture.md`.
 - Updated disconnection section in `doc/02-connection.md` to document state reset and auto-retry behavior.
 - Updated "Full Secure Connection" examples in `doc/02-connection.md` and `README.md` to show `setTimeout()`.
+- Added "Automatic Batching" section to `doc/04-reading-writing.md` with server limits discovery, transparent batching, manual batch size, and behavior table.
+- Added "Auto-Batching" to the features list in `doc/01-introduction.md` and `README.md`.
+- Updated `connect()` step list in `doc/02-connection.md` to include server operation limits discovery.
 - Updated `README.md` disclaimer to recommend `gianfriaur/opcua-php-client-session-manager` for session persistence across PHP requests.
 
 ## [1.1.1] - 2026-03-18
