@@ -379,40 +379,61 @@ describe('DataType Read', function () {
 
     describe('Multi-dimensional', function () {
 
-        it('reads Matrix2D_Double', function () {
+        it('reads Matrix2D_Double with dimensions [3,3]', function () {
             $client = null;
             try {
                 $client = TestHelper::connectNoSecurity();
                 $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'MultiDimensional', 'Matrix2D_Double']);
                 $dv = $client->read($nodeId);
                 expect($dv->getStatusCode())->toBe(StatusCode::Good);
-                expect($dv->getValue())->toBeArray()->not->toBeEmpty();
+                expect($dv->getValue())->toBeArray()->toHaveCount(9);
+                expect($dv->getVariant()->getDimensions())->toBe([3, 3]);
+                expect($dv->getVariant()->isMultiDimensional())->toBeTrue();
             } finally {
                 TestHelper::safeDisconnect($client);
             }
         })->group('integration');
 
-        it('reads Matrix2D_Int32', function () {
+        it('reads Matrix2D_Int32 with dimensions [2,4]', function () {
             $client = null;
             try {
                 $client = TestHelper::connectNoSecurity();
                 $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'MultiDimensional', 'Matrix2D_Int32']);
                 $dv = $client->read($nodeId);
                 expect($dv->getStatusCode())->toBe(StatusCode::Good);
-                expect($dv->getValue())->toBeArray()->not->toBeEmpty();
+                expect($dv->getValue())->toBeArray()->toHaveCount(8);
+                expect($dv->getVariant()->getDimensions())->toBe([2, 4]);
+                expect($dv->getVariant()->isMultiDimensional())->toBeTrue();
             } finally {
                 TestHelper::safeDisconnect($client);
             }
         })->group('integration');
 
-        it('reads Cube3D_Byte', function () {
+        it('reads Cube3D_Byte with dimensions [2,3,4]', function () {
             $client = null;
             try {
                 $client = TestHelper::connectNoSecurity();
                 $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'MultiDimensional', 'Cube3D_Byte']);
                 $dv = $client->read($nodeId);
                 expect($dv->getStatusCode())->toBe(StatusCode::Good);
-                expect($dv->getValue())->toBeArray()->not->toBeEmpty();
+                expect($dv->getValue())->toBeArray()->toHaveCount(24);
+                expect($dv->getVariant()->getDimensions())->toBe([2, 3, 4]);
+                expect($dv->getVariant()->isMultiDimensional())->toBeTrue();
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('one-dimensional array has null dimensions', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Array', 'Int32Array']);
+                $dv = $client->read($nodeId);
+                expect($dv->getStatusCode())->toBe(StatusCode::Good);
+                expect($dv->getValue())->toBeArray();
+                expect($dv->getVariant()->getDimensions())->toBeNull();
+                expect($dv->getVariant()->isMultiDimensional())->toBeFalse();
             } finally {
                 TestHelper::safeDisconnect($client);
             }

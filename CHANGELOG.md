@@ -16,7 +16,7 @@
 - `Client::setBatchSize(int $batchSize)` and `Client::getBatchSize(): ?int` methods for configurable automatic batching of `readMulti`/`writeMulti`. When the number of items exceeds the batch size, requests are transparently split and results merged. `setBatchSize(0)` disables batching entirely and skips server operation limits discovery on `connect()`.
 - Automatic discovery of server operation limits (`MaxNodesPerRead`, `MaxNodesPerWrite`) after `connect()`. The limits are read from the standard OPC UA nodes (ns=0, i=11705 and i=11707). A server-reported value > 0 is used as the default batch size when `setBatchSize()` is not explicitly called.
 - `Client::getServerMaxNodesPerRead(): ?int` and `Client::getServerMaxNodesPerWrite(): ?int` methods to inspect the discovered server limits.
-- `BrowseNode` type for representing recursive browse tree nodes, wrapping `ReferenceDescription` with children.
+- `BrowseNode` type for representing recursive br owse tree nodes, wrapping `ReferenceDescription` with children.
 - `Client::browseAll()` method that browses a node and automatically follows all continuation points, returning the complete list of references.
 - `Client::browseRecursive(NodeId, direction, maxDepth, ...)` method for recursive address space traversal. Builds a tree of `BrowseNode` objects. Default `maxDepth` is configurable (default: 10), use `-1` for unlimited (hardcoded cap at 256). Includes cycle detection via visited NodeId tracking to prevent infinite loops on circular references.
 - `Client::setDefaultBrowseMaxDepth(int)` and `Client::getDefaultBrowseMaxDepth(): int` methods to configure the default `maxDepth` for `browseRecursive()`. Default: 10. Passing `maxDepth` explicitly to `browseRecursive()` overrides the configured default.
@@ -27,6 +27,9 @@
 - `ExtensionObjectCodec` interface for implementing custom ExtensionObject decoders/encoders with `decode(BinaryDecoder)` and `encode(BinaryEncoder, mixed)` methods.
 - `ExtensionObjectRepository` static registry for registering codecs by type NodeId. Supports registration by class name or instance, unregister, has, get, and clear. When a codec is registered, `BinaryDecoder::readExtensionObject()` automatically uses it instead of returning a raw binary blob.
 - All new methods are also available on `OpcUaClientInterface`.
+
+### Tests
+
 - Unit tests for `ExtensionObjectRepository`: default empty, register by class/instance, unregister, clear, independent typeIds, string NodeIds.
 - Unit tests for ExtensionObject decoding: codec-based decoding, raw fallback without codec, XML encoding fallback, no-body encoding, codec round-trip.
 - Unit tests for `setTimeout()` and `getTimeout()` covering: default value, setter/getter, fluent chaining, fractional seconds, multiple updates, and `OpcUaClientInterface` compliance.
@@ -70,6 +73,11 @@
 - Added "ExtensionObject Codecs" to the features list in `doc/01-introduction.md` and `README.md`.
 - Added `ExtensionObjectCodec.php` and `ExtensionObjectRepository.php` to the project structure in `doc/11-architecture.md`.
 - Updated `README.md` disclaimer to recommend `gianfriaur/opcua-php-client-session-manager` for session persistence across PHP requests.
+
+### Fixed
+
+- `Variant` now preserves multi-dimensional array dimensions. Previously, `BinaryDecoder::readVariant()` read the dimensions from the OPC UA binary stream but discarded them. Dimensions are now stored in the `Variant` via the new `getDimensions(): ?int[]` and `isMultiDimensional(): bool` methods. `BinaryEncoder::writeVariant()` now writes the dimensions back (flag `0x40`) when present, enabling correct round-trips of multi-dimensional arrays.
+
 
 ## [1.1.1] - 2026-03-18
 

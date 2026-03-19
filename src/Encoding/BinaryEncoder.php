@@ -255,11 +255,21 @@ class BinaryEncoder
         $value = $variant->getValue();
 
         if (is_array($value)) {
+            $dimensions = $variant->getDimensions();
             $encodingByte = $type->value | 0x80;
+            if ($dimensions !== null) {
+                $encodingByte |= 0x40;
+            }
             $this->writeByte($encodingByte);
             $this->writeInt32(count($value));
             foreach ($value as $item) {
                 $this->writeVariantValue($type, $item);
+            }
+            if ($dimensions !== null) {
+                $this->writeInt32(count($dimensions));
+                foreach ($dimensions as $dim) {
+                    $this->writeInt32($dim);
+                }
             }
         } else {
             $this->writeByte($type->value);

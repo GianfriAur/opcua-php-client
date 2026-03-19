@@ -270,6 +270,43 @@ describe('Multi-dimensional array variant', function () {
         $result = $decoder->readVariant();
         expect($result->getType())->toBe(BuiltinType::Int32);
         expect($result->getValue())->toBe([1, 2, 3, 4]);
+        expect($result->getDimensions())->toBe([2, 2]);
+        expect($result->isMultiDimensional())->toBeTrue();
+    });
+
+    it('round-trips multi-dimensional variant via encoder/decoder', function () {
+        $original = new Variant(BuiltinType::Double, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [2, 3]);
+
+        $encoder = new BinaryEncoder();
+        $encoder->writeVariant($original);
+
+        $decoder = new BinaryDecoder($encoder->getBuffer());
+        $result = $decoder->readVariant();
+
+        expect($result->getType())->toBe(BuiltinType::Double);
+        expect($result->getValue())->toBe([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        expect($result->getDimensions())->toBe([2, 3]);
+        expect($result->isMultiDimensional())->toBeTrue();
+    });
+
+    it('one-dimensional array has null dimensions', function () {
+        $original = new Variant(BuiltinType::Int32, [10, 20, 30]);
+
+        $encoder = new BinaryEncoder();
+        $encoder->writeVariant($original);
+
+        $decoder = new BinaryDecoder($encoder->getBuffer());
+        $result = $decoder->readVariant();
+
+        expect($result->getValue())->toBe([10, 20, 30]);
+        expect($result->getDimensions())->toBeNull();
+        expect($result->isMultiDimensional())->toBeFalse();
+    });
+
+    it('scalar variant has null dimensions', function () {
+        $original = new Variant(BuiltinType::Int32, 42);
+        expect($original->getDimensions())->toBeNull();
+        expect($original->isMultiDimensional())->toBeFalse();
     });
 });
 

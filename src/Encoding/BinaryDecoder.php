@@ -278,6 +278,7 @@ class BinaryDecoder
                 $values[] = $this->readVariantValue($type);
             }
 
+            $dimensions = null;
             if ($hasMultiDimensions) {
                 $dimCount = $this->readInt32();
                 $dimensions = [];
@@ -286,7 +287,7 @@ class BinaryDecoder
                 }
             }
 
-            return new Variant($type, $values);
+            return new Variant($type, $values, $dimensions);
         }
 
         $value = $this->readVariantValue($type);
