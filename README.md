@@ -111,6 +111,17 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 
 This library is fully tested. The test suite uses [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) to spin up a complete OPC UA test environment covering all standard scenarios: browsing, reading, writing, method calls, subscriptions, history read, security policies, authentication modes, and error handling.
 
+## Ecosystem
+
+This library is part of a broader OPC UA ecosystem for PHP:
+
+| Package | Description |
+|---------|-------------|
+| [opcua-php-client](https://github.com/GianfriAur/opcua-php-client) | Pure PHP OPC UA client library (this package) |
+| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Session persistence and management across PHP requests, bridging OPC UA's long-lived sessions with PHP's short-lived request model |
+| [opcua-laravel-client](https://github.com/GianfriAur/opcua-laravel-client) | Laravel integration for OPC UA, providing service provider, facade, and configuration for seamless use within Laravel applications |
+| [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) | Docker-based OPC UA test server suite with multiple security configurations, custom data types, and a comprehensive address space for integration testing |
+
 ## License
 
 [MIT](LICENSE)

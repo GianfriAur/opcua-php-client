@@ -2,9 +2,9 @@
 
 This document outlines planned improvements and features for the OPC UA PHP Client library.
 
-## v2.0.0 — API Redesign
+## v2.\*.\* — API Redesign
 
-The 2.0 release will introduce **breaking changes** to improve the developer experience across the entire API surface.
+The v2.\*.\* release will introduce **breaking changes** to improve the developer experience across the entire API surface.
 
 ### Fluent / Builder API
 Introduce a fluent builder pattern wherever configuration is involved, replacing arrays and positional parameters with expressive, chainable method calls:
