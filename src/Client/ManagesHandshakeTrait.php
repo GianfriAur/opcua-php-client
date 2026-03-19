@@ -53,7 +53,7 @@ trait ManagesHandshakeTrait
     private function discoverServerCertificate(string $host, int $port, string $endpointUrl): void
     {
         $discoveryTransport = new TcpTransport();
-        $discoveryTransport->connect($host, $port);
+        $discoveryTransport->connect($host, $port, $this->timeout);
 
         $helloMessage = new HelloMessage(endpointUrl: $endpointUrl);
         $discoveryTransport->send($helloMessage->encode());

@@ -14,6 +14,17 @@ use Gianfriaur\OpcuaPhpClient\Types\Variant;
 interface OpcUaClientInterface
 {
     /**
+     * @param float $timeout
+     * @return self
+     */
+    public function setTimeout(float $timeout): self;
+
+    /**
+     * @return float
+     */
+    public function getTimeout(): float;
+
+    /**
      * @param string $endpointUrl
      */
     public function connect(string $endpointUrl): void;
@@ -35,11 +46,11 @@ interface OpcUaClientInterface
      * @return ReferenceDescription[]
      */
     public function browse(
-        NodeId $nodeId,
-        int $direction = 0,
+        NodeId  $nodeId,
+        int     $direction = 0,
         ?NodeId $referenceTypeId = null,
-        bool $includeSubtypes = true,
-        int $nodeClassMask = 0,
+        bool    $includeSubtypes = true,
+        int     $nodeClassMask = 0,
     ): array;
 
     /**
@@ -51,11 +62,11 @@ interface OpcUaClientInterface
      * @return array{references: ReferenceDescription[], continuationPoint: ?string}
      */
     public function browseWithContinuation(
-        NodeId $nodeId,
-        int $direction = 0,
+        NodeId  $nodeId,
+        int     $direction = 0,
         ?NodeId $referenceTypeId = null,
-        bool $includeSubtypes = true,
-        int $nodeClassMask = 0,
+        bool    $includeSubtypes = true,
+        int     $nodeClassMask = 0,
     ): array;
 
     /**
@@ -108,11 +119,11 @@ interface OpcUaClientInterface
      */
     public function createSubscription(
         float $publishingInterval = 500.0,
-        int $lifetimeCount = 2400,
-        int $maxKeepAliveCount = 10,
-        int $maxNotificationsPerPublish = 0,
-        bool $publishingEnabled = true,
-        int $priority = 0,
+        int   $lifetimeCount = 2400,
+        int   $maxKeepAliveCount = 10,
+        int   $maxNotificationsPerPublish = 0,
+        bool  $publishingEnabled = true,
+        int   $priority = 0,
     ): array;
 
     /**
@@ -121,7 +132,7 @@ interface OpcUaClientInterface
      * @return array<array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}>
      */
     public function createMonitoredItems(
-        int $subscriptionId,
+        int   $subscriptionId,
         array $items,
     ): array;
 
@@ -133,10 +144,10 @@ interface OpcUaClientInterface
      * @return array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}
      */
     public function createEventMonitoredItem(
-        int $subscriptionId,
+        int    $subscriptionId,
         NodeId $nodeId,
-        array $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
-        int $clientHandle = 1,
+        array  $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
+        int    $clientHandle = 1,
     ): array;
 
     /**
@@ -166,11 +177,11 @@ interface OpcUaClientInterface
      * @return DataValue[]
      */
     public function historyReadRaw(
-        NodeId $nodeId,
+        NodeId              $nodeId,
         ?\DateTimeImmutable $startTime = null,
         ?\DateTimeImmutable $endTime = null,
-        int $numValuesPerNode = 0,
-        bool $returnBounds = false,
+        int                 $numValuesPerNode = 0,
+        bool                $returnBounds = false,
     ): array;
 
     /**
@@ -182,11 +193,11 @@ interface OpcUaClientInterface
      * @return DataValue[]
      */
     public function historyReadProcessed(
-        NodeId $nodeId,
+        NodeId             $nodeId,
         \DateTimeImmutable $startTime,
         \DateTimeImmutable $endTime,
-        float $processingInterval,
-        NodeId $aggregateType,
+        float              $processingInterval,
+        NodeId             $aggregateType,
     ): array;
 
     /**
@@ -196,6 +207,6 @@ interface OpcUaClientInterface
      */
     public function historyReadAtTime(
         NodeId $nodeId,
-        array $timestamps,
+        array  $timestamps,
     ): array;
 }

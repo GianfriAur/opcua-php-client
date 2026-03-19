@@ -29,6 +29,7 @@ composer require gianfriaur/opcua-php-client
   - SecurityMode: None, Sign, SignAndEncrypt
 - **Authentication**: Anonymous, Username/Password, X.509 Certificate
 - **Certificate Management**: PEM/DER loading, thumbprint, public key extraction
+- **Configurable Timeout**: Customizable timeout for connection and I/O operations
 
 ## Architecture
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0] - 2026-03-X
+
+### Added
+
+- `Client::setTimeout(float $timeout)` method to configure the timeout (in seconds) for TCP connection and all socket I/O operations. Default remains 5 seconds. The method is fluent and also available on `OpcUaClientInterface`.
+- The configured timeout is now passed to `TcpTransport::connect()` both for the main connection and for the server certificate discovery connection.
+
+### Documentation
+
+- Added "Timeout Configuration" section to `doc/02-connection.md` with usage examples and tips.
+- Added "Configurable Timeout" to the features list in `doc/01-introduction.md` and `README.md`.
+- Updated `doc/09-error-handling.md` to reference `setTimeout()` in the `ConnectionException` read timeout description.
+- Added `OpcUaClientInterface.php` to the project structure in `doc/11-architecture.md`.
+- Updated "Full Secure Connection" examples in `doc/02-connection.md` and `README.md` to show `setTimeout()`.
+- Updated `README.md` disclaimer to recommend `gianfriaur/opcua-php-client-session-manager` for session persistence across PHP requests.
+
 ## [1.1.1] - 2026-03-18
 
 ### Added

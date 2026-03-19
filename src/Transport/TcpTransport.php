@@ -13,13 +13,19 @@ class TcpTransport
     private $socket = null;
     private int $receiveBufferSize = 65535;
 
+    public const  DAFAUT_TIMEOUT = 5.0;
+
     /**
      * @param string $host
      * @param int $port
-     * @param float $timeout
+     * @param null|float $timeout
      */
-    public function connect(string $host, int $port, float $timeout = 5.0): void
+    public function connect(string $host, int $port, null|float $timeout = null): void
     {
+        if ($timeout === null) {
+            $timeout = self::DAFAUT_TIMEOUT;
+        }
+
         $errno = 0;
         $errstr = '';
         $socket = @stream_socket_client(
@@ -33,7 +39,7 @@ class TcpTransport
             throw new ConnectionException("Failed to connect to {$host}:{$port}: [{$errno}] {$errstr}");
         }
 
-        stream_set_timeout($socket, (int) $timeout);
+        stream_set_timeout($socket, (int)$timeout);
         $this->socket = $socket;
     }
 

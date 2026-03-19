@@ -21,6 +21,24 @@ The `connect()` method performs the following steps automatically:
 5. Opens a secure channel (with or without encryption)
 6. Creates and activates a session
 
+## Timeout Configuration
+
+By default, the client uses a **5-second timeout** for both TCP connection and I/O operations (read/write on the socket). You can customize this value using `setTimeout()`:
+
+```php
+$client = new Client();
+$client->setTimeout(10.0); // 10 seconds
+$client->connect('opc.tcp://localhost:4840');
+```
+
+The timeout (in seconds) applies to:
+- The initial TCP connection attempt
+- All subsequent socket read/write operations (handshake, secure channel, session, browse, read, write, etc.)
+
+If an operation exceeds the timeout, a `ConnectionException` is thrown with the message "Read timeout".
+
+> **Tip:** In environments with high-latency networks or slow PLC responses, increase the timeout accordingly. For fast local connections, you can reduce it.
+
 ## Security Configuration
 
 ### Security Policy & Mode
@@ -94,6 +112,8 @@ $client->setUserCertificate(
 
 ```php
 $client = new Client();
+
+$client->setTimeout(10.0); // optional: custom timeout
 
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);

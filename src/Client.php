@@ -76,9 +76,29 @@ class Client implements OpcUaClientInterface
     private ?string $certificatePolicyId = null;
     private ?string $anonymousPolicyId = null;
 
+    private float $timeout;
+
     public function __construct()
     {
         $this->transport = new TcpTransport();
+        $this->timeout = TcpTransport::DAFAUT_TIMEOUT;
+    }
+
+    /**
+     * @param float $timeout
+     * @return Client
+     */
+    public function setTimeout(float $timeout): self
+    {
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+
+    public function getTimeout(): float
+    {
+        return $this->timeout;
     }
 
     /**

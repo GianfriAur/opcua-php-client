@@ -5,6 +5,7 @@
 ```
 src/
 ├── Client.php                           # Main entry point
+├── OpcUaClientInterface.php             # Public API interface
 │
 ├── Transport/
 │   └── TcpTransport.php                 # TCP socket communication

@@ -58,6 +58,7 @@ $client->disconnect();
 - **Endpoint Discovery** - Discover available server endpoints and security policies
 - **Security** - Full security stack with 6 policies (None through Aes256Sha256RsaPss)
 - **Authentication** - Anonymous, Username/Password, X.509 Certificate
+- **Configurable Timeout** - Customizable timeout for connection and I/O operations
 
 ## Secure Connection Example
 
@@ -66,6 +67,7 @@ use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
 $client = new Client();
+$client->setTimeout(10.0); // optional: custom timeout (default: 5s)
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 $client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');

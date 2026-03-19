@@ -57,7 +57,7 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 // Thrown when:
 // - Cannot connect to host:port
 // - Connection closed by remote
-// - Read timeout
+// - Read timeout (configurable via $client->setTimeout(), default: 5 seconds)
 // - Failed to send data
 // - Operation attempted while not connected
 ```
