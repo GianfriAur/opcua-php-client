@@ -101,7 +101,7 @@ describe('CallService skipDiagnosticInfo with inner diagnostic', function () {
 
         $decoder = new BinaryDecoder($e->getBuffer());
         $result = $service->decodeCallResponse($decoder);
-        expect($result['statusCode'])->toBe(0);
+        expect($result->statusCode)->toBe(0);
     });
 });
 
@@ -170,7 +170,7 @@ describe('PublishService skipDiagnosticInfo with inner diagnostic', function () 
 
         $decoder = new BinaryDecoder($e->getBuffer());
         $result = $service->decodePublishResponse($decoder);
-        expect($result['subscriptionId'])->toBe(1);
+        expect($result->subscriptionId)->toBe(1);
     });
 });
 
@@ -193,7 +193,7 @@ describe('BrowseService diagnostic with multiple bytes', function () {
 
         $decoder = new BinaryDecoder($e->getBuffer());
         $result = $service->decodeBrowseNextResponse($decoder);
-        expect($result['references'])->toBe([]);
+        expect($result->references)->toBe([]);
     });
 });
 

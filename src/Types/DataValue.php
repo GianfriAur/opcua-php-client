@@ -16,9 +16,9 @@ class DataValue
      */
     public function __construct(
         private readonly ?Variant           $value = null,
-        private readonly int                $statusCode = 0,
-        private readonly ?DateTimeImmutable $sourceTimestamp = null,
-        private readonly ?DateTimeImmutable $serverTimestamp = null,
+        public readonly int                $statusCode = 0,
+        public readonly ?DateTimeImmutable $sourceTimestamp = null,
+        public readonly ?DateTimeImmutable $serverTimestamp = null,
     )
     {
     }
@@ -28,21 +28,25 @@ class DataValue
         return $this->value?->getValue();
     }
 
+    /** @deprecated Access the public property directly instead. Use ->value instead. */
     public function getVariant(): ?Variant
     {
         return $this->value;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->statusCode instead. */
     public function getStatusCode(): int
     {
         return $this->statusCode;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->sourceTimestamp instead. */
     public function getSourceTimestamp(): ?DateTimeImmutable
     {
         return $this->sourceTimestamp;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->serverTimestamp instead. */
     public function getServerTimestamp(): ?DateTimeImmutable
     {
         return $this->serverTimestamp;

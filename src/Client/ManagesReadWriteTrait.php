@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 trait ManagesReadWriteTrait
@@ -194,9 +195,9 @@ trait ManagesReadWriteTrait
      * @param NodeId $objectId
      * @param NodeId $methodId
      * @param Variant[] $inputArguments
-     * @return array{statusCode: int, inputArgumentResults: int[], outputArguments: Variant[]}
+     * @return CallResult
      */
-    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): array
+    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): CallResult
     {
         return $this->executeWithRetry(function () use ($objectId, $methodId, $inputArguments) {
             $this->ensureConnected();

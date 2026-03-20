@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
 class MonitoredItemService
@@ -56,7 +57,7 @@ class MonitoredItemService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array<array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}>
+     * @return MonitoredItemResult[]
      */
     public function decodeCreateMonitoredItemsResponse(BinaryDecoder $decoder): array
     {
@@ -77,12 +78,7 @@ class MonitoredItemService
             $revisedQueueSize = $decoder->readUInt32();
             $decoder->readExtensionObject();
 
-            $results[] = [
-                'statusCode' => $statusCode,
-                'monitoredItemId' => $monitoredItemId,
-                'revisedSamplingInterval' => $revisedSamplingInterval,
-                'revisedQueueSize' => $revisedQueueSize,
-            ];
+            $results[] = new MonitoredItemResult($statusCode, $monitoredItemId, $revisedSamplingInterval, $revisedQueueSize);
         }
 
         $diagCount = $decoder->readInt32();

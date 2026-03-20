@@ -1,24 +1,19 @@
 # Roadmap
 
-## v2.1.0 
+> **A note on versioning:** We're aware of the rapid major releases in a short time frame. This library is under active, full-time development right now — the goal is to reach a production-stable state as quickly as possible. Breaking changes are being bundled and shipped deliberately to avoid dragging them out across many minor releases. Once the API surface settles, major version bumps will become rare. Thanks for your patience.
+
+## v3.0.0
 
 - [X] CodeCoverage
 - [X] Improuve Documentation
 - [X] `ExtensionObjectRepository`: replace static registry with instance-level dependency
-- [ ] Strict Return Types
+- [X] Strict Return Types
 - [ ] Named Parameters Everywhere
-
-## v2.2.0
-
 - [ ] Full PHPDoc / Attribute Documentation
-- [ ] ......
-
-## v3-0.0
-
 - [ ] Fluent / Builder API
-- [ ] TBD: integration by default: wirh opcua-php-client-session-manager
-- [ ] ......
-
+- [ ] `TBD` integration by default: wirh opcua-php-client-session-manager
+- [ ] Browse Filters
+- [ ] .....
 ------
 
 This document outlines planned improvements and features for the OPC UA PHP Client library.

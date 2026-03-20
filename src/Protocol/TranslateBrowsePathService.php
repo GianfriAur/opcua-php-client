@@ -6,6 +6,8 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
+use Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 
@@ -40,7 +42,7 @@ class TranslateBrowsePathService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array<array{statusCode: int, targets: array<array{targetId: NodeId, remainingPathIndex: int}>}>
+     * @return BrowsePathResult[]
      */
     public function decodeTranslateResponse(BinaryDecoder $decoder): array
     {
@@ -65,16 +67,10 @@ class TranslateBrowsePathService
                 $targetId = $decoder->readExpandedNodeId();
                 $remainingPathIndex = $decoder->readUInt32();
 
-                $targets[] = [
-                    'targetId' => $targetId,
-                    'remainingPathIndex' => $remainingPathIndex,
-                ];
+                $targets[] = new BrowsePathTarget($targetId, $remainingPathIndex);
             }
 
-            $results[] = [
-                'statusCode' => $statusCode,
-                'targets' => $targets,
-            ];
+            $results[] = new BrowsePathResult($statusCode, $targets);
         }
 
         $diagCount = $decoder->readInt32();

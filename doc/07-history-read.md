@@ -1,16 +1,10 @@
 # History Read
 
-## What's available
+OPC UA servers with historizing enabled can store past values. This library supports three types of historical queries: raw, processed, and at-time.
 
-OPC UA servers with historizing can store past values. Three types of historical queries:
+## Raw History
 
-- **Raw** — stored values in a time range, as-is
-- **Processed** — aggregated values (average, min, max, etc.)
-- **At Time** — interpolated values at specific timestamps
-
-## Raw History Read
-
-Get raw values within a time range:
+Get stored values within a time range, exactly as recorded:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -23,33 +17,33 @@ $values = $client->historyReadRaw(
     NodeId::numeric(2, 1001),
     startTime: $oneHourAgo,
     endTime: $now,
-    numValuesPerNode: 100,   // max values to return (0 = unlimited)
-    returnBounds: false,      // include bounding values
+    numValuesPerNode: 100,
+    returnBounds: false,
 );
 
 foreach ($values as $dv) {
     echo sprintf(
         "[%s] %s (status: %s)\n",
-        $dv->getSourceTimestamp()?->format('Y-m-d H:i:s.u'),
+        $dv->sourceTimestamp?->format('Y-m-d H:i:s.u'),
         $dv->getValue(),
-        StatusCode::getName($dv->getStatusCode()),
+        StatusCode::getName($dv->statusCode),
     );
 }
 ```
 
 ### Parameters
 
-| Parameter | Default | What |
-|-----------|---------|------|
-| `nodeId` | (required) | Node to read history from |
-| `startTime` | `null` | Start of time range |
-| `endTime` | `null` | End of time range |
-| `numValuesPerNode` | `0` | Max values (0 = unlimited) |
-| `returnBounds` | `false` | Include bounding values at the edges |
+| Parameter | Default | Description |
+|---|---|---|
+| `nodeId` | *(required)* | Node to read history from |
+| `startTime` | `null` | Beginning of the time range |
+| `endTime` | `null` | End of the time range |
+| `numValuesPerNode` | `0` | Maximum values to return (`0` = no limit) |
+| `returnBounds` | `false` | Include bounding values at the edges of the range |
 
-## Processed History Read
+## Processed History (Aggregates)
 
-Get aggregated data (server must support it):
+Get aggregated data over intervals. The server must support the HistoryRead service with processing:
 
 ```php
 $startTime = new \DateTimeImmutable('2024-01-01 00:00:00');
@@ -59,15 +53,15 @@ $values = $client->historyReadProcessed(
     NodeId::numeric(2, 1001),
     $startTime,
     $endTime,
-    processingInterval: 3600000.0, // 1 hour intervals in ms
+    processingInterval: 3600000.0, // 1 hour in ms
     aggregateType: NodeId::numeric(0, 2342), // Average
 );
 ```
 
-**Common aggregate types:**
+### Common Aggregate Types
 
 | Aggregate | NodeId |
-|-----------|--------|
+|---|---|
 | Average | `NodeId::numeric(0, 2342)` |
 | Interpolative | `NodeId::numeric(0, 2341)` |
 | Minimum | `NodeId::numeric(0, 2346)` |
@@ -75,9 +69,11 @@ $values = $client->historyReadProcessed(
 | Count | `NodeId::numeric(0, 2352)` |
 | Total | `NodeId::numeric(0, 2344)` |
 
-## History Read At Time
+> **Note:** Not all servers support all aggregate types. Check your server documentation or use `getEndpoints()` to discover capabilities.
 
-Get interpolated values at specific points in time:
+## History at Specific Times
+
+Get interpolated values at exact timestamps:
 
 ```php
 $timestamps = [
@@ -100,3 +96,5 @@ foreach ($values as $i => $dv) {
     );
 }
 ```
+
+> **Tip:** All three history methods return `DataValue[]`. Each `DataValue` includes `->statusCode`, `->sourceTimestamp`, and `->serverTimestamp` alongside the value itself.

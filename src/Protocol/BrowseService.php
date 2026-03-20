@@ -7,6 +7,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 
@@ -64,9 +65,9 @@ class BrowseService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
-    public function decodeBrowseResponseWithContinuation(BinaryDecoder $decoder): array
+    public function decodeBrowseResponseWithContinuation(BinaryDecoder $decoder): BrowseResultSet
     {
         $decoder->readUInt32();
         $decoder->readUInt32();
@@ -95,10 +96,7 @@ class BrowseService
             $decoder->readByte();
         }
 
-        return [
-            'references' => $references,
-            'continuationPoint' => $continuationPoint,
-        ];
+        return new BrowseResultSet($references, $continuationPoint);
     }
 
     /**
@@ -109,7 +107,7 @@ class BrowseService
     {
         $result = $this->decodeBrowseResponseWithContinuation($decoder);
 
-        return $result['references'];
+        return $result->references;
     }
 
     /**
@@ -151,9 +149,9 @@ class BrowseService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
-    public function decodeBrowseNextResponse(BinaryDecoder $decoder): array
+    public function decodeBrowseNextResponse(BinaryDecoder $decoder): BrowseResultSet
     {
         $decoder->readUInt32();
         $decoder->readUInt32();
@@ -182,10 +180,7 @@ class BrowseService
             $decoder->readByte();
         }
 
-        return [
-            'references' => $references,
-            'continuationPoint' => $continuationPoint,
-        ];
+        return new BrowseResultSet($references, $continuationPoint);
     }
 
     /**

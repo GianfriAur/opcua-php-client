@@ -1,67 +1,59 @@
 # Types Reference
 
-## NodeId
+## Core Types
 
-Identifies a node in the OPC UA address space. Four identifier types:
+### NodeId
+
+Identifies a node in the OPC UA address space.
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-// Numeric (most common)
 $nodeId = NodeId::numeric(0, 85);           // ns=0;i=85
-
-// String
 $nodeId = NodeId::string(2, 'Temperature'); // ns=2;s=Temperature
-
-// GUID
 $nodeId = NodeId::guid(1, '550e8400-e29b-41d4-a716-446655440000');
-
-// Opaque (ByteString) — hex encoded
 $nodeId = NodeId::opaque(1, 'DEADBEEF');
 ```
 
-### Methods
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$nodeId->namespaceIndex` | `int` | Namespace index |
+| `$nodeId->identifier` | `int\|string` | The node identifier |
+| `$nodeId->type` | `string` | `'numeric'`, `'string'`, `'guid'`, or `'opaque'` |
+
+**Methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `isNumeric()` | `bool` | True if numeric identifier |
+| `isString()` | `bool` | True if string identifier |
+| `isGuid()` | `bool` | True if GUID identifier |
+| `isOpaque()` | `bool` | True if opaque (ByteString) identifier |
+| `getEncodingByte()` | `int` | Binary protocol encoding byte |
+| `__toString()` | `string` | OPC UA string format (e.g. `ns=2;i=1001`) |
+
+**Parsing and serialization:**
 
 ```php
-$nodeId->getNamespaceIndex();  // int
-$nodeId->getIdentifier();     // int|string
-$nodeId->getType();            // 'numeric', 'string', 'guid', 'opaque'
-$nodeId->isNumeric();          // bool
-$nodeId->isString();           // bool
-$nodeId->isGuid();             // bool
-$nodeId->isOpaque();           // bool
-$nodeId->getEncodingByte();    // int (binary protocol encoding)
-```
-
-### Parsing and Serialization
-
-```php
-// Parse from OPC UA string format
 $nodeId = NodeId::parse('ns=2;i=1001');
-$nodeId = NodeId::parse('i=85');         // ns=0 implied
+$nodeId = NodeId::parse('i=85');          // ns=0 implied
 $nodeId = NodeId::parse('ns=2;s=MyNode');
 
-// Serialize back
-echo $nodeId->toString();  // "ns=2;i=1001"
-echo (string) $nodeId;     // same thing (__toString)
+echo (string) $nodeId; // "ns=2;i=1001"
 ```
 
-### Encoding Rules
+---
 
-Numeric NodeIds use the most compact encoding:
-- **TwoByte** (0x00): namespace=0, identifier 0-255
-- **FourByte** (0x01): namespace 0-255, identifier 0-65535
-- **Numeric** (0x02): full UInt16 namespace, UInt32 identifier
+### Variant
 
-## Variant
-
-Typed value container. Wraps any OPC UA value with its type:
+Typed value container. Wraps any OPC UA value with its type information.
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
-// Scalars
 $v = new Variant(BuiltinType::Int32, 42);
 $v = new Variant(BuiltinType::String, 'Hello');
 $v = new Variant(BuiltinType::Double, 3.14);
@@ -71,16 +63,27 @@ $v = new Variant(BuiltinType::DateTime, new DateTimeImmutable());
 // Arrays
 $v = new Variant(BuiltinType::Int32, [1, 2, 3, 4, 5]);
 $v = new Variant(BuiltinType::String, ['a', 'b', 'c']);
-
-$v->getType();          // BuiltinType enum
-$v->getValue();         // mixed
-$v->getDimensions();    // ?int[] — multi-dimensional array dimensions
-$v->isMultiDimensional(); // bool
 ```
 
-## DataValue
+**Properties** (`public readonly`):
 
-A value with metadata:
+| Property | Type | Description |
+|---|---|---|
+| `$v->type` | `BuiltinType` | The OPC UA type |
+| `$v->value` | `mixed` | The actual value (scalar or array) |
+| `$v->dimensions` | `?int[]` | Multi-dimensional array dimensions, or `null` |
+
+**Methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `isMultiDimensional()` | `bool` | True if dimensions has more than one entry |
+
+---
+
+### DataValue
+
+A value with metadata. The inner `Variant` is private -- use `getValue()` to unwrap it.
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
@@ -91,51 +94,400 @@ $dv = new DataValue(
     sourceTimestamp: new DateTimeImmutable(),
     serverTimestamp: new DateTimeImmutable(),
 );
-
-$dv->getValue();             // mixed (unwrapped from Variant)
-$dv->getVariant();           // ?Variant
-$dv->getStatusCode();        // int
-$dv->getSourceTimestamp();   // ?DateTimeImmutable
-$dv->getServerTimestamp();   // ?DateTimeImmutable
 ```
 
-## BuiltinType (Enum)
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$dv->statusCode` | `int` | OPC UA status code |
+| `$dv->sourceTimestamp` | `?DateTimeImmutable` | When the source produced the value |
+| `$dv->serverTimestamp` | `?DateTimeImmutable` | When the server received it |
+
+**Methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `getValue()` | `mixed` | Unwrapped value from the inner Variant |
+| `getVariant()` | `?Variant` | The full Variant object (when you need type info) |
+| `getEncodingMask()` | `int` | Bitmask for binary encoding |
+
+> **Tip:** `getValue()` returns the raw scalar or array directly. If you need to know the OPC UA type, call `getVariant()` instead and check `->type`.
+
+---
+
+### BuiltinType (Enum)
 
 All 25 OPC UA built-in data types:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-
-BuiltinType::Boolean;        // 1
-BuiltinType::SByte;          // 2
-BuiltinType::Byte;           // 3
-BuiltinType::Int16;          // 4
-BuiltinType::UInt16;         // 5
-BuiltinType::Int32;          // 6
-BuiltinType::UInt32;         // 7
-BuiltinType::Int64;          // 8
-BuiltinType::UInt64;         // 9
-BuiltinType::Float;          // 10
-BuiltinType::Double;         // 11
-BuiltinType::String;         // 12
-BuiltinType::DateTime;       // 13
-BuiltinType::Guid;           // 14
-BuiltinType::ByteString;     // 15
-BuiltinType::XmlElement;     // 16
-BuiltinType::NodeId;         // 17
-BuiltinType::ExpandedNodeId; // 18
-BuiltinType::StatusCode;     // 19
-BuiltinType::QualifiedName;  // 20
-BuiltinType::LocalizedText;  // 21
-BuiltinType::ExtensionObject;// 22
-BuiltinType::DataValue;      // 23
-BuiltinType::Variant;        // 24
-BuiltinType::DiagnosticInfo; // 25
 ```
+
+| Case | Value | | Case | Value |
+|---|---|---|---|---|
+| `Boolean` | 1 | | `DateTime` | 13 |
+| `SByte` | 2 | | `Guid` | 14 |
+| `Byte` | 3 | | `ByteString` | 15 |
+| `Int16` | 4 | | `XmlElement` | 16 |
+| `UInt16` | 5 | | `NodeId` | 17 |
+| `Int32` | 6 | | `ExpandedNodeId` | 18 |
+| `UInt32` | 7 | | `StatusCode` | 19 |
+| `Int64` | 8 | | `QualifiedName` | 20 |
+| `UInt64` | 9 | | `LocalizedText` | 21 |
+| `Float` | 10 | | `ExtensionObject` | 22 |
+| `Double` | 11 | | `DataValue` | 23 |
+| `String` | 12 | | `Variant` / `DiagnosticInfo` | 24 / 25 |
+
+---
+
+## Value Types
+
+### QualifiedName
+
+A name qualified by a namespace index.
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+
+$qn = new QualifiedName(0, 'ServerStatus');
+```
+
+**Properties** (`public readonly`):
+
+| Property | Type |
+|---|---|
+| `$qn->namespaceIndex` | `int` |
+| `$qn->name` | `string` |
+
+`__toString()` returns `'ServerStatus'` for ns=0, or `'2:Temperature'` for ns=2.
+
+---
+
+### LocalizedText
+
+A string with an optional locale.
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
+
+$lt = new LocalizedText('en', 'Server Status');
+```
+
+**Properties** (`public readonly`):
+
+| Property | Type |
+|---|---|
+| `$lt->locale` | `string` |
+| `$lt->text` | `string` |
+
+`__toString()` returns the text.
+
+---
+
+### StatusCode
+
+Utility class for OPC UA status codes. All methods are static.
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+
+StatusCode::isGood(0x00000000);      // true
+StatusCode::isBad(0x80340000);       // true
+StatusCode::isUncertain(0x408F0000); // true
+StatusCode::getName(0x80340000);     // 'BadNodeIdUnknown'
+```
+
+**Static methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `isGood(int $code)` | `bool` | Top 2 bits are `00` |
+| `isBad(int $code)` | `bool` | Top 2 bits are `10` |
+| `isUncertain(int $code)` | `bool` | Top 2 bits are `01` |
+| `getName(int $code)` | `string` | Human-readable name, or hex fallback |
+
+**Constants:**
+
+| Constant | Value |
+|---|---|
+| `StatusCode::Good` | `0x00000000` |
+| `StatusCode::BadUnexpectedError` | `0x80010000` |
+| `StatusCode::BadInternalError` | `0x80020000` |
+| `StatusCode::BadOutOfMemory` | `0x80030000` |
+| `StatusCode::BadCommunicationError` | `0x80050000` |
+| `StatusCode::BadTimeout` | `0x800A0000` |
+| `StatusCode::BadServiceUnsupported` | `0x800B0000` |
+| `StatusCode::BadNothingToDo` | `0x800F0000` |
+| `StatusCode::BadTooManyOperations` | `0x80100000` |
+| `StatusCode::BadUserAccessDenied` | `0x801F0000` |
+| `StatusCode::BadSecureChannelIdInvalid` | `0x80220000` |
+| `StatusCode::BadSessionIdInvalid` | `0x80250000` |
+| `StatusCode::BadNodeIdUnknown` | `0x80340000` |
+| `StatusCode::BadAttributeIdInvalid` | `0x80350000` |
+| `StatusCode::BadIndexRangeInvalid` | `0x80360000` |
+| `StatusCode::BadNotWritable` | `0x803B0000` |
+| `StatusCode::BadNotReadable` | `0x803E0000` |
+| `StatusCode::BadTypeMismatch` | `0x80740000` |
+| `StatusCode::BadMethodInvalid` | `0x80750000` |
+| `StatusCode::BadArgumentsMissing` | `0x80760000` |
+| `StatusCode::BadInvalidArgument` | `0x80AB0000` |
+| `StatusCode::BadNoData` | `0x80B10000` |
+| `StatusCode::UncertainNoCommunicationLastUsableValue` | `0x408F0000` |
+
+---
+
+## Browse Types
+
+### ReferenceDescription
+
+A reference between nodes, returned by `browse()`.
+
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$ref->referenceTypeId` | `NodeId` | Type of reference |
+| `$ref->isForward` | `bool` | Direction of the reference |
+| `$ref->nodeId` | `NodeId` | Target node |
+| `$ref->browseName` | `QualifiedName` | Browse name of the target |
+| `$ref->displayName` | `LocalizedText` | Display name of the target |
+| `$ref->nodeClass` | `NodeClass` | Node class of the target |
+| `$ref->typeDefinition` | `?NodeId` | Type definition, if available |
+
+---
+
+### BrowseNode
+
+Tree node from `browseRecursive()`. Wraps a `ReferenceDescription` with children.
+
+**Properties** (`public readonly`):
+
+| Property | Type |
+|---|---|
+| `$node->reference` | `ReferenceDescription` |
+
+Access the underlying reference data through `$node->reference->nodeId`, `$node->reference->displayName`, etc.
+
+**Methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `getChildren()` | `BrowseNode[]` | Child nodes |
+| `hasChildren()` | `bool` | True if this node has children |
+| `addChild(BrowseNode $child)` | `void` | Add a child node |
+
+See [Browsing](03-browsing.md#recursive-browse) for tree traversal examples.
+
+---
+
+### BrowseDirection (Enum)
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+```
+
+| Case | Value | Description |
+|---|---|---|
+| `Forward` | `0` | Browse children |
+| `Inverse` | `1` | Browse parents |
+| `Both` | `2` | Browse both directions |
+
+---
+
+### NodeClass (Enum)
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+```
+
+| Case | Value |
+|---|---|
+| `Unspecified` | `0` |
+| `Object` | `1` |
+| `Variable` | `2` |
+| `Method` | `4` |
+| `ObjectType` | `8` |
+| `VariableType` | `16` |
+| `ReferenceType` | `32` |
+| `DataType` | `64` |
+| `View` | `128` |
+
+---
+
+## Server Types
+
+### EndpointDescription
+
+Server endpoint info, returned by `getEndpoints()`.
+
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$ep->endpointUrl` | `string` | Endpoint URL |
+| `$ep->serverCertificate` | `?string` | DER-encoded certificate |
+| `$ep->securityMode` | `int` | `1` = None, `2` = Sign, `3` = SignAndEncrypt |
+| `$ep->securityPolicyUri` | `string` | Security policy URI |
+| `$ep->userIdentityTokens` | `UserTokenPolicy[]` | Supported auth methods |
+| `$ep->transportProfileUri` | `string` | Transport profile URI |
+| `$ep->securityLevel` | `int` | Relative security ranking |
+
+---
+
+### UserTokenPolicy
+
+Authentication method supported by an endpoint.
+
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$policy->policyId` | `?string` | Policy identifier |
+| `$policy->tokenType` | `int` | `0` = Anonymous, `1` = Username, `2` = Certificate |
+| `$policy->issuedTokenType` | `?string` | Issued token type URI |
+| `$policy->issuerEndpointUrl` | `?string` | Issuer endpoint URL |
+| `$policy->securityPolicyUri` | `?string` | Security policy for this token |
+
+---
+
+### ConnectionState (Enum)
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
+```
+
+| Case | Description |
+|---|---|
+| `Disconnected` | Never connected, or cleanly disconnected |
+| `Connected` | Active connection |
+| `Broken` | Connection was lost |
+
+Used by `$client->getConnectionState()` and `$client->isConnected()`. See [Connection & Configuration](02-connection.md#connection-state).
+
+---
+
+### AttributeId
+
+Constants for OPC UA node attributes.
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
+```
+
+| Constant | Value | | Constant | Value |
+|---|---|---|---|---|
+| `NodeId` | 1 | | `EventNotifier` | 12 |
+| `NodeClass` | 2 | | `Value` | 13 |
+| `BrowseName` | 3 | | `DataType` | 14 |
+| `DisplayName` | 4 | | `ValueRank` | 15 |
+| `Description` | 5 | | `ArrayDimensions` | 16 |
+| `WriteMask` | 6 | | `AccessLevel` | 17 |
+| `UserWriteMask` | 7 | | `UserAccessLevel` | 18 |
+| `IsAbstract` | 8 | | `MinimumSamplingInterval` | 19 |
+| `Symmetric` | 9 | | `Historizing` | 20 |
+| `InverseName` | 10 | | `Executable` | 21 |
+| `ContainsNoLoops` | 11 | | `UserExecutable` | 22 |
+
+> **Note:** `AttributeId::Value` (13) is the default for `read()` and `write()`.
+
+---
+
+## Result DTOs
+
+All result DTOs use `public readonly` properties.
+
+### BrowseResultSet
+
+Returned by `browseWithContinuation()` and `browseNext()`.
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->references` | `ReferenceDescription[]` | Browse results |
+| `$result->continuationPoint` | `?string` | `null` when there are no more results |
+
+See [Browsing](03-browsing.md#browse-with-continuation-manual).
+
+---
+
+### BrowsePathResult
+
+Returned by `translateBrowsePaths()`, one per path.
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->statusCode` | `int` | Status of the path resolution |
+| `$result->targets` | `BrowsePathTarget[]` | Resolved targets |
+
+---
+
+### BrowsePathTarget
+
+A single target resolved from a browse path.
+
+| Property | Type | Description |
+|---|---|---|
+| `$target->targetId` | `NodeId` | The resolved NodeId |
+| `$target->remainingPathIndex` | `int` | `0xFFFFFFFF` if fully resolved |
+
+---
+
+### CallResult
+
+Returned by `call()`. See [Method Calling](05-method-call.md).
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->statusCode` | `int` | Method execution status |
+| `$result->inputArgumentResults` | `int[]` | Per-argument validation status codes |
+| `$result->outputArguments` | `Variant[]` | Output values |
+
+---
+
+### SubscriptionResult
+
+Returned by `createSubscription()`. See [Subscriptions](06-subscriptions.md).
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->subscriptionId` | `int` | Server-assigned subscription ID |
+| `$result->revisedPublishingInterval` | `float` | Actual interval in ms |
+| `$result->revisedLifetimeCount` | `int` | Actual lifetime count |
+| `$result->revisedMaxKeepAliveCount` | `int` | Actual keep-alive count |
+
+---
+
+### MonitoredItemResult
+
+Returned per item by `createMonitoredItems()` and `createEventMonitoredItem()`. See [Subscriptions](06-subscriptions.md#monitoring-data-changes).
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->monitoredItemId` | `int` | Server-assigned item ID |
+| `$result->statusCode` | `int` | Creation status |
+| `$result->revisedSamplingInterval` | `float` | Actual sampling interval in ms |
+| `$result->revisedQueueSize` | `int` | Actual queue size |
+
+---
+
+### PublishResult
+
+Returned by `publish()`. See [Subscriptions](06-subscriptions.md#receiving-notifications).
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->subscriptionId` | `int` | Which subscription this belongs to |
+| `$result->sequenceNumber` | `int` | Sequence number (for acknowledgment) |
+| `$result->moreNotifications` | `bool` | True if more notifications are waiting |
+| `$result->notifications` | `array` | Notification entries |
+
+Each entry in `notifications` is an associative array. For data changes: `type`, `clientHandle`, `dataValue`. For events: `type`, `clientHandle`, `eventFields`.
+
+---
 
 ## ExtensionObject Codecs
 
-OPC UA `ExtensionObject` is a container for custom structures. Without a codec, the library gives you back a raw array with an opaque binary body. Register a codec and it gets decoded automatically:
+OPC UA `ExtensionObject` is a container for custom structures. Without a codec, the library returns raw arrays. Register a codec to get automatic decoding:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
@@ -151,206 +503,6 @@ $result = $client->read($pointNodeId);
 // $result->getValue() => ['x' => 1.0, 'y' => 2.0, 'z' => 3.0]
 ```
 
+Each `Client` has its own isolated repository. If you do not pass one, the client creates an empty one internally.
+
 Full guide: [ExtensionObject Codecs](12-extension-object-codecs.md).
-
-## NodeClass (Enum)
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-
-NodeClass::Unspecified;    // 0
-NodeClass::Object;         // 1
-NodeClass::Variable;       // 2
-NodeClass::Method;         // 4
-NodeClass::ObjectType;     // 8
-NodeClass::VariableType;   // 16
-NodeClass::ReferenceType;  // 32
-NodeClass::DataType;       // 64
-NodeClass::View;           // 128
-```
-
-## BrowseDirection (Enum)
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-
-BrowseDirection::Forward;  // 0 — children
-BrowseDirection::Inverse;  // 1 — parents
-BrowseDirection::Both;     // 2 — both ways
-```
-
-Used in `browse()`, `browseAll()`, `browseRecursive()`, etc.
-
-## QualifiedName
-
-A name qualified by a namespace index:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-
-$qn = new QualifiedName(0, 'ServerStatus');
-
-$qn->getNamespaceIndex();  // 0
-$qn->getName();            // 'ServerStatus'
-echo $qn;                  // 'ServerStatus' (ns=0 omitted)
-
-$qn2 = new QualifiedName(2, 'Temperature');
-echo $qn2;                 // '2:Temperature'
-```
-
-## LocalizedText
-
-A string with an optional locale:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-
-$lt = new LocalizedText('en', 'Server Status');
-
-$lt->getLocale();  // 'en'
-$lt->getText();    // 'Server Status'
-echo $lt;          // 'Server Status'
-```
-
-## StatusCode
-
-Utility for OPC UA status codes:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
-
-StatusCode::isGood(0x00000000);      // true
-StatusCode::isBad(0x80340000);       // true
-StatusCode::isUncertain(0x408F0000); // true
-StatusCode::getName(0x80340000);     // 'BadNodeIdUnknown'
-```
-
-### Constants
-
-| Constant | Value |
-|----------|-------|
-| `StatusCode::Good` | `0x00000000` |
-| `StatusCode::BadUnexpectedError` | `0x80010000` |
-| `StatusCode::BadInternalError` | `0x80020000` |
-| `StatusCode::BadOutOfMemory` | `0x80030000` |
-| `StatusCode::BadCommunicationError` | `0x80050000` |
-| `StatusCode::BadTimeout` | `0x800A0000` |
-| `StatusCode::BadServiceUnsupported` | `0x800B0000` |
-| `StatusCode::BadNothingToDo` | `0x800F0000` |
-| `StatusCode::BadTooManyOperations` | `0x80100000` |
-| `StatusCode::BadNodeIdUnknown` | `0x80340000` |
-| `StatusCode::BadAttributeIdInvalid` | `0x80350000` |
-| `StatusCode::BadIndexRangeInvalid` | `0x80360000` |
-| `StatusCode::BadNotWritable` | `0x803B0000` |
-| `StatusCode::BadNotReadable` | `0x803E0000` |
-| `StatusCode::BadTypeMismatch` | `0x80740000` |
-| `StatusCode::BadInvalidArgument` | `0x80AB0000` |
-| `StatusCode::BadNoData` | `0x80B10000` |
-| `StatusCode::BadUserAccessDenied` | `0x801F0000` |
-| `StatusCode::BadSessionIdInvalid` | `0x80250000` |
-| `StatusCode::BadSecureChannelIdInvalid` | `0x80220000` |
-| `StatusCode::BadMethodInvalid` | `0x80750000` |
-| `StatusCode::BadArgumentsMissing` | `0x80760000` |
-| `StatusCode::UncertainNoCommunicationLastUsableValue` | `0x408F0000` |
-
-## AttributeId
-
-Constants for node attributes:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-
-AttributeId::NodeId;                  // 1
-AttributeId::NodeClass;              // 2
-AttributeId::BrowseName;             // 3
-AttributeId::DisplayName;            // 4
-AttributeId::Description;            // 5
-AttributeId::WriteMask;              // 6
-AttributeId::UserWriteMask;          // 7
-AttributeId::IsAbstract;             // 8
-AttributeId::Symmetric;              // 9
-AttributeId::InverseName;            // 10
-AttributeId::ContainsNoLoops;        // 11
-AttributeId::EventNotifier;          // 12
-AttributeId::Value;                  // 13 (default for read/write)
-AttributeId::DataType;               // 14
-AttributeId::ValueRank;              // 15
-AttributeId::ArrayDimensions;        // 16
-AttributeId::AccessLevel;            // 17
-AttributeId::UserAccessLevel;        // 18
-AttributeId::MinimumSamplingInterval;// 19
-AttributeId::Historizing;            // 20
-AttributeId::Executable;             // 21
-AttributeId::UserExecutable;         // 22
-```
-
-## EndpointDescription
-
-Server endpoint info (from `getEndpoints()`):
-
-```php
-$ep->getEndpointUrl();           // string
-$ep->getServerCertificate();     // ?string (DER)
-$ep->getSecurityMode();          // int (1=None, 2=Sign, 3=SignAndEncrypt)
-$ep->getSecurityPolicyUri();     // string
-$ep->getUserIdentityTokens();    // UserTokenPolicy[]
-$ep->getTransportProfileUri();   // string
-$ep->getSecurityLevel();         // int
-```
-
-## UserTokenPolicy
-
-Auth method supported by an endpoint:
-
-```php
-$policy->getPolicyId();          // ?string
-$policy->getTokenType();         // int (0=Anonymous, 1=Username, 2=Certificate)
-$policy->getIssuedTokenType();   // ?string
-$policy->getIssuerEndpointUrl(); // ?string
-$policy->getSecurityPolicyUri(); // ?string
-```
-
-## ConnectionState (Enum)
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-
-ConnectionState::Disconnected;  // never connected or cleanly disconnected
-ConnectionState::Connected;     // up and running
-ConnectionState::Broken;        // connection was lost
-```
-
-Used by `Client::getConnectionState()` and `Client::isConnected()`. See [Connection & Configuration](02-connection.md#connection-state).
-
-## ReferenceDescription
-
-A reference between nodes (from `browse()`):
-
-```php
-$ref->getReferenceTypeId();  // NodeId
-$ref->isForward();           // bool
-$ref->getNodeId();           // NodeId
-$ref->getBrowseName();       // QualifiedName
-$ref->getDisplayName();      // LocalizedText
-$ref->getNodeClass();        // NodeClass enum
-$ref->getTypeDefinition();   // ?NodeId
-```
-
-## BrowseNode
-
-Tree node from `browseRecursive()`. Wraps a `ReferenceDescription` with children:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
-
-$node->getReference();    // ReferenceDescription
-$node->getNodeId();       // NodeId
-$node->getDisplayName();  // LocalizedText
-$node->getBrowseName();   // QualifiedName
-$node->getNodeClass();    // NodeClass enum
-$node->getChildren();     // BrowseNode[]
-$node->hasChildren();     // bool
-$node->addChild($child);  // void
-```
-
-See [Browsing](03-browsing.md#recursive-browse) for examples.

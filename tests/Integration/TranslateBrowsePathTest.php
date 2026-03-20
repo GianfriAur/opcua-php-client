@@ -25,9 +25,9 @@ describe('translateBrowsePaths', function () {
             ]);
 
             expect($results)->toHaveCount(1);
-            expect(StatusCode::isGood($results[0]['statusCode']))->toBeTrue();
-            expect($results[0]['targets'])->not->toBeEmpty();
-            expect($results[0]['targets'][0]['targetId']->getIdentifier())->toBe(2253);
+            expect(StatusCode::isGood($results[0]->statusCode))->toBeTrue();
+            expect($results[0]->targets)->not->toBeEmpty();
+            expect($results[0]->targets[0]->targetId->getIdentifier())->toBe(2253);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -49,8 +49,8 @@ describe('translateBrowsePaths', function () {
             ]);
 
             expect($results)->toHaveCount(1);
-            expect(StatusCode::isGood($results[0]['statusCode']))->toBeTrue();
-            expect($results[0]['targets'])->not->toBeEmpty();
+            expect(StatusCode::isGood($results[0]->statusCode))->toBeTrue();
+            expect($results[0]->targets)->not->toBeEmpty();
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -77,8 +77,8 @@ describe('translateBrowsePaths', function () {
             ]);
 
             expect($results)->toHaveCount(2);
-            expect(StatusCode::isGood($results[0]['statusCode']))->toBeTrue();
-            expect(StatusCode::isGood($results[1]['statusCode']))->toBeTrue();
+            expect(StatusCode::isGood($results[0]->statusCode))->toBeTrue();
+            expect(StatusCode::isGood($results[1]->statusCode))->toBeTrue();
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -99,7 +99,7 @@ describe('translateBrowsePaths', function () {
             ]);
 
             expect($results)->toHaveCount(1);
-            expect(StatusCode::isBad($results[0]['statusCode']))->toBeTrue();
+            expect(StatusCode::isBad($results[0]->statusCode))->toBeTrue();
         } finally {
             TestHelper::safeDisconnect($client);
         }

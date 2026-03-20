@@ -7,14 +7,20 @@ namespace Gianfriaur\OpcuaPhpClient;
 use DateTimeImmutable;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
+use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
+use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
+use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 interface OpcUaClientInterface
@@ -105,7 +111,7 @@ interface OpcUaClientInterface
      * @param ?NodeId $referenceTypeId
      * @param bool $includeSubtypes
      * @param int $nodeClassMask
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
     public function browseWithContinuation(
         NodeId          $nodeId,
@@ -113,13 +119,13 @@ interface OpcUaClientInterface
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
         int             $nodeClassMask = 0,
-    ): array;
+    ): BrowseResultSet;
 
     /**
      * @param string $continuationPoint
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
-    public function browseNext(string $continuationPoint): array;
+    public function browseNext(string $continuationPoint): BrowseResultSet;
 
     /**
      * @param NodeId $nodeId
@@ -168,7 +174,7 @@ interface OpcUaClientInterface
 
     /**
      * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
-     * @return array<array{statusCode: int, targets: array<array{targetId: NodeId, remainingPathIndex: int}>}>
+     * @return BrowsePathResult[]
      */
     public function translateBrowsePaths(array $browsePaths): array;
 
@@ -208,9 +214,9 @@ interface OpcUaClientInterface
      * @param NodeId $objectId
      * @param NodeId $methodId
      * @param Variant[] $inputArguments
-     * @return array{statusCode: int, inputArgumentResults: int[], outputArguments: Variant[]}
+     * @return CallResult
      */
-    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): array;
+    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): CallResult;
 
     /**
      * @param float $publishingInterval
@@ -219,7 +225,7 @@ interface OpcUaClientInterface
      * @param int $maxNotificationsPerPublish
      * @param bool $publishingEnabled
      * @param int $priority
-     * @return array{subscriptionId: int, revisedPublishingInterval: float, revisedLifetimeCount: int, revisedMaxKeepAliveCount: int}
+     * @return SubscriptionResult
      */
     public function createSubscription(
         float $publishingInterval = 500.0,
@@ -228,12 +234,12 @@ interface OpcUaClientInterface
         int   $maxNotificationsPerPublish = 0,
         bool  $publishingEnabled = true,
         int   $priority = 0,
-    ): array;
+    ): SubscriptionResult;
 
     /**
      * @param int $subscriptionId
      * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items
-     * @return array<array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}>
+     * @return MonitoredItemResult[]
      */
     public function createMonitoredItems(
         int   $subscriptionId,
@@ -245,14 +251,14 @@ interface OpcUaClientInterface
      * @param NodeId $nodeId
      * @param string[] $selectFields
      * @param int $clientHandle
-     * @return array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}
+     * @return MonitoredItemResult
      */
     public function createEventMonitoredItem(
         int    $subscriptionId,
         NodeId $nodeId,
         array  $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
         int    $clientHandle = 1,
-    ): array;
+    ): MonitoredItemResult;
 
     /**
      * @param int $subscriptionId
@@ -268,9 +274,9 @@ interface OpcUaClientInterface
 
     /**
      * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements
-     * @return array{subscriptionId: int, sequenceNumber: int, moreNotifications: bool, notifications: array, availableSequenceNumbers: int[]}
+     * @return PublishResult
      */
-    public function publish(array $acknowledgements = []): array;
+    public function publish(array $acknowledgements = []): PublishResult;
 
     /**
      * @param NodeId $nodeId

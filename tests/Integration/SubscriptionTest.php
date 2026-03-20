@@ -13,11 +13,11 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(500.0);
-            expect($sub['subscriptionId'])->toBeInt()->toBeGreaterThan(0);
-            expect($sub['revisedPublishingInterval'])->toBeFloat()->toBeGreaterThan(0.0);
+            expect($sub->subscriptionId)->toBeInt()->toBeGreaterThan(0);
+            expect($sub->revisedPublishingInterval)->toBeFloat()->toBeGreaterThan(0.0);
 
             // Cleanup
-            $status = $client->deleteSubscription($sub['subscriptionId']);
+            $status = $client->deleteSubscription($sub->subscriptionId);
             expect(StatusCode::isGood($status))->toBeTrue();
         } finally {
             TestHelper::safeDisconnect($client);
@@ -30,7 +30,7 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(500.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $counterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Dynamic', 'Counter']);
             $results = $client->createMonitoredItems($subId, [
@@ -38,11 +38,11 @@ describe('Subscription', function () {
             ]);
 
             expect($results)->toHaveCount(1);
-            expect(StatusCode::isGood($results[0]['statusCode']))->toBeTrue();
-            expect($results[0]['monitoredItemId'])->toBeInt()->toBeGreaterThan(0);
+            expect(StatusCode::isGood($results[0]->statusCode))->toBeTrue();
+            expect($results[0]->monitoredItemId)->toBeInt()->toBeGreaterThan(0);
 
             // Cleanup
-            $client->deleteMonitoredItems($subId, [$results[0]['monitoredItemId']]);
+            $client->deleteMonitoredItems($subId, [$results[0]->monitoredItemId]);
             $client->deleteSubscription($subId);
         } finally {
             TestHelper::safeDisconnect($client);
@@ -55,13 +55,13 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(250.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $counterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Dynamic', 'Counter']);
             $monResults = $client->createMonitoredItems($subId, [
                 ['nodeId' => $counterNodeId, 'clientHandle' => 1],
             ]);
-            $monId = $monResults[0]['monitoredItemId'];
+            $monId = $monResults[0]->monitoredItemId;
 
             // Wait a bit for data to accumulate, then publish
             usleep(600_000);
@@ -69,7 +69,7 @@ describe('Subscription', function () {
             $receivedNotification = false;
             for ($i = 0; $i < 5; $i++) {
                 $pub = $client->publish();
-                if (!empty($pub['notifications'])) {
+                if (!empty($pub->notifications)) {
                     $receivedNotification = true;
                     break;
                 }
@@ -92,13 +92,13 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(500.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $counterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Dynamic', 'Counter']);
             $monResults = $client->createMonitoredItems($subId, [
                 ['nodeId' => $counterNodeId, 'clientHandle' => 1],
             ]);
-            $monId = $monResults[0]['monitoredItemId'];
+            $monId = $monResults[0]->monitoredItemId;
 
             $deleteResults = $client->deleteMonitoredItems($subId, [$monId]);
             expect($deleteResults)->toHaveCount(1);
@@ -116,7 +116,7 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(500.0);
-            $status = $client->deleteSubscription($sub['subscriptionId']);
+            $status = $client->deleteSubscription($sub->subscriptionId);
             expect(StatusCode::isGood($status))->toBeTrue();
         } finally {
             TestHelper::safeDisconnect($client);
@@ -129,7 +129,7 @@ describe('Subscription', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(500.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $counterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Dynamic', 'Counter']);
             $randomNodeId = TestHelper::browseToNode($client, ['TestServer', 'Dynamic', 'Random']);
@@ -143,12 +143,12 @@ describe('Subscription', function () {
 
             expect($monResults)->toHaveCount(3);
             foreach ($monResults as $result) {
-                expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-                expect($result['monitoredItemId'])->toBeInt()->toBeGreaterThan(0);
+                expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+                expect($result->monitoredItemId)->toBeInt()->toBeGreaterThan(0);
             }
 
             // Cleanup
-            $monIds = array_map(fn($r) => $r['monitoredItemId'], $monResults);
+            $monIds = array_map(fn($r) => $r->monitoredItemId, $monResults);
             $client->deleteMonitoredItems($subId, $monIds);
             $client->deleteSubscription($subId);
         } finally {

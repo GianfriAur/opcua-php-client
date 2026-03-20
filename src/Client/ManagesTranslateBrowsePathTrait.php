@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
@@ -14,7 +15,7 @@ trait ManagesTranslateBrowsePathTrait
 {
     /**
      * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
-     * @return array<array{statusCode: int, targets: array<array{targetId: NodeId, remainingPathIndex: int}>}>
+     * @return BrowsePathResult[]
      */
     public function translateBrowsePaths(array $browsePaths): array
     {
@@ -66,18 +67,18 @@ trait ManagesTranslateBrowsePathTrait
 
         $result = $results[0];
 
-        if (StatusCode::isBad($result['statusCode'])) {
+        if (StatusCode::isBad($result->statusCode)) {
             throw new ServiceException(
-                sprintf("Failed to resolve path '/%s': %s", $path, StatusCode::getName($result['statusCode'])),
-                $result['statusCode'],
+                sprintf("Failed to resolve path '/%s': %s", $path, StatusCode::getName($result->statusCode)),
+                $result->statusCode,
             );
         }
 
-        if (empty($result['targets'])) {
+        if (empty($result->targets)) {
             throw new ServiceException("No targets found for path: /{$path}", StatusCode::BadNoData);
         }
 
-        return $result['targets'][0]['targetId'];
+        return $result->targets[0]->targetId;
     }
 
     private static function parseQualifiedName(string $segment): QualifiedName

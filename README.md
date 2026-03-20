@@ -14,90 +14,129 @@
 
 ---
 
-A PHP library that talks OPC UA binary protocol over TCP. It handles the full stack — transport, encoding, secure channels, sessions, crypto — so you can connect to any OPC UA server straight from PHP, without shelling out to C/C++ libraries.
+Connect your PHP application directly to industrial PLCs, SCADA systems, sensors, historians, and IoT devices using the [OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) standard — without any C/C++ extensions, HTTP gateways, or middleware in between.
 
-OPC UA is the industry standard for accessing data from PLCs, SCADA systems, sensors, historians, and IoT devices. This library lets you read/write variables, browse the address space, call methods, subscribe to data changes and events, and query historical data.
+This library implements the full OPC UA binary protocol stack in pure PHP: TCP transport, binary encoding/decoding, secure channel establishment with asymmetric and symmetric encryption, session management, and all the major OPC UA services. Just `composer require` and you're talking to PLCs from your Laravel app, your Symfony worker, or a plain PHP script.
 
-> **Note:** OPC UA relies on persistent sessions and long-lived connections, while PHP is inherently short-lived (request/response). For use cases like subscription polling or continuous monitoring, pair this with [`gianfriaur/opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager) to persist sessions across PHP requests.
+**What you can do with it:**
 
-## Why this library?
+- **Read and write** process variables from any OPC UA-compliant device — temperatures, pressures, motor speeds, setpoints, counters, anything the server exposes
+- **Browse** the entire address space to discover what's available, build tree views, or auto-map variables
+- **Subscribe** to data changes and events in real time — get notified when a sensor value changes or an alarm fires
+- **Call methods** on the server — trigger operations, run diagnostics, execute commands on the PLC
+- **Query historical data** — pull raw logs, aggregated trends (min, max, average), or interpolated values at specific timestamps
+- **Secure everything** — 6 security policies from plaintext to AES-256 with RSA-PSS signatures, plus anonymous, username/password, or X.509 certificate authentication
 
-- **Zero dependencies** — only `ext-openssl`, nothing from Composer in production. No phpseclib, no symfony/cache, no monolog.
-- **PHP 8.2+** — runs on any modern PHP, no need for bleeding-edge 8.4.
-- **Native binary protocol** — speaks OPC UA directly over TCP. No HTTP gateway, no REST bridge, no sidecar in another language.
-- **Full security stack** — 6 security policies up to Aes256Sha256RsaPss, 3 authentication modes, auto-generated certificates for quick testing.
-- **Batteries included** — browse, read, write, method call, subscriptions, events, history read, path resolution, auto-batching, auto-retry. Everything in one package.
-- **Cross-platform** — works on Linux, macOS, and Windows. No FFI, no COM, no platform-specific extensions.
-- **Thoroughly tested** — 750+ tests with 99%+ code coverage. Unit tests cover encoding, crypto, protocol logic and error paths. Integration tests run against real OPC UA servers across PHP 8.2, 8.3, 8.4, and 8.5.
-- **Laravel-ready** — drop-in integration via [`opcua-laravel-client`](https://github.com/GianfriAur/opcua-laravel-client) with service provider, facade, and config.
+All of this with zero external dependencies beyond `ext-openssl`, and full support for PHP 8.2 through 8.5.
 
-If your stack is PHP and you need to talk to PLCs, SCADA, or any OPC UA server, this is the shortest path from `composer require` to reading your first variable.
+> **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager) to persist sessions across requests — or use it in a long-running worker process.
 
-## Requirements
-
-- PHP >= 8.2
-- `ext-openssl`
-
-## Installation
+## Quick Start
 
 ```bash
 composer require gianfriaur/opcua-php-client
 ```
 
-## Quick Start
-
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-// Read a value
-$dataValue = $client->read(NodeId::numeric(0, 2259));
-echo $dataValue->getValue();
-
-// Browse the Objects folder
-$refs = $client->browse(NodeId::numeric(0, 85));
-foreach ($refs as $ref) {
-    echo $ref->getDisplayName() . "\n";
-}
-
-// Write a value
-$client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
+// Read server status
+$status = $client->read(NodeId::numeric(0, 2259));
+echo $status->getValue(); // 0 = Running
 
 $client->disconnect();
 ```
 
-## Features
+That's it. Three lines to connect, read, and disconnect. No config files, no service containers, no XML.
 
-| Feature | What it does |
-|---|---|
-| **Browse** | Navigate the address space with recursive browsing, automatic continuation, and tree building |
-| **Path Resolution** | Resolve readable paths like `/Objects/MyPLC/Temperature` to NodeIds |
-| **Read / Write** | Single and multi operations with all OPC UA data types |
-| **Method Call** | Invoke OPC UA methods with typed arguments and outputs |
-| **Subscriptions** | Data change and event monitoring with publish/acknowledge |
-| **History Read** | Raw, processed (aggregated), and at-time historical queries |
-| **Endpoint Discovery** | Discover available server endpoints and security policies |
-| **Security** | Full security stack — 6 policies from None through Aes256Sha256RsaPss |
-| **Authentication** | Anonymous, Username/Password, X.509 Certificate |
-| **Configurable Timeout** | Custom timeout for connection and I/O operations |
-| **Connection State** | Lifecycle tracking (Disconnected, Connected, Broken) with `reconnect()` |
-| **Auto-Retry** | Automatic reconnect and retry on connection failures (configurable) |
-| **Auto-Batching** | Transparent batching for `readMulti`/`writeMulti` with automatic server limits discovery |
-| **ExtensionObject Codecs** | Pluggable codec system for decoding custom OPC UA structures |
+## See It in Action
 
-## Secure Connection
+### Browse the address space
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+$refs = $client->browse(NodeId::numeric(0, 85)); // Objects folder
+
+foreach ($refs as $ref) {
+    echo "{$ref->displayName} ({$ref->nodeId})\n";
+    //=> Server (ns=0;i=2253)
+    //=> MyPLC (ns=2;i=1000)
+}
+```
+
+### Resolve a path and read a value
+
+```php
+$nodeId = $client->resolveNodeId('/Objects/MyPLC/Temperature');
+$value = $client->read($nodeId);
+
+echo $value->getValue();        // 23.5
+echo $value->statusCode;        // 0 (Good)
+echo $value->sourceTimestamp;    // DateTimeImmutable
+```
+
+### Write to a PLC
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+
+$client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
+```
+
+### Call a method on the server
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\Variant;
+
+$result = $client->call(
+    NodeId::numeric(0, 2253),   // Server object
+    NodeId::numeric(0, 11492),  // GetMonitoredItems
+    [new Variant(BuiltinType::UInt32, 1)],
+);
+
+echo $result->statusCode;                   // 0
+echo $result->outputArguments[0]->value;    // [1001, 1002, ...]
+```
+
+### Subscribe to data changes
+
+```php
+$sub = $client->createSubscription(publishingInterval: 500.0);
+
+$client->createMonitoredItems($sub->subscriptionId, [
+    ['nodeId' => NodeId::numeric(2, 1001)],
+]);
+
+$response = $client->publish();
+foreach ($response->notifications as $notif) {
+    echo $notif['dataValue']->getValue() . "\n";
+}
+```
+
+### Read historical data
+
+```php
+$values = $client->historyReadRaw(
+    NodeId::numeric(2, 1001),
+    startTime: new DateTimeImmutable('-1 hour'),
+    endTime: new DateTimeImmutable(),
+);
+
+foreach ($values as $dv) {
+    echo "[{$dv->sourceTimestamp->format('H:i:s')}] {$dv->getValue()}\n";
+}
+```
+
+### Connect with full security
+
+```php
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
 $client = new Client();
-$client->setTimeout(10.0);
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 $client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
@@ -105,47 +144,95 @@ $client->setUserCredentials('operator', 'secret');
 $client->connect('opc.tcp://192.168.1.100:4840');
 ```
 
-If you don't provide a client certificate, one gets auto-generated in memory (self-signed, RSA 2048) — handy for quick tests or servers with auto-accept.
+> **Tip:** Skip `setClientCertificate()` and a self-signed cert gets auto-generated in memory — perfect for quick tests or servers with auto-accept.
+
+### Decode custom structures with codecs
+
+```php
+use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+
+$repo = new ExtensionObjectRepository();
+$repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
+
+$client = new Client(extensionObjectRepository: $repo);
+$client->connect('opc.tcp://localhost:4840');
+
+$point = $client->read($pointNodeId)->getValue();
+// ['x' => 1.5, 'y' => 2.5, 'z' => 3.5]
+```
+
+Each client gets its own isolated codec registry — no global state, no cross-contamination.
+
+## Why This Library?
+
+- **Zero dependencies** — only `ext-openssl`. No phpseclib, no symfony/cache, no monolog.
+- **PHP 8.2+** — runs on any modern PHP.
+- **Native binary protocol** — speaks OPC UA directly over TCP. No HTTP gateway, no REST bridge, no sidecar.
+- **Full security stack** — 6 policies up to Aes256Sha256RsaPss, 3 auth modes, auto-generated certs.
+- **Batteries included** — browse, read, write, call, subscriptions, events, history, path resolution, batching, retry.
+- **Cross-platform** — Linux, macOS, Windows. No FFI, no COM.
+- **Thoroughly tested** — 750+ tests, 99%+ code coverage across PHP 8.2, 8.3, 8.4, and 8.5.
+- **Typed everywhere** — all service responses return `public readonly` DTOs, not arrays.
+- **Laravel-ready** — drop-in via [`opcua-laravel-client`](https://github.com/GianfriAur/opcua-laravel-client).
+
+## Features
+
+| Feature | What it does |
+|---|---|
+| **Browse** | Navigate the address space — recursive, automatic continuation, tree building |
+| **Path Resolution** | Resolve `/Objects/MyPLC/Temperature` to a NodeId in one call |
+| **Read / Write** | Single and multi operations, all OPC UA data types |
+| **Method Call** | Invoke server methods with typed arguments and results |
+| **Subscriptions** | Data change and event monitoring with publish/acknowledge |
+| **History Read** | Raw, processed (aggregated), and at-time historical queries |
+| **Endpoint Discovery** | Discover available endpoints and security policies |
+| **Security** | 6 policies from None through Aes256Sha256RsaPss |
+| **Authentication** | Anonymous, Username/Password, X.509 Certificate |
+| **Auto-Retry** | Automatic reconnect on connection failures |
+| **Auto-Batching** | Transparent batching for `readMulti`/`writeMulti` |
+| **ExtensionObject Codecs** | Pluggable per-client codec system for custom structures |
 
 ## Documentation
-
-Full docs live in the [`doc/`](doc/) directory:
 
 | # | Document | Covers |
 |---|----------|--------|
 | 01 | [Introduction](doc/01-introduction.md) | Overview, requirements, architecture, quick start |
-| 02 | [Connection & Configuration](doc/02-connection.md) | Connecting, security setup, authentication |
-| 03 | [Browsing](doc/03-browsing.md) | Address space navigation, continuation, common NodeIds |
-| 04 | [Reading & Writing](doc/04-reading-writing.md) | Read/write, multi ops, data types, status codes |
+| 02 | [Connection & Configuration](doc/02-connection.md) | Connecting, security, authentication, timeout, retry |
+| 03 | [Browsing](doc/03-browsing.md) | Address space navigation, recursive browse, path resolution |
+| 04 | [Reading & Writing](doc/04-reading-writing.md) | Read/write, multi ops, batching, data types |
 | 05 | [Method Call](doc/05-method-call.md) | Invoking methods, arguments, results |
 | 06 | [Subscriptions](doc/06-subscriptions.md) | Subscriptions, monitored items, events, publish loop |
 | 07 | [History Read](doc/07-history-read.md) | Raw, processed, and at-time historical queries |
-| 08 | [Types Reference](doc/08-types.md) | All types, enums, and constants |
+| 08 | [Types Reference](doc/08-types.md) | All types, enums, DTOs, and constants |
 | 09 | [Error Handling](doc/09-error-handling.md) | Exception hierarchy, error patterns |
 | 10 | [Security](doc/10-security.md) | Security policies, certificates, crypto internals |
-| 11 | [Architecture](doc/11-architecture.md) | Project structure, layers, protocol flow, binary encoding |
+| 11 | [Architecture](doc/11-architecture.md) | Project structure, layers, protocol flow |
 | 12 | [ExtensionObject Codecs](doc/12-extension-object-codecs.md) | Custom type decoding, codec interface, repository API |
 
 ## Testing
 
-The library has 750+ tests with **99%+ code coverage**, split across unit and integration tests. Unit tests cover binary encoding, crypto operations, protocol services, error paths, and edge cases without needing a server. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite), a Docker-based OPC UA environment with multiple security configurations, custom types, and a broad address space — covering real connections, all security policies, authentication modes, and every OPC UA service.
+750+ tests with **99%+ code coverage**. Unit tests cover encoding, crypto, protocol services, and error paths. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) — a Docker-based OPC UA environment with multiple security configs, custom types, and real-world scenarios.
 
 ```bash
-# Everything
-./vendor/bin/pest
-
-# Unit tests only
-./vendor/bin/pest tests/Unit/
-
-# Integration tests only
-./vendor/bin/pest tests/Integration/ --group=integration
+./vendor/bin/pest                                          # everything
+./vendor/bin/pest tests/Unit/                              # unit only
+./vendor/bin/pest tests/Integration/ --group=integration   # integration only
 ```
 
 CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 
-## Ecosystem
+## Alternatives & Comparison
 
-This library is part of a broader OPC UA ecosystem for PHP:
+### PHP
+
+| Library | PHP | Dependencies | Security Policies | History Read | Auto-Batching | Notes |
+|---------|-----|-------------|-------------------|-------------|---------------|-------|
+| **gianfriaur/opcua-php-client** | 8.2+ | `ext-openssl` only | 6 (None → Aes256Sha256RsaPss) | Yes | Yes | Zero external deps, full binary protocol |
+| [techdock/opcua](https://github.com/TECHDOCK-CH/php-opc-ua) | 8.4+ | phpseclib, symfony/cache, monolog, ... | Basic256Sha256 | No | Yes | Heavier dependency tree, still v0.2 |
+| [techdock/opcua-webapi-client](https://packagist.org/packages/techdock/opcua-webapi-client) | 8.1+ | Guzzle | N/A (HTTP) | No | No | Needs an OPC UA WebAPI gateway, not binary protocol |
+| [QuickOPC](https://opclabs.com/products/quickopc) | COM | Windows + COM | Yes | Yes | N/A | Commercial, Windows-only, not a real PHP package |
+
+## Ecosystem
 
 | Package | Description |
 |---------|-------------|
@@ -156,15 +243,15 @@ This library is part of a broader OPC UA ecosystem for PHP:
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for planned features and what's coming next.
+See [ROADMAP.md](ROADMAP.md) for what's coming next.
 
 ## Contributing
 
-Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started.
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

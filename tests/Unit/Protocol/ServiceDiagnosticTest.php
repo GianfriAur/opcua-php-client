@@ -131,10 +131,10 @@ describe('CallService with diagnostic info', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCallResponse($decoder);
-        expect($result['statusCode'])->toBe(0);
-        expect($result['inputArgumentResults'])->toBe([0, 0x80010000]);
-        expect($result['outputArguments'])->toHaveCount(1);
-        expect($result['outputArguments'][0]->getValue())->toBe('result');
+        expect($result->statusCode)->toBe(0);
+        expect($result->inputArgumentResults)->toBe([0, 0x80010000]);
+        expect($result->outputArguments)->toHaveCount(1);
+        expect($result->outputArguments[0]->getValue())->toBe('result');
     });
 
     it('decodes CallResponse with no results', function () {
@@ -153,9 +153,9 @@ describe('CallService with diagnostic info', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCallResponse($decoder);
-        expect($result['statusCode'])->toBe(0);
-        expect($result['inputArgumentResults'])->toBe([]);
-        expect($result['outputArguments'])->toBe([]);
+        expect($result->statusCode)->toBe(0);
+        expect($result->inputArgumentResults)->toBe([]);
+        expect($result->outputArguments)->toBe([]);
     });
 });
 
@@ -259,9 +259,9 @@ describe('BrowseService encoding and decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeBrowseNextResponse($decoder);
-        expect($result['references'])->toHaveCount(1);
-        expect($result['references'][0]->getBrowseName()->getName())->toBe('Var1');
-        expect($result['continuationPoint'])->toBeNull();
+        expect($result->references)->toHaveCount(1);
+        expect($result->references[0]->getBrowseName()->getName())->toBe('Var1');
+        expect($result->continuationPoint)->toBeNull();
     });
 
     it('decodes BrowseResponse with diagnosticInfos', function () {
@@ -287,7 +287,7 @@ describe('BrowseService encoding and decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeBrowseResponseWithContinuation($decoder);
-        expect($result['references'])->toBe([]);
+        expect($result->references)->toBe([]);
     });
 
     it('encodes BrowseRequest with custom reference type', function () {

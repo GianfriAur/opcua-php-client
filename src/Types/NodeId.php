@@ -19,9 +19,9 @@ class NodeId
      * @param string $type
      */
     public function __construct(
-        private readonly int        $namespaceIndex,
-        private readonly int|string $identifier,
-        private readonly string     $type = self::TYPE_NUMERIC,
+        public readonly int        $namespaceIndex,
+        public readonly int|string $identifier,
+        public readonly string     $type = self::TYPE_NUMERIC,
     )
     {
     }
@@ -62,16 +62,19 @@ class NodeId
         return new self($namespaceIndex, $hexIdentifier, self::TYPE_OPAQUE);
     }
 
+    /** @deprecated Access the public property directly instead. Use ->namespaceIndex instead. */
     public function getNamespaceIndex(): int
     {
         return $this->namespaceIndex;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->identifier instead. */
     public function getIdentifier(): int|string
     {
         return $this->identifier;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->type instead. */
     public function getType(): string
     {
         return $this->type;

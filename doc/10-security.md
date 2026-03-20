@@ -1,39 +1,31 @@
 # Security
 
-## What's covered
-
-The library handles the full OPC UA security stack:
-
-- Asymmetric encryption (RSA) for the initial secure channel
-- Symmetric encryption (AES-CBC) for message-level security
-- Digital signatures (RSA-SHA1, RSA-SHA256, RSA-PSS-SHA256)
-- Key derivation (P_SHA1, P_SHA256)
-- X.509 certificate management
-
 ## Security Policies
 
-Each policy defines the algorithms for encryption and signing:
+Each policy defines the algorithms used for encryption and signing:
 
 | Policy | Asymmetric Sign | Asymmetric Encrypt | Symmetric Sign | Symmetric Encrypt | Min Key |
 |--------|----------------|-------------------|---------------|-------------------|---------|
-| None | - | - | - | - | - |
+| None | -- | -- | -- | -- | -- |
 | Basic128Rsa15 | RSA-SHA1 | RSA-PKCS1-v1_5 | HMAC-SHA1 | AES-128-CBC | 1024 bit |
 | Basic256 | RSA-SHA1 | RSA-OAEP | HMAC-SHA1 | AES-256-CBC | 1024 bit |
 | Basic256Sha256 | RSA-SHA256 | RSA-OAEP | HMAC-SHA256 | AES-256-CBC | 2048 bit |
 | Aes128Sha256RsaOaep | RSA-SHA256 | RSA-OAEP | HMAC-SHA256 | AES-128-CBC | 2048 bit |
 | Aes256Sha256RsaPss | RSA-PSS-SHA256 | RSA-OAEP-SHA256 | HMAC-SHA256 | AES-256-CBC | 2048 bit |
 
+> **Tip:** For new deployments, use `Basic256Sha256` or `Aes256Sha256RsaPss`. The older policies (`Basic128Rsa15`, `Basic256`) exist for legacy server compatibility.
+
 ## Certificate Setup
 
 ### Generating Test Certificates
 
 ```bash
-# CA key and certificate
+# 1. Create a CA
 openssl genpkey -algorithm RSA -out ca.key -pkeyopt rsa_keygen_bits:2048
 openssl req -x509 -new -key ca.key -days 365 -out ca.pem \
   -subj "/CN=Test CA"
 
-# Client key and certificate
+# 2. Create a client certificate signed by the CA
 openssl genpkey -algorithm RSA -out client.key -pkeyopt rsa_keygen_bits:2048
 openssl req -new -key client.key -out client.csr \
   -subj "/CN=OPC UA Client" \
@@ -42,11 +34,13 @@ openssl x509 -req -in client.csr -CA ca.pem -CAkey ca.key \
   -CAcreateserial -days 365 -out client.pem \
   -copy_extensions copy
 
-# DER format if you need it
+# 3. (Optional) Convert to DER format
 openssl x509 -in client.pem -outform der -out client.der
 ```
 
-### Client Configuration
+> **Note:** The `subjectAltName` URI is required by OPC UA. It must match the application URI your server expects.
+
+## Client Configuration
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
@@ -58,44 +52,45 @@ $client = new Client();
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 
-// PEM or DER, auto-detected
 $client->setClientCertificate(
-    '/path/to/client.pem',
+    '/path/to/client.pem',   // PEM or DER, auto-detected
     '/path/to/client.key',
-    '/path/to/ca.pem'       // optional: appended to the certificate chain
+    '/path/to/ca.pem'        // optional: appended to the certificate chain
 );
 
 $client->connect('opc.tcp://server:4840');
 ```
 
-If you don't provide a certificate, one gets auto-generated in memory (RSA 2048, self-signed, with proper OPC UA extensions). Good for testing or servers with auto-accept.
+If you skip `setClientCertificate()`, the library auto-generates a self-signed RSA 2048 certificate in memory with proper OPC UA extensions. This works for testing or servers configured with auto-accept trust.
+
+> **Warning:** Auto-generated certificates are ephemeral. Every new `Client` instance gets a different certificate. For production, always provide your own.
 
 ## CertificateManager API
 
-Utilities for working with certificates:
+Utilities for loading and inspecting X.509 certificates:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
 
 $cm = new CertificateManager();
 
-// Load certificates (PEM and DER both work)
+// Load certificates -- PEM and DER both work
 $derBytes = $cm->loadCertificatePem('/path/to/cert.pem');
 $derBytes = $cm->loadCertificateDer('/path/to/cert.der');
 
-// Load private key
+// Load a private key
 $privateKey = $cm->loadPrivateKeyPem('/path/to/key.pem');
 
-// Operations
-$thumbprint = $cm->getThumbprint($derBytes);          // SHA1 hash (binary)
-$keyLength = $cm->getPublicKeyLength($derBytes);       // bytes (e.g., 256 for 2048-bit)
-$publicKey = $cm->getPublicKeyFromCert($derBytes);     // OpenSSLAsymmetricKey
-$appUri = $cm->getApplicationUri($derBytes);           // from SAN extension
+// Inspect
+$thumbprint = $cm->getThumbprint($derBytes);         // SHA1 hash (binary)
+$keyLength  = $cm->getPublicKeyLength($derBytes);     // bytes (256 = 2048-bit key)
+$publicKey  = $cm->getPublicKeyFromCert($derBytes);   // OpenSSLAsymmetricKey
+$appUri     = $cm->getApplicationUri($derBytes);      // from SAN extension
 ```
 
 ## MessageSecurity API
 
-Low-level crypto operations:
+Low-level cryptographic operations. You rarely need these directly -- the `SecureChannel` handles them -- but they are available:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
@@ -104,13 +99,13 @@ $ms = new MessageSecurity();
 
 // Asymmetric (RSA)
 $signature = $ms->asymmetricSign($data, $privateKey, $policy);
-$valid = $ms->asymmetricVerify($data, $signature, $derCert, $policy);
+$valid     = $ms->asymmetricVerify($data, $signature, $derCert, $policy);
 $encrypted = $ms->asymmetricEncrypt($data, $derCert, $policy);
 $decrypted = $ms->asymmetricDecrypt($data, $privateKey, $policy);
 
 // Symmetric (AES + HMAC)
 $signature = $ms->symmetricSign($data, $signingKey, $policy);
-$valid = $ms->symmetricVerify($data, $signature, $signingKey, $policy);
+$valid     = $ms->symmetricVerify($data, $signature, $signingKey, $policy);
 $encrypted = $ms->symmetricEncrypt($data, $encKey, $iv, $policy);
 $decrypted = $ms->symmetricDecrypt($data, $encKey, $iv, $policy);
 
@@ -119,42 +114,32 @@ $keys = $ms->deriveKeys($secret, $seed, $policy);
 // Returns: ['signingKey' => ..., 'encryptingKey' => ..., 'iv' => ...]
 ```
 
-## How It Works Under the Hood
+## Connection Flow
 
-### Connection Flow with Security
-
-1. **Discovery** — the client connects without security, calls GetEndpoints, grabs the server's certificate
-2. **Asymmetric Phase (OpenSecureChannel):**
-   - Client sends OPN request encrypted with server's public key
-   - Both sides exchange nonces
-   - Symmetric keys are derived from the shared nonces
-3. **Symmetric Phase (Messages):**
-   - All MSG/CLO messages use the derived symmetric keys
-   - Messages signed with HMAC, encrypted with AES-CBC
-   - Padding follows OPC UA spec (PKCS#7 style)
-
-### SecureChannel Lifecycle
-
-`SecureChannel` manages:
-- Asymmetric key exchange during OpenSecureChannel
-- Symmetric key derivation from nonces
-- Message signing, encryption, and padding
-- Sequence number tracking
-- Token and channel ID management
+Here is what happens when you call `connect()` with security enabled:
 
 ```
 Client                          Server
   |                               |
-  |--- HEL ---------------------->|
+  |--- HEL ---------------------->|  TCP handshake
   |<-- ACK -----------------------|
   |                               |
-  |--- OPN (asymmetric) --------->|  (encrypted with server public key)
-  |<-- OPN response --------------|  (contains server nonce)
+  |--- OPN (asymmetric) --------->|  Encrypted with server's public key
+  |<-- OPN response --------------|  Contains server nonce
   |                               |
-  |   [derive symmetric keys]     |
+  |   [derive symmetric keys      |
+  |    from shared nonces]        |
   |                               |
-  |--- MSG (symmetric) ---------->|  (AES encrypted, HMAC signed)
+  |--- MSG (symmetric) ---------->|  AES encrypted, HMAC signed
   |<-- MSG (symmetric) ----------|
   |                               |
-  |--- CLO ---------------------->|
+  |--- CLO ---------------------->|  Close secure channel
 ```
+
+**Phase 1 -- Discovery.** The client connects without security, calls `GetEndpoints`, and retrieves the server's certificate.
+
+**Phase 2 -- Asymmetric (OpenSecureChannel).** The client sends an OPN request encrypted with the server's public key. Both sides exchange nonces. Symmetric keys are derived from the shared nonces.
+
+**Phase 3 -- Symmetric (Messages).** All `MSG` and `CLO` messages use the derived symmetric keys. Messages are signed with HMAC and encrypted with AES-CBC. Padding follows OPC UA spec (PKCS#7 style).
+
+The `SecureChannel` class manages this entire lifecycle: asymmetric key exchange, symmetric key derivation, message signing/encryption/padding, sequence number tracking, and token/channel ID management.

@@ -1,6 +1,6 @@
 # Connection & Configuration
 
-## Basic Connection
+## Connecting
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
@@ -8,23 +8,24 @@ use Gianfriaur\OpcuaPhpClient\Client;
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-// ... do stuff ...
+// ... your operations ...
 
 $client->disconnect();
 ```
 
-When you call `connect()`, behind the scenes it:
+Behind the scenes, `connect()` does the following:
+
 1. Parses the endpoint URL (host + port, default 4840)
-2. If security is configured, discovers the server certificate via GetEndpoints
+2. Discovers the server certificate via GetEndpoints (when security is configured)
 3. Opens the TCP connection
 4. Runs the OPC UA Hello/Acknowledge handshake
-5. Opens a secure channel (encrypted or not, depending on config)
+5. Opens a secure channel
 6. Creates and activates a session
-7. Reads server operation limits (`MaxNodesPerRead`, `MaxNodesPerWrite`) for auto-batching (skipped if you called `setBatchSize(0)`)
+7. Reads server operation limits for auto-batching (unless disabled with `setBatchSize(0)`)
 
 ## Timeout
 
-Default timeout is **5 seconds** for both TCP connection and socket I/O. Change it with `setTimeout()`:
+The default timeout is **5 seconds** for both TCP connection and socket I/O.
 
 ```php
 $client = new Client();
@@ -32,13 +33,13 @@ $client->setTimeout(10.0); // 10 seconds
 $client->connect('opc.tcp://localhost:4840');
 ```
 
-The timeout applies to the initial connection and all subsequent operations (handshake, secure channel, browse, read, write, etc.). If exceeded, you get a `ConnectionException` with "Read timeout".
+This applies to every operation: handshake, secure channel, browse, read, write, and so on. If exceeded, a `ConnectionException` is thrown with "Read timeout".
 
-> **Tip:** Bump the timeout for high-latency networks or slow PLCs. For fast local connections, you can lower it.
+> **Tip:** Bump the timeout for high-latency networks or slow PLCs. For fast local connections, you can safely lower it.
 
 ## Connection State
 
-The client tracks where it stands via `ConnectionState`:
+The client tracks its lifecycle through `ConnectionState`:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
@@ -56,15 +57,16 @@ $client->getConnectionState(); // ConnectionState::Disconnected
 
 | State | Meaning |
 |-------|---------|
-| `ConnectionState::Disconnected` | Never connected, or cleanly disconnected |
-| `ConnectionState::Connected` | Up and running |
-| `ConnectionState::Broken` | Connection was lost (timeout, remote close, etc.) |
+| `Disconnected` | Never connected, or cleanly disconnected |
+| `Connected` | Up and running |
+| `Broken` | Connection was lost (timeout, remote close, etc.) |
 
-The state also affects error messages when you try to do something on a non-connected client:
-- `Disconnected` → `"Not connected: call connect() first"`
-- `Broken` → `"Connection lost: call reconnect() or connect() to re-establish"`
+When you call an operation on a non-connected client, the error message reflects the state:
 
-## Reconnect
+- **Disconnected** -- `"Not connected: call connect() first"`
+- **Broken** -- `"Connection lost: call reconnect() or connect() to re-establish"`
+
+## Reconnecting
 
 If the connection drops, `reconnect()` does a full disconnect/connect cycle using the last endpoint URL:
 
@@ -73,41 +75,41 @@ $client->connect('opc.tcp://localhost:4840');
 
 // ... connection drops ...
 
-$client->reconnect(); // re-establishes to opc.tcp://localhost:4840
+$client->reconnect();
 ```
 
-`reconnect()` throws `ConfigurationException` if you never called `connect()`. After an explicit `disconnect()`, the endpoint URL is cleared — use `connect()` again instead.
+> **Note:** `reconnect()` throws `ConfigurationException` if you never called `connect()`. After an explicit `disconnect()`, the endpoint URL is cleared -- use `connect()` with a URL instead.
 
 ## Auto-Retry
 
-The client can automatically reconnect and retry when a `ConnectionException` hits during an operation:
+The client can automatically reconnect and retry when a `ConnectionException` occurs during an operation:
 
 ```php
 $client = new Client();
-$client->setAutoRetry(3); // retry up to 3 times on connection failure
+$client->setAutoRetry(3); // retry up to 3 times
 $client->connect('opc.tcp://localhost:4840');
 
-// If read() fails because the connection broke, the client will:
-// 1. Mark state as Broken
+// If this fails due to a broken connection, the client will:
+// 1. Mark the state as Broken
 // 2. Call reconnect()
 // 3. Retry the operation
-// ...up to 3 times before giving up
+// ... up to 3 times before giving up
 $value = $client->read(NodeId::numeric(0, 2259));
 ```
 
 **Defaults:**
 - **0 retries** if never connected or after `disconnect()`
-- **1 retry** once you've connected at least once (even if it failed)
+- **1 retry** once you have connected at least once
 
-To disable:
+To disable auto-retry entirely:
 
 ```php
 $client->setAutoRetry(0);
 ```
 
-> **Note:** Auto-retry only kicks in for `ConnectionException` during operations (read, write, browse, etc.). The initial `connect()` itself doesn't retry. After an explicit `disconnect()`, there's no endpoint to reconnect to, so retry is off.
+> **Note:** Auto-retry only applies to operations (read, write, browse, etc.), not to `connect()` itself. After `disconnect()`, there is no endpoint to reconnect to, so retry is off.
 
-## Security Configuration
+## Security
 
 ### Security Policy & Mode
 
@@ -120,52 +122,52 @@ $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 ```
 
-**Security Policies:**
+**Available policies:**
 
 | Policy | URI |
 |--------|-----|
-| `SecurityPolicy::None` | `http://opcfoundation.org/UA/SecurityPolicy#None` |
-| `SecurityPolicy::Basic128Rsa15` | `http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15` |
-| `SecurityPolicy::Basic256` | `http://opcfoundation.org/UA/SecurityPolicy#Basic256` |
-| `SecurityPolicy::Basic256Sha256` | `http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256` |
-| `SecurityPolicy::Aes128Sha256RsaOaep` | `http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_RsaOaep` |
-| `SecurityPolicy::Aes256Sha256RsaPss` | `http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss` |
+| `None` | `http://opcfoundation.org/UA/SecurityPolicy#None` |
+| `Basic128Rsa15` | `http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15` |
+| `Basic256` | `http://opcfoundation.org/UA/SecurityPolicy#Basic256` |
+| `Basic256Sha256` | `http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256` |
+| `Aes128Sha256RsaOaep` | `http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_RsaOaep` |
+| `Aes256Sha256RsaPss` | `http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss` |
 
-**Security Modes:**
+**Available modes:**
 
-| Mode | Value | What it does |
-|------|-------|--------------|
-| `SecurityMode::None` | 1 | No security |
-| `SecurityMode::Sign` | 2 | Messages are signed |
-| `SecurityMode::SignAndEncrypt` | 3 | Messages are signed and encrypted |
+| Mode | Value | Effect |
+|------|-------|--------|
+| `None` | 1 | No security |
+| `Sign` | 2 | Messages are signed |
+| `SignAndEncrypt` | 3 | Messages are signed and encrypted |
 
 ### Client Certificate
 
-Needed for any security policy other than `None`:
+Required for any security policy other than `None`:
 
 ```php
 $client->setClientCertificate(
     '/path/to/client-cert.pem',   // or .der
     '/path/to/client-key.pem',
-    '/path/to/ca-cert.pem'        // optional CA certificate
+    '/path/to/ca-cert.pem'        // optional
 );
 ```
 
-Both PEM and DER are supported — the library auto-detects the format.
+Both PEM and DER formats are supported -- the library auto-detects.
 
 ## Authentication
 
-### Anonymous (Default)
+### Anonymous (default)
 
-Nothing to configure — anonymous is the default.
+Nothing to configure. Anonymous authentication is used by default.
 
-### Username/Password
+### Username & Password
 
 ```php
 $client->setUserCredentials('myuser', 'mypassword');
 ```
 
-When security is active, the password gets encrypted with the server's public key before going over the wire.
+When security is active, the password is encrypted with the server's public key before transmission.
 
 ### X.509 Certificate
 
@@ -179,9 +181,13 @@ $client->setUserCertificate(
 ## Full Secure Connection Example
 
 ```php
+use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+
 $client = new Client();
 
-$client->setTimeout(10.0); // optional
+$client->setTimeout(10.0);
 
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
@@ -203,41 +209,34 @@ $client->disconnect();
 
 ## Endpoint Discovery
 
-You can discover what the server offers after connecting:
+Discover what security and authentication options the server supports:
 
 ```php
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
 $endpoints = $client->getEndpoints('opc.tcp://localhost:4840');
-foreach ($endpoints as $ep) {
-    echo "URL: " . $ep->getEndpointUrl() . "\n";
-    echo "Security: " . $ep->getSecurityPolicyUri() . "\n";
-    echo "Mode: " . $ep->getSecurityMode() . "\n";
 
-    foreach ($ep->getUserIdentityTokens() as $token) {
-        echo "  Auth: " . $token->getPolicyId()
-            . " (type=" . $token->getTokenType() . ")\n";
+foreach ($endpoints as $ep) {
+    echo "URL: " . $ep->endpointUrl . "\n";
+    echo "Security: " . $ep->securityPolicyUri . "\n";
+    echo "Mode: " . $ep->securityMode . "\n";
+
+    foreach ($ep->userIdentityTokens as $token) {
+        echo "  Auth: " . $token->policyId
+            . " (type=" . $token->tokenType . ")\n";
     }
 }
 ```
 
-**Token types:**
-- `0` = Anonymous
-- `1` = Username/Password
-- `2` = X.509 Certificate
+**Token types:** `0` = Anonymous, `1` = Username/Password, `2` = X.509 Certificate
 
-## Disconnection
+## Disconnecting
 
-Always call `disconnect()` when you're done. It:
-1. Sends CloseSession
-2. Sends CloseSecureChannel
-3. Closes the TCP socket
-4. Clears all internal state (including the last endpoint URL)
-5. Sets state to `Disconnected`
+Always call `disconnect()` when you are done. It sends CloseSession and CloseSecureChannel, closes the TCP socket, and clears all internal state.
 
 ```php
 $client->disconnect();
 ```
 
-After `disconnect()`, auto-retry is off and `reconnect()` won't work. Call `connect()` with a URL to start fresh.
+> **Warning:** After `disconnect()`, auto-retry is off and `reconnect()` will not work. Call `connect()` with a URL to start a new session.

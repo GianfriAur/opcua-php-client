@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
@@ -51,9 +52,9 @@ class CallService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array{statusCode: int, inputArgumentResults: int[], outputArguments: Variant[]}
+     * @return CallResult
      */
-    public function decodeCallResponse(BinaryDecoder $decoder): array
+    public function decodeCallResponse(BinaryDecoder $decoder): CallResult
     {
         $decoder->readUInt32();
         $decoder->readUInt32();
@@ -93,11 +94,7 @@ class CallService
             $this->skipDiagnosticInfo($decoder);
         }
 
-        return [
-            'statusCode' => $statusCode,
-            'inputArgumentResults' => $inputArgumentResults,
-            'outputArguments' => $outputArguments,
-        ];
+        return new CallResult($statusCode, $inputArgumentResults, $outputArguments);
     }
 
     /**

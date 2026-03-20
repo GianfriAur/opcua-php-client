@@ -11,17 +11,19 @@ class QualifiedName
      * @param string $name
      */
     public function __construct(
-        private readonly int    $namespaceIndex,
-        private readonly string $name,
+        public readonly int    $namespaceIndex,
+        public readonly string $name,
     )
     {
     }
 
+    /** @deprecated Access the public property directly instead. Use ->namespaceIndex instead. */
     public function getNamespaceIndex(): int
     {
         return $this->namespaceIndex;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->name instead. */
     public function getName(): string
     {
         return $this->name;

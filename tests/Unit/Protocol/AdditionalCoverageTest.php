@@ -101,9 +101,9 @@ describe('PublishService decode with diagnostics and results', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodePublishResponse($decoder);
-        expect($result['subscriptionId'])->toBe(1);
-        expect($result['notifications'])->toHaveCount(1);
-        expect($result['notifications'][0]['dataValue']->getValue())->toBe(99);
+        expect($result->subscriptionId)->toBe(1);
+        expect($result->notifications)->toHaveCount(1);
+        expect($result->notifications[0]['dataValue']->getValue())->toBe(99);
     });
 
     it('decodes a PublishResponse where body consumed less than bodyLength', function () {
@@ -145,8 +145,8 @@ describe('PublishService decode with diagnostics and results', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodePublishResponse($decoder);
-        expect($result['notifications'])->toHaveCount(1);
-        expect($result['notifications'][0]['dataValue']->getValue())->toBe(55);
+        expect($result->notifications)->toHaveCount(1);
+        expect($result->notifications[0]['dataValue']->getValue())->toBe(55);
     });
 });
 
@@ -181,7 +181,7 @@ describe('MonitoredItemService decode with diagnostics', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCreateMonitoredItemsResponse($decoder);
         expect($result)->toHaveCount(1);
-        expect($result[0]['monitoredItemId'])->toBe(50);
+        expect($result[0]->monitoredItemId)->toBe(50);
     });
 
     it('decodes DeleteMonitoredItemsResponse with diagnostics', function () {

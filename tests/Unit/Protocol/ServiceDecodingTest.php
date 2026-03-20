@@ -161,10 +161,10 @@ describe('CallService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCallResponse($decoder);
-        expect($result['statusCode'])->toBe(0);
-        expect($result['inputArgumentResults'])->toHaveCount(2);
-        expect($result['outputArguments'])->toHaveCount(1);
-        expect($result['outputArguments'][0]->getValue())->toBe(5.0);
+        expect($result->statusCode)->toBe(0);
+        expect($result->inputArgumentResults)->toHaveCount(2);
+        expect($result->outputArguments)->toHaveCount(1);
+        expect($result->outputArguments[0]->getValue())->toBe(5.0);
     });
 
     it('decodes a CallResponse with no results', function () {
@@ -180,8 +180,8 @@ describe('CallService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCallResponse($decoder);
-        expect($result['statusCode'])->toBe(0);
-        expect($result['outputArguments'])->toBe([]);
+        expect($result->statusCode)->toBe(0);
+        expect($result->outputArguments)->toBe([]);
     });
 });
 
@@ -216,9 +216,9 @@ describe('BrowseService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeBrowseResponseWithContinuation($decoder);
-        expect($result['references'])->toHaveCount(1);
-        expect($result['continuationPoint'])->toBeNull();
-        expect($result['references'][0]->getBrowseName()->getName())->toBe('Server');
+        expect($result->references)->toHaveCount(1);
+        expect($result->continuationPoint)->toBeNull();
+        expect($result->references[0]->getBrowseName()->getName())->toBe('Server');
     });
 
     it('decodes a BrowseResponse with continuation point', function () {
@@ -238,8 +238,8 @@ describe('BrowseService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeBrowseResponseWithContinuation($decoder);
-        expect($result['references'])->toBe([]);
-        expect($result['continuationPoint'])->toBe('continuation-data');
+        expect($result->references)->toBe([]);
+        expect($result->continuationPoint)->toBe('continuation-data');
     });
 
     it('decodeBrowseResponse returns flat array', function () {
@@ -278,8 +278,8 @@ describe('BrowseService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeBrowseNextResponse($decoder);
-        expect($result['references'])->toBe([]);
-        expect($result['continuationPoint'])->toBeNull();
+        expect($result->references)->toBe([]);
+        expect($result->continuationPoint)->toBeNull();
     });
 });
 
@@ -300,10 +300,10 @@ describe('SubscriptionService decoding', function () {
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCreateSubscriptionResponse($decoder);
-        expect($result['subscriptionId'])->toBe(42);
-        expect($result['revisedPublishingInterval'])->toBe(500.0);
-        expect($result['revisedLifetimeCount'])->toBe(2400);
-        expect($result['revisedMaxKeepAliveCount'])->toBe(10);
+        expect($result->subscriptionId)->toBe(42);
+        expect($result->revisedPublishingInterval)->toBe(500.0);
+        expect($result->revisedLifetimeCount)->toBe(2400);
+        expect($result->revisedMaxKeepAliveCount)->toBe(10);
     });
 
     it('decodes ModifySubscriptionResponse', function () {

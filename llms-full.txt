@@ -1,6 +1,6 @@
 # OPC UA PHP Client — Full Documentation
 
-> Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required.
+> Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required. All types use public readonly properties.
 
 Package: gianfriaur/opcua-php-client
 Repository: https://github.com/GianfriAur/opcua-php-client
@@ -13,12 +13,7 @@ Dependencies: ext-openssl (only)
 
 ## 1. Introduction
 
-`gianfriaur/opcua-php-client` is an OPC UA client written entirely in PHP. It speaks the OPC UA binary protocol over TCP, handles secure channels, sessions, and crypto — all without external C/C++ extensions. The only requirement beyond PHP itself is `ext-openssl`.
-
-### Requirements
-
-- PHP >= 8.2
-- `ext-openssl` (security and certificate handling)
+`gianfriaur/opcua-php-client` is an OPC UA client written entirely in PHP. It speaks the OPC UA binary protocol over TCP, handles secure channels, sessions, and crypto — all without external C/C++ extensions.
 
 ### Installation
 
@@ -30,27 +25,31 @@ composer require gianfriaur/opcua-php-client
 
 - Binary Protocol — full OPC UA binary encoding/decoding over TCP
 - Browse — navigate the server address space, recursive browsing with automatic continuation
-- Path Resolution — turn paths like /Objects/MyPLC/Temperature into NodeIds (TranslateBrowsePathsToNodeIds)
-- Read/Write — read and write node attributes, single and multi
-- Method Call — invoke OPC UA methods on the server
-- Subscriptions — data change and event monitoring
+- Path Resolution — resolve paths like /Objects/MyPLC/Temperature to NodeIds
+- Read/Write — single and multi operations with all OPC UA data types
+- Method Call — invoke OPC UA methods, returns CallResult DTO
+- Subscriptions — data change and event monitoring, returns typed DTOs
 - History Read — raw, processed, and at-time historical queries
-- Endpoint Discovery — discover what the server offers
-- Security — 6 security policies (None through Aes256Sha256RsaPss), 3 security modes
+- Security — 6 policies (None through Aes256Sha256RsaPss), 3 modes
 - Authentication — anonymous, username/password, X.509 certificate
-- Certificate Management — PEM/DER loading, thumbprint, public key extraction
-- Timeout — configurable timeout for connection and I/O
-- Connection State — track connection lifecycle (Disconnected, Connected, Broken) with reconnect()
-- Auto-Retry — automatic reconnect and retry on failure (default: 1 retry after first connect)
-- Auto-Batching — transparent batching for readMulti/writeMulti with server limits discovery
-- ExtensionObject Codecs — pluggable decoders for custom OPC UA structures
-- Thoroughly tested — 750+ tests, 99%+ code coverage (unit tests for encoding, crypto, protocol logic, error paths; integration tests against real OPC UA servers on PHP 8.2, 8.3, 8.4, 8.5)
+- Auto-Retry — automatic reconnect on failure
+- Auto-Batching — transparent batching for readMulti/writeMulti
+- ExtensionObject Codecs — per-client instance-level codec registry
+- Typed everywhere — all responses return public readonly DTOs, not arrays
+- 750+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
+
+### Property access style
+
+All Type classes and result DTOs use public readonly properties:
+- $ref->nodeId instead of $ref->getNodeId()
+- $dv->statusCode instead of $dv->getStatusCode()
+- $result->subscriptionId instead of $result['subscriptionId']
+Old getter methods are deprecated but still work.
 
 ### Architecture
 
 ```
-Client (main entry point)
-  |
+Client (main entry point, 13 traits)
   +-- Transport/TcpTransport        (TCP socket communication)
   +-- Protocol/*Service              (OPC UA service encoding/decoding)
   +-- Encoding/BinaryEncoder         (binary serialization)
@@ -58,7 +57,8 @@ Client (main entry point)
   +-- Security/SecureChannel         (message-level security)
   +-- Security/MessageSecurity       (crypto operations)
   +-- Security/CertificateManager    (certificate handling)
-  +-- Types/*                        (OPC UA data types)
+  +-- Types/*                        (data types and result DTOs)
+  +-- Repository/*                   (per-client codec registry)
   +-- Exception/*                    (error hierarchy)
 ```
 
@@ -67,22 +67,18 @@ Client (main entry point)
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-// Read a value
-$dataValue = $client->read(NodeId::numeric(0, 2259));
-if (StatusCode::isGood($dataValue->getStatusCode())) {
-    echo "Server status: " . $dataValue->getValue();
-}
+$dv = $client->read(NodeId::numeric(0, 2259));
+echo $dv->getValue();       // unwrapped value
+echo $dv->statusCode;       // 0 (Good)
+echo $dv->sourceTimestamp;   // DateTimeImmutable
 
-// Browse the Objects folder
-$references = $client->browse(NodeId::numeric(0, 85));
-foreach ($references as $ref) {
-    echo $ref->getDisplayName() . "\n";
+$refs = $client->browse(NodeId::numeric(0, 85));
+foreach ($refs as $ref) {
+    echo "{$ref->displayName} ({$ref->nodeId})\n";
 }
 
 $client->disconnect();
@@ -95,73 +91,32 @@ $client->disconnect();
 ### Basic Connection
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
-
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 // ... do stuff ...
 $client->disconnect();
 ```
 
-When you call connect(), behind the scenes it:
-1. Parses the endpoint URL (host + port, default 4840)
-2. If security is configured, discovers the server certificate via GetEndpoints
-3. Opens the TCP connection
-4. Runs the OPC UA Hello/Acknowledge handshake
-5. Opens a secure channel (encrypted or not, depending on config)
-6. Creates and activates a session
-7. Reads server operation limits (MaxNodesPerRead, MaxNodesPerWrite) for auto-batching
-
 ### Timeout
 
-Default timeout is 5 seconds for both TCP connection and socket I/O. Change it with setTimeout():
-
 ```php
-$client = new Client();
-$client->setTimeout(10.0); // 10 seconds
-$client->connect('opc.tcp://localhost:4840');
+$client->setTimeout(10.0); // 10 seconds (default: 5)
 ```
 
 ### Connection State
 
-The client tracks where it stands via ConnectionState:
-
+States: Disconnected, Connected, Broken
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-
-$client = new Client();
-$client->getConnectionState(); // ConnectionState::Disconnected
-
-$client->connect('opc.tcp://localhost:4840');
-$client->getConnectionState(); // ConnectionState::Connected
-$client->isConnected();        // true
-
-$client->disconnect();
-$client->getConnectionState(); // ConnectionState::Disconnected
-```
-
-States:
-- ConnectionState::Disconnected — never connected, or cleanly disconnected
-- ConnectionState::Connected — up and running
-- ConnectionState::Broken — connection was lost (timeout, remote close, etc.)
-
-### Reconnect
-
-```php
-$client->connect('opc.tcp://localhost:4840');
-// ... connection drops ...
-$client->reconnect(); // re-establishes to opc.tcp://localhost:4840
+$client->getConnectionState(); // ConnectionState enum
+$client->isConnected();        // bool
+$client->reconnect();          // re-establishes using last URL
 ```
 
 ### Auto-Retry
 
 ```php
-$client = new Client();
 $client->setAutoRetry(3); // retry up to 3 times on connection failure
-$client->connect('opc.tcp://localhost:4840');
 ```
-
-Defaults: 0 retries if never connected, 1 retry once connected at least once.
 
 ### Security Configuration
 
@@ -169,56 +124,21 @@ Defaults: 0 retries if never connected, 1 retry once connected at least once.
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
+$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
 ```
 
-Security Policies: None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss
-Security Modes: None (1), Sign (2), SignAndEncrypt (3)
-
-### Client Certificate
-
-```php
-$client->setClientCertificate(
-    '/path/to/client-cert.pem',   // or .der
-    '/path/to/client-key.pem',
-    '/path/to/ca-cert.pem'        // optional
-);
-```
-
-Both PEM and DER are supported — auto-detected.
+Policies: None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss
+Modes: None (1), Sign (2), SignAndEncrypt (3)
 If no certificate provided, one gets auto-generated in memory (RSA 2048, self-signed).
 
 ### Authentication
 
-Anonymous (default — no config needed):
 ```php
-// nothing to do
-```
-
-Username/Password:
-```php
-$client->setUserCredentials('myuser', 'mypassword');
-```
-
-X.509 Certificate:
-```php
-$client->setUserCertificate('/path/to/user-cert.pem', '/path/to/user-key.pem');
-```
-
-### Full Secure Connection Example
-
-```php
-$client = new Client();
-$client->setTimeout(10.0);
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
-$client->setUserCredentials('operator', 'secret123');
-$client->connect('opc.tcp://192.168.1.100:4840/UA/Server');
-// ... secure operations ...
-$client->disconnect();
+$client->setUserCredentials('user', 'password');       // username/password
+$client->setUserCertificate('/certs/user.pem', '/certs/user.key'); // X.509
+// or nothing — anonymous by default
 ```
 
 ### Endpoint Discovery
@@ -226,17 +146,12 @@ $client->disconnect();
 ```php
 $endpoints = $client->getEndpoints('opc.tcp://localhost:4840');
 foreach ($endpoints as $ep) {
-    echo "URL: " . $ep->getEndpointUrl() . "\n";
-    echo "Security: " . $ep->getSecurityPolicyUri() . "\n";
-    echo "Mode: " . $ep->getSecurityMode() . "\n";
+    echo "{$ep->endpointUrl} — {$ep->securityPolicyUri} (mode: {$ep->securityMode})\n";
+    foreach ($ep->userIdentityTokens as $token) {
+        echo "  Auth: {$token->policyId} (type={$token->tokenType})\n";
+    }
 }
 ```
-
-Token types: 0=Anonymous, 1=Username/Password, 2=X.509 Certificate
-
-### Disconnection
-
-Always call disconnect() when done. It sends CloseSession, CloseSecureChannel, closes the TCP socket, and clears all state.
 
 ---
 
@@ -245,37 +160,11 @@ Always call disconnect() when done. It sends CloseSession, CloseSecureChannel, c
 ### Basic Browse
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-
-$references = $client->browse(NodeId::numeric(0, 85)); // Objects folder
-
-foreach ($references as $ref) {
-    echo $ref->getDisplayName() . " (NodeId: " . $ref->getNodeId() . ")\n";
+$refs = $client->browse(NodeId::numeric(0, 85)); // Objects folder
+foreach ($refs as $ref) {
+    echo "{$ref->displayName} (ns={$ref->nodeId->namespaceIndex};i={$ref->nodeId->identifier})\n";
 }
 ```
-
-### Browse Parameters
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-
-$references = $client->browse(
-    nodeId: NodeId::numeric(0, 85),
-    direction: BrowseDirection::Forward,
-    referenceTypeId: NodeId::numeric(0, 33),  // HierarchicalReferences
-    includeSubtypes: true,
-    nodeClassMask: 0,                         // 0 = all
-);
-```
-
-BrowseDirection: Forward (0), Inverse (1), Both (2)
-
-Common reference types:
-- NodeId::numeric(0, 33) — HierarchicalReferences
-- NodeId::numeric(0, 35) — Organizes
-- NodeId::numeric(0, 47) — HasComponent
-- NodeId::numeric(0, 46) — HasProperty
-- NodeId::numeric(0, 40) — HasTypeDefinition
 
 ### Browse All (automatic continuation)
 
@@ -287,76 +176,58 @@ $refs = $client->browseAll(NodeId::numeric(0, 85));
 
 ```php
 $result = $client->browseWithContinuation(NodeId::numeric(0, 85));
-$allRefs = $result['references'];
-$continuationPoint = $result['continuationPoint'];
+$allRefs = $result->references;
 
-while ($continuationPoint !== null) {
-    $next = $client->browseNext($continuationPoint);
-    $allRefs = array_merge($allRefs, $next['references']);
-    $continuationPoint = $next['continuationPoint'];
+while ($result->continuationPoint !== null) {
+    $result = $client->browseNext($result->continuationPoint);
+    array_push($allRefs, ...$result->references);
 }
 ```
 
 ### ReferenceDescription Properties
 
 ```php
-$ref->getReferenceTypeId();   // NodeId
-$ref->isForward();            // bool
-$ref->getNodeId();            // NodeId
-$ref->getBrowseName();        // QualifiedName
-$ref->getDisplayName();       // LocalizedText
-$ref->getNodeClass();         // NodeClass enum
-$ref->getTypeDefinition();    // ?NodeId
+$ref->referenceTypeId   // NodeId
+$ref->isForward         // bool
+$ref->nodeId            // NodeId
+$ref->browseName        // QualifiedName
+$ref->displayName       // LocalizedText
+$ref->nodeClass         // NodeClass enum
+$ref->typeDefinition    // ?NodeId
 ```
-
-### Well-Known NodeIds
-
-- Root: NodeId::numeric(0, 84)
-- Objects: NodeId::numeric(0, 85)
-- Types: NodeId::numeric(0, 86)
-- Views: NodeId::numeric(0, 87)
-- Server: NodeId::numeric(0, 2253)
-- ServerStatus: NodeId::numeric(0, 2256)
-- ServiceLevel: NodeId::numeric(0, 2267)
 
 ### Recursive Browse
 
 ```php
-$tree = $client->browseRecursive(NodeId::numeric(0, 85), maxDepth: 2);
-
+$tree = $client->browseRecursive(NodeId::numeric(0, 85), maxDepth: 3);
 foreach ($tree as $node) {
-    echo $node->getDisplayName() . "\n";
+    echo "{$node->reference->displayName}\n";
     foreach ($node->getChildren() as $child) {
-        echo "  " . $child->getDisplayName() . "\n";
+        echo "  {$child->reference->displayName}\n";
     }
 }
 ```
-
-Default maxDepth is 10, configurable via setDefaultBrowseMaxDepth(). Use -1 for unlimited (capped at 256). Built-in cycle detection prevents infinite loops.
 
 ### Path Resolution
 
 ```php
 $nodeId = $client->resolveNodeId('/Objects/Server/ServerStatus/State');
-$dataValue = $client->read($nodeId);
+$value = $client->read($nodeId);
 ```
-
-Path format: segments separated by /, leading / optional. For non-zero namespaces: "Objects/2:MyPLC/2:Temperature".
 
 ### translateBrowsePaths (Advanced)
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-
 $results = $client->translateBrowsePaths([
     [
         'startingNodeId' => NodeId::numeric(0, 85),
         'relativePath' => [
             ['targetName' => new QualifiedName(0, 'Server')],
-            ['targetName' => new QualifiedName(0, 'ServerStatus')],
         ],
     ],
 ]);
+
+$nodeId = $results[0]->targets[0]->targetId; // NodeId
 ```
 
 ---
@@ -366,18 +237,11 @@ $results = $client->translateBrowsePaths([
 ### Read Single Value
 
 ```php
-$dataValue = $client->read(NodeId::numeric(0, 2259));
-if (StatusCode::isGood($dataValue->getStatusCode())) {
-    echo $dataValue->getValue();
-}
-```
-
-### Read Specific Attribute
-
-```php
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-
-$displayName = $client->read(NodeId::numeric(0, 2259), AttributeId::DisplayName);
+$dv = $client->read(NodeId::numeric(0, 2259));
+echo $dv->getValue();        // unwrapped value (via Variant)
+echo $dv->statusCode;        // int
+echo $dv->sourceTimestamp;    // ?DateTimeImmutable
+echo $dv->serverTimestamp;    // ?DateTimeImmutable
 ```
 
 ### Read Multiple Values
@@ -389,17 +253,7 @@ $results = $client->readMulti([
 ]);
 ```
 
-### DataValue Properties
-
-```php
-$dataValue->getValue();             // mixed
-$dataValue->getVariant();           // ?Variant
-$dataValue->getStatusCode();        // int
-$dataValue->getSourceTimestamp();    // ?DateTimeImmutable
-$dataValue->getServerTimestamp();    // ?DateTimeImmutable
-```
-
-### Write Single Value
+### Write
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
@@ -407,36 +261,21 @@ use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 $statusCode = $client->write(NodeId::numeric(2, 1234), 42, BuiltinType::Int32);
 ```
 
-### Write Multiple Values
+### Auto-Batching
 
-```php
-$results = $client->writeMulti([
-    ['nodeId' => NodeId::numeric(2, 1001), 'value' => 3.14, 'type' => BuiltinType::Double],
-    ['nodeId' => NodeId::numeric(2, 1002), 'value' => 'Hello', 'type' => BuiltinType::String],
-    ['nodeId' => NodeId::numeric(2, 1003), 'value' => true, 'type' => BuiltinType::Boolean],
-]);
-```
-
-### Automatic Batching
-
-After connect(), the client reads server limits (MaxNodesPerRead, MaxNodesPerWrite). When readMulti/writeMulti exceeds the limit, requests are split automatically.
+After connect(), the client reads server limits (MaxNodesPerRead/Write). When readMulti/writeMulti exceeds the limit, requests are split automatically.
 
 ```php
 $client->setBatchSize(50);  // manual override
-$client->setBatchSize(0);   // disable batching entirely
+$client->setBatchSize(0);   // disable batching
 ```
 
-### Supported Data Types
-
-Boolean, SByte, Byte, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float, Double, String, DateTime, Guid, ByteString, NodeId, QualifiedName, LocalizedText
-
-### Status Code Handling
+### Status Codes
 
 ```php
-StatusCode::isGood($statusCode);
-StatusCode::isBad($statusCode);
-StatusCode::isUncertain($statusCode);
-StatusCode::getName($statusCode);  // e.g. "BadNodeIdUnknown"
+StatusCode::isGood($code);      // true if 0x0XXXXXXX
+StatusCode::isBad($code);       // true if 0x8XXXXXXX
+StatusCode::getName($code);     // e.g. "BadNodeIdUnknown"
 ```
 
 ---
@@ -447,14 +286,16 @@ StatusCode::getName($statusCode);  // e.g. "BadNodeIdUnknown"
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 $result = $client->call(
-    NodeId::numeric(0, 2253),  // object NodeId
-    NodeId::numeric(0, 11492), // method NodeId
+    NodeId::numeric(0, 2253),
+    NodeId::numeric(0, 11492),
     [new Variant(BuiltinType::UInt32, 1)]
 );
 
-$statusCode = $result['statusCode'];
-$inputResults = $result['inputArgumentResults'];
-$outputs = $result['outputArguments'];  // Variant[]
+$result->statusCode;            // int
+$result->inputArgumentResults;  // int[]
+$result->outputArguments;       // Variant[]
+
+echo $result->outputArguments[0]->value;
 ```
 
 ---
@@ -464,12 +305,8 @@ $outputs = $result['outputArguments'];  // Variant[]
 ### Create Subscription
 
 ```php
-$sub = $client->createSubscription(
-    publishingInterval: 1000.0,
-    lifetimeCount: 2400,
-    maxKeepAliveCount: 10,
-);
-$subscriptionId = $sub['subscriptionId'];
+$sub = $client->createSubscription(publishingInterval: 1000.0);
+$subscriptionId = $sub->subscriptionId;
 ```
 
 ### Data Change Monitoring
@@ -495,12 +332,16 @@ $result = $client->createEventMonitoredItem(
 
 ```php
 $response = $client->publish();
-foreach ($response['notifications'] as $notif) {
+echo $response->subscriptionId;
+echo $response->sequenceNumber;
+echo $response->moreNotifications;
+
+foreach ($response->notifications as $notif) {
     if ($notif['type'] === 'DataChange') {
         echo $notif['dataValue']->getValue();
     } elseif ($notif['type'] === 'Event') {
         foreach ($notif['eventFields'] as $field) {
-            echo $field->getValue();
+            echo $field->value;
         }
     }
 }
@@ -525,23 +366,25 @@ $values = $client->historyReadRaw(
     startTime: new \DateTimeImmutable('-1 hour'),
     endTime: new \DateTimeImmutable(),
     numValuesPerNode: 100,
-    returnBounds: false,
 );
+
+foreach ($values as $dv) {
+    echo "[{$dv->sourceTimestamp->format('H:i:s')}] {$dv->getValue()}\n";
+}
 ```
 
-### Processed History (Aggregated)
+### Processed History
 
 ```php
 $values = $client->historyReadProcessed(
     NodeId::numeric(2, 1001),
-    $startTime,
-    $endTime,
+    $startTime, $endTime,
     processingInterval: 3600000.0,
     aggregateType: NodeId::numeric(0, 2342), // Average
 );
 ```
 
-Common aggregates: Average (2342), Interpolative (2341), Minimum (2346), Maximum (2347), Count (2352), Total (2344)
+Aggregates: Average (2342), Interpolative (2341), Minimum (2346), Maximum (2347), Count (2352), Total (2344)
 
 ### History At Time
 
@@ -554,172 +397,123 @@ $values = $client->historyReadAtTime(NodeId::numeric(2, 1001), $timestamps);
 ## 8. Types Reference
 
 ### NodeId
-
-```php
-NodeId::numeric(0, 85);           // ns=0;i=85
-NodeId::string(2, 'Temperature'); // ns=2;s=Temperature
-NodeId::guid(1, '550e8400-...');
-NodeId::opaque(1, 'DEADBEEF');
-NodeId::parse('ns=2;i=1001');
-echo $nodeId->toString();
-```
-
-Methods: getNamespaceIndex(), getIdentifier(), getType(), isNumeric(), isString(), isGuid(), isOpaque()
+Properties: namespaceIndex (int), identifier (int|string), type (string)
+Methods: isNumeric(), isString(), isGuid(), isOpaque(), getEncodingByte(), parse(), toString(), __toString()
 
 ### Variant
-
-```php
-$v = new Variant(BuiltinType::Int32, 42);
-$v = new Variant(BuiltinType::Int32, [1, 2, 3]);
-$v->getType();          // BuiltinType
-$v->getValue();         // mixed
-$v->getDimensions();    // ?int[]
-$v->isMultiDimensional(); // bool
-```
+Properties: type (BuiltinType), value (mixed), dimensions (?array)
+Methods: isMultiDimensional()
 
 ### DataValue
+Properties: statusCode (int), sourceTimestamp (?DateTimeImmutable), serverTimestamp (?DateTimeImmutable)
+Methods: getValue() (unwraps Variant), getVariant()
 
-```php
-$dv->getValue();             // mixed
-$dv->getVariant();           // ?Variant
-$dv->getStatusCode();        // int
-$dv->getSourceTimestamp();   // ?DateTimeImmutable
-$dv->getServerTimestamp();   // ?DateTimeImmutable
-```
+### QualifiedName
+Properties: namespaceIndex (int), name (string)
+Methods: __toString()
+
+### LocalizedText
+Properties: locale (?string), text (?string)
+Methods: __toString()
+
+### ReferenceDescription
+Properties: referenceTypeId (NodeId), isForward (bool), nodeId (NodeId), browseName (QualifiedName), displayName (LocalizedText), nodeClass (NodeClass), typeDefinition (?NodeId)
+
+### EndpointDescription
+Properties: endpointUrl (string), serverCertificate (?string), securityMode (int), securityPolicyUri (string), userIdentityTokens (array), transportProfileUri (string), securityLevel (int)
+
+### UserTokenPolicy
+Properties: policyId (?string), tokenType (int), issuedTokenType (?string), issuerEndpointUrl (?string), securityPolicyUri (?string)
+
+### BrowseNode
+Properties: reference (ReferenceDescription)
+Methods: getChildren(), hasChildren(), addChild()
 
 ### BuiltinType (Enum)
-
 Boolean(1), SByte(2), Byte(3), Int16(4), UInt16(5), Int32(6), UInt32(7), Int64(8), UInt64(9), Float(10), Double(11), String(12), DateTime(13), Guid(14), ByteString(15), XmlElement(16), NodeId(17), ExpandedNodeId(18), StatusCode(19), QualifiedName(20), LocalizedText(21), ExtensionObject(22), DataValue(23), Variant(24), DiagnosticInfo(25)
 
 ### NodeClass (Enum)
-
 Unspecified(0), Object(1), Variable(2), Method(4), ObjectType(8), VariableType(16), ReferenceType(32), DataType(64), View(128)
 
 ### BrowseDirection (Enum)
-
 Forward(0), Inverse(1), Both(2)
 
 ### ConnectionState (Enum)
-
 Disconnected, Connected, Broken
 
-### QualifiedName
-
-```php
-$qn = new QualifiedName(0, 'ServerStatus');
-$qn->getNamespaceIndex(); // 0
-$qn->getName();           // 'ServerStatus'
-```
-
-### LocalizedText
-
-```php
-$lt = new LocalizedText('en', 'Server Status');
-$lt->getLocale(); // 'en'
-$lt->getText();   // 'Server Status'
-```
-
 ### StatusCode constants
-
-Good (0x00000000), BadUnexpectedError (0x80010000), BadInternalError (0x80020000), BadTimeout (0x800A0000), BadNodeIdUnknown (0x80340000), BadNotWritable (0x803B0000), BadNotReadable (0x803E0000), BadTypeMismatch (0x80740000), BadUserAccessDenied (0x801F0000), BadMethodInvalid (0x80750000), BadArgumentsMissing (0x80760000), BadNoData (0x80B10000)
+Good (0x00000000), BadUnexpectedError (0x80010000), BadTimeout (0x800A0000), BadNodeIdUnknown (0x80340000), BadNotWritable (0x803B0000), BadNotReadable (0x803E0000), BadTypeMismatch (0x80740000), BadUserAccessDenied (0x801F0000), BadMethodInvalid (0x80750000), BadNoData (0x80B10000)
 
 ### AttributeId constants
-
 NodeId(1), NodeClass(2), BrowseName(3), DisplayName(4), Description(5), Value(13), DataType(14), AccessLevel(17)
+
+### Result DTOs (all public readonly)
+
+BrowseResultSet: references (ReferenceDescription[]), continuationPoint (?string)
+BrowsePathResult: statusCode (int), targets (BrowsePathTarget[])
+BrowsePathTarget: targetId (NodeId), remainingPathIndex (int)
+CallResult: statusCode (int), inputArgumentResults (int[]), outputArguments (Variant[])
+SubscriptionResult: subscriptionId (int), revisedPublishingInterval (float), revisedLifetimeCount (int), revisedMaxKeepAliveCount (int)
+MonitoredItemResult: statusCode (int), monitoredItemId (int), revisedSamplingInterval (float), revisedQueueSize (int)
+PublishResult: subscriptionId (int), sequenceNumber (int), moreNotifications (bool), notifications (array), availableSequenceNumbers (int[])
 
 ---
 
 ## 9. Error Handling
 
-### Exception Hierarchy
-
+Exception hierarchy:
 ```
 RuntimeException
   └── OpcUaException
-        ├── ConfigurationException  — bad config (invalid URL, missing cert, reconnect without connect)
-        ├── ConnectionException     — TCP problems (can't connect, timeout, connection lost)
-        ├── EncodingException       — binary codec errors (buffer underflow, unknown type)
-        ├── ProtocolException       — OPC UA protocol violations (ERR message, unexpected type)
-        ├── SecurityException       — crypto problems (cert failure, encryption failed)
-        └── ServiceException        — server returned an error status code
+        ├── ConfigurationException
+        ├── ConnectionException
+        ├── EncodingException
+        ├── ProtocolException
+        ├── SecurityException
+        ├── ServiceException (carries getStatusCode())
+        └── InvalidNodeIdException
 ```
 
-All in namespace Gianfriaur\OpcuaPhpClient\Exception.
-
-ServiceException carries the status code via getStatusCode().
-
-### Status Codes vs Exceptions
-
-Not every bad status code triggers an exception:
+Status codes vs exceptions:
 - Exceptions: connection failures, protocol errors, security failures
-- Status codes in results: per-item results from read/write/call that you check yourself
+- Status codes in results: per-item results from read/write/call (check $dv->statusCode)
 
 ---
 
 ## 10. Security
 
-The library handles the full OPC UA security stack:
-- Asymmetric encryption (RSA) for the initial secure channel
-- Symmetric encryption (AES-CBC) for messages
-- Digital signatures (RSA-SHA1, RSA-SHA256, RSA-PSS-SHA256)
-- Key derivation (P_SHA1, P_SHA256)
-- X.509 certificate management
+Policies: None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss
+Each defines asymmetric sign/encrypt, symmetric sign/encrypt, and min key size.
 
-### Security Policies (algorithms)
-
-| Policy | Asym Sign | Asym Encrypt | Sym Sign | Sym Encrypt | Min Key |
-|--------|-----------|-------------|----------|-------------|---------|
-| None | - | - | - | - | - |
-| Basic128Rsa15 | RSA-SHA1 | RSA-PKCS1 | HMAC-SHA1 | AES-128-CBC | 1024 |
-| Basic256 | RSA-SHA1 | RSA-OAEP | HMAC-SHA1 | AES-256-CBC | 1024 |
-| Basic256Sha256 | RSA-SHA256 | RSA-OAEP | HMAC-SHA256 | AES-256-CBC | 2048 |
-| Aes128Sha256RsaOaep | RSA-SHA256 | RSA-OAEP | HMAC-SHA256 | AES-128-CBC | 2048 |
-| Aes256Sha256RsaPss | RSA-PSS-SHA256 | RSA-OAEP-SHA256 | HMAC-SHA256 | AES-256-CBC | 2048 |
-
-### Connection Flow with Security
-
+Connection flow with security:
 1. Discovery — connect without security, get server certificate
-2. Asymmetric Phase — OPN request encrypted with server's public key, nonce exchange, derive symmetric keys
+2. Asymmetric Phase — OPN request encrypted with server's public key, nonce exchange
 3. Symmetric Phase — all messages use derived keys (AES-CBC + HMAC)
 
 ---
 
 ## 11. Architecture
 
-### Project Structure
-
 ```
 src/
-├── Client.php                    # Main entry point (uses 13 traits)
+├── Client.php                    # Main entry point (13 traits)
 ├── OpcUaClientInterface.php      # Public API contract
 ├── Transport/TcpTransport.php    # TCP socket I/O
 ├── Encoding/BinaryEncoder.php    # Serialization
-├── Encoding/BinaryDecoder.php    # Deserialization
+├── Encoding/BinaryDecoder.php    # Deserialization (accepts optional ExtensionObjectRepository)
 ├── Encoding/ExtensionObjectCodec.php  # Codec interface
 ├── Protocol/*Service.php         # 15 OPC UA service classes
-├── Security/SecurityPolicy.php   # Policy enum + algorithms
-├── Security/SecurityMode.php     # Mode enum
-├── Security/SecureChannel.php    # Secure channel lifecycle
-├── Security/MessageSecurity.php  # Crypto operations
-├── Security/CertificateManager.php  # Certificate utilities
-├── Types/*.php                   # 15 type/enum classes
-├── Repository/ExtensionObjectRepository.php  # Codec registry
-└── Exception/*.php               # 7 exception classes
+├── Security/*.php                # SecureChannel, MessageSecurity, CertificateManager, enums
+├── Types/*.php                   # 22 type/enum/DTO classes (all public readonly)
+├── Repository/ExtensionObjectRepository.php  # Per-client codec registry
+└── Exception/*.php               # 8 exception classes
 ```
 
-### Binary Encoding
-
-- Little-endian byte order
-- Length-prefixed strings (Int32 + UTF-8, -1 for null)
-- NodeId compact encoding (TwoByte/FourByte/Numeric/String/Guid/Opaque)
-- Variant with type byte and optional array flag
-- DateTime as 100-nanosecond intervals since 1601-01-01 UTC
+Binary encoding: little-endian, length-prefixed strings, NodeId compact encoding, DateTime as 100ns intervals since 1601-01-01 UTC.
 
 ---
 
 ## 12. ExtensionObject Codecs
-
-Implement ExtensionObjectCodec to decode custom OPC UA structures:
 
 ```php
 class MyPointCodec implements ExtensionObjectCodec
@@ -738,35 +532,39 @@ class MyPointCodec implements ExtensionObjectCodec
 }
 ```
 
-Register:
+Register per-client (not static):
 ```php
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 $client = new Client(extensionObjectRepository: $repo);
 ```
 
-Once registered, decoding happens automatically in read/readMulti.
+Or after creation:
+```php
+$client->getExtensionObjectRepository()->register(NodeId::numeric(2, 5001), MyPointCodec::class);
+```
 
 Repository API: register(), has(), get(), unregister(), clear()
-
-Limitations: binary encoding only (not XML), no built-in codecs shipped. Each Client has its own isolated repository.
+Limitations: binary encoding only (not XML), no built-in codecs shipped. Each Client is isolated.
 
 ---
 
 ## Main Classes
 
-- Gianfriaur\OpcuaPhpClient\Client — main client class
-- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract (30+ methods)
-- Gianfriaur\OpcuaPhpClient\Types\NodeId — node identifier (numeric, string, guid, opaque)
-- Gianfriaur\OpcuaPhpClient\Types\Variant — typed value container
-- Gianfriaur\OpcuaPhpClient\Types\DataValue — value with status code and timestamps
-- Gianfriaur\OpcuaPhpClient\Types\BuiltinType — enum of 25 OPC UA primitive types
-- Gianfriaur\OpcuaPhpClient\Types\BrowseNode — tree node for recursive browse
-- Gianfriaur\OpcuaPhpClient\Types\StatusCode — status code constants and helpers
-- Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy — enum of 6 security policies
-- Gianfriaur\OpcuaPhpClient\Security\SecurityMode — enum (None, Sign, SignAndEncrypt)
-- Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec — codec interface
-- Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level, not static)
+- Gianfriaur\OpcuaPhpClient\Client — main client, accepts optional ExtensionObjectRepository
+- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract
+- Gianfriaur\OpcuaPhpClient\Types\NodeId — public readonly: namespaceIndex, identifier, type
+- Gianfriaur\OpcuaPhpClient\Types\Variant — public readonly: type, value, dimensions
+- Gianfriaur\OpcuaPhpClient\Types\DataValue — public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue()
+- Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription — public readonly: referenceTypeId, isForward, nodeId, browseName, displayName, nodeClass, typeDefinition
+- Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult — public readonly: subscriptionId, revisedPublishingInterval, revisedLifetimeCount, revisedMaxKeepAliveCount
+- Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
+- Gianfriaur\OpcuaPhpClient\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
+- Gianfriaur\OpcuaPhpClient\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
+- Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
+- Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
+- Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex
+- Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level)
 
 ## Related Packages
 

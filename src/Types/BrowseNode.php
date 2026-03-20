@@ -10,31 +10,36 @@ class BrowseNode
     private array $children = [];
 
     public function __construct(
-        private readonly ReferenceDescription $reference,
+        public readonly ReferenceDescription $reference,
     )
     {
     }
 
+    /** @deprecated Access the public property directly instead. Use ->reference instead. */
     public function getReference(): ReferenceDescription
     {
         return $this->reference;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->reference->nodeId instead. */
     public function getNodeId(): NodeId
     {
         return $this->reference->getNodeId();
     }
 
+    /** @deprecated Access the public property directly instead. Use ->reference->displayName instead. */
     public function getDisplayName(): LocalizedText
     {
         return $this->reference->getDisplayName();
     }
 
+    /** @deprecated Access the public property directly instead. Use ->reference->browseName instead. */
     public function getBrowseName(): QualifiedName
     {
         return $this->reference->getBrowseName();
     }
 
+    /** @deprecated Access the public property directly instead. Use ->reference->nodeClass instead. */
     public function getNodeClass(): NodeClass
     {
         return $this->reference->getNodeClass();

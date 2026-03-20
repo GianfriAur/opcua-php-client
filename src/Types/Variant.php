@@ -12,24 +12,27 @@ readonly class Variant
      * @param null|int[] $dimensions
      */
     public function __construct(
-        private BuiltinType $type,
-        private mixed       $value,
-        private ?array      $dimensions = null,
+        public BuiltinType $type,
+        public mixed       $value,
+        public ?array      $dimensions = null,
     )
     {
     }
 
+    /** @deprecated Access the public property directly instead. Use ->type instead. */
     public function getType(): BuiltinType
     {
         return $this->type;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->value instead. */
     public function getValue(): mixed
     {
         return $this->value;
     }
 
     /**
+     * @deprecated Access the public property directly instead. Use ->dimensions instead.
      * @return int[]|null
      */
     public function getDimensions(): ?array

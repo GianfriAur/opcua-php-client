@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
+use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 
 trait ManagesSubscriptionsTrait
 {
@@ -16,9 +19,9 @@ trait ManagesSubscriptionsTrait
      * @param int $maxNotificationsPerPublish
      * @param bool $publishingEnabled
      * @param int $priority
-     * @return array{subscriptionId: int, revisedPublishingInterval: float, revisedLifetimeCount: int, revisedMaxKeepAliveCount: int}
+     * @return SubscriptionResult
      */
-    public function createSubscription(float $publishingInterval = 500.0, int $lifetimeCount = 2400, int $maxKeepAliveCount = 10, int $maxNotificationsPerPublish = 0, bool $publishingEnabled = true, int $priority = 0): array
+    public function createSubscription(float $publishingInterval = 500.0, int $lifetimeCount = 2400, int $maxKeepAliveCount = 10, int $maxNotificationsPerPublish = 0, bool $publishingEnabled = true, int $priority = 0): SubscriptionResult
     {
         return $this->executeWithRetry(function () use ($publishingInterval, $lifetimeCount, $maxKeepAliveCount, $maxNotificationsPerPublish, $publishingEnabled, $priority) {
             $this->ensureConnected();
@@ -47,7 +50,7 @@ trait ManagesSubscriptionsTrait
     /**
      * @param int $subscriptionId
      * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items
-     * @return array<array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}>
+     * @return MonitoredItemResult[]
      */
     public function createMonitoredItems(int $subscriptionId, array $items): array
     {
@@ -76,14 +79,14 @@ trait ManagesSubscriptionsTrait
      * @param NodeId $nodeId
      * @param string[] $selectFields
      * @param int $clientHandle
-     * @return array{statusCode: int, monitoredItemId: int, revisedSamplingInterval: float, revisedQueueSize: int}
+     * @return MonitoredItemResult
      */
     public function createEventMonitoredItem(
         int    $subscriptionId,
         NodeId $nodeId,
         array  $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
         int    $clientHandle = 1,
-    ): array
+    ): MonitoredItemResult
     {
         return $this->executeWithRetry(function () use ($subscriptionId, $nodeId, $selectFields, $clientHandle) {
             $this->ensureConnected();
@@ -105,7 +108,7 @@ trait ManagesSubscriptionsTrait
 
             $results = $this->monitoredItemService->decodeCreateMonitoredItemsResponse($decoder);
 
-            return $results[0] ?? ['statusCode' => 0, 'monitoredItemId' => 0, 'revisedSamplingInterval' => 0.0, 'revisedQueueSize' => 0];
+            return $results[0] ?? new MonitoredItemResult(0, 0, 0.0, 0);
         });
     }
 
@@ -165,9 +168,9 @@ trait ManagesSubscriptionsTrait
 
     /**
      * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements
-     * @return array{subscriptionId: int, sequenceNumber: int, moreNotifications: bool, notifications: array, availableSequenceNumbers: int[]}
+     * @return PublishResult
      */
-    public function publish(array $acknowledgements = []): array
+    public function publish(array $acknowledgements = []): PublishResult
     {
         return $this->executeWithRetry(function () use ($acknowledgements) {
             $this->ensureConnected();

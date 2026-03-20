@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 class PublishService
@@ -48,9 +49,9 @@ class PublishService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array{subscriptionId: int, sequenceNumber: int, moreNotifications: bool, notifications: array, availableSequenceNumbers: int[]}
+     * @return PublishResult
      */
-    public function decodePublishResponse(BinaryDecoder $decoder): array
+    public function decodePublishResponse(BinaryDecoder $decoder): PublishResult
     {
         $decoder->readUInt32();
         $decoder->readUInt32();
@@ -112,13 +113,7 @@ class PublishService
             $this->skipDiagnosticInfo($decoder);
         }
 
-        return [
-            'subscriptionId' => $subscriptionId,
-            'sequenceNumber' => $sequenceNumber,
-            'moreNotifications' => $moreNotifications,
-            'notifications' => $notifications,
-            'availableSequenceNumbers' => $availableSequenceNumbers,
-        ];
+        return new PublishResult($subscriptionId, $sequenceNumber, $moreNotifications, $notifications, $availableSequenceNumbers);
     }
 
     /**

@@ -51,8 +51,8 @@ describe('TranslateBrowsePathService diagnostic info handling', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $results = $service->decodeTranslateResponse($decoder);
         expect($results)->toHaveCount(1);
-        expect($results[0]['statusCode'])->toBe(0);
-        expect($results[0]['targets'][0]['targetId']->getIdentifier())->toBe(2253);
+        expect($results[0]->statusCode)->toBe(0);
+        expect($results[0]->targets[0]->targetId->getIdentifier())->toBe(2253);
     });
 
     it('decodes response with nested inner diagnostic info', function () {

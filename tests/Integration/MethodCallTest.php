@@ -27,9 +27,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe(7.0);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe(7.0);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -53,9 +53,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe(30.0);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe(30.0);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -79,9 +79,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe('hello world');
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe('hello world');
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -104,9 +104,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe('fedcba');
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe('fedcba');
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -127,10 +127,10 @@ describe('Method Call', function () {
                 [],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
 
-            $serverTime = $result['outputArguments'][0]->getValue();
+            $serverTime = $result->outputArguments[0]->getValue();
             expect($serverTime)->toBeInstanceOf(DateTimeImmutable::class);
 
             // Server time should be within 60 seconds of now
@@ -159,9 +159,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe(42);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe(42);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -184,9 +184,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe(true);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe(true);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -207,8 +207,8 @@ describe('Method Call', function () {
                 [],
             );
 
-            expect(StatusCode::isBad($result['statusCode']))->toBeTrue();
-            expect($result['statusCode'])->toBe(StatusCode::BadInternalError);
+            expect(StatusCode::isBad($result->statusCode))->toBeTrue();
+            expect($result->statusCode)->toBe(StatusCode::BadInternalError);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -231,9 +231,9 @@ describe('Method Call', function () {
                 ],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(1);
-            expect($result['outputArguments'][0]->getValue())->toBe(6.0);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(1);
+            expect($result->outputArguments[0]->getValue())->toBe(6.0);
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -254,13 +254,13 @@ describe('Method Call', function () {
                 [],
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['outputArguments'])->toHaveCount(3);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->outputArguments)->toHaveCount(3);
 
             // Expect (int, string, bool) outputs
-            expect($result['outputArguments'][0]->getValue())->toBeInt();
-            expect($result['outputArguments'][1]->getValue())->toBeString();
-            expect($result['outputArguments'][2]->getValue())->toBeBool();
+            expect($result->outputArguments[0]->getValue())->toBeInt();
+            expect($result->outputArguments[1]->getValue())->toBeString();
+            expect($result->outputArguments[2]->getValue())->toBeBool();
         } finally {
             TestHelper::safeDisconnect($client);
         }

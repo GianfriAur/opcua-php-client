@@ -1,17 +1,17 @@
 # OPC UA PHP Client
 
-> Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required.
+> Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required. All types use public readonly properties.
 
 ## What is this
 
-A PHP library for connecting to OPC UA servers (industrial automation protocol). It handles the full communication stack: TCP transport, binary encoding, secure channels, sessions, and all major OPC UA services. Supports PHP 8.2+.
+A PHP library for connecting to OPC UA servers (industrial automation protocol). It handles the full communication stack: TCP transport, binary encoding, secure channels, sessions, and all major OPC UA services. Supports PHP 8.2 through 8.5.
 
 ## Use cases
 
 - Read and write process variables from PLCs, SCADA systems, sensors, historians
 - Browse the OPC UA address space programmatically
 - Call OPC UA methods with typed arguments
-- Subscribe to data changes and events
+- Subscribe to data changes and events in real time
 - Query historical data (raw, processed, at-time)
 - Integrate industrial data into PHP/Laravel applications
 
@@ -20,29 +20,33 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Browse: recursive browsing, automatic continuation, tree building
 - Path Resolution: resolve human-readable paths like /Objects/MyPLC/Temperature to NodeIds
 - Read/Write: single and multi operations with all OPC UA data types
-- Method Call: invoke OPC UA methods with typed arguments
-- Subscriptions: data change and event monitoring with publish/acknowledge
+- Method Call: invoke OPC UA methods with typed arguments, returns CallResult DTO
+- Subscriptions: data change and event monitoring, returns SubscriptionResult/PublishResult DTOs
 - History Read: raw, processed (aggregated), and at-time historical queries
 - Endpoint Discovery: discover available server endpoints and security policies
 - Security: 6 policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
 - Authentication: Anonymous, Username/Password, X.509 Certificate
 - Auto-Retry: automatic reconnect on connection failures
 - Auto-Batching: transparent batching for readMulti/writeMulti with server limits discovery
-- ExtensionObject Codecs: pluggable codec system for custom OPC UA structures
+- ExtensionObject Codecs: per-client instance-level codec registry (not static/global)
 - Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
-- Thoroughly tested: 750+ tests, 99%+ code coverage, unit tests for encoding/crypto/protocol + integration tests against real OPC UA servers on PHP 8.2/8.3/8.4/8.5
+- Typed everywhere: all service responses return public readonly DTOs, not arrays
+- Thoroughly tested: 750+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
+
+## Property access style
+
+All Type classes and result DTOs use public readonly properties. Access is $ref->nodeId, $dv->statusCode, $result->subscriptionId — not $ref->getNodeId() or $result['subscriptionId']. Old getter methods are deprecated but still work.
 
 ## Architecture
 
-The library is organized in layers:
-
-- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 13 traits for functionality
+- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 13 traits
 - Transport (src/Transport/): TCP socket communication
-- Protocol (src/Protocol/): OPC UA service encoding/decoding (Read, Write, Browse, Call, Subscribe, etc.)
+- Protocol (src/Protocol/): OPC UA service encoding/decoding
 - Encoding (src/Encoding/): binary serialization (BinaryEncoder, BinaryDecoder)
 - Security (src/Security/): secure channel, crypto operations, certificate management
-- Types (src/Types/): OPC UA data types (NodeId, Variant, DataValue, BuiltinType, etc.)
-- Exception (src/Exception/): exception hierarchy (Connection, Protocol, Security, Service, Encoding, Configuration)
+- Types (src/Types/): OPC UA data types, enums, and result DTOs
+- Repository (src/Repository/): per-client ExtensionObject codec registry
+- Exception (src/Exception/): exception hierarchy
 
 ## Installation
 
@@ -60,11 +64,13 @@ $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
 $value = $client->read(NodeId::numeric(0, 2259));
-echo $value->getValue();
+echo $value->getValue();      // unwrapped value
+echo $value->statusCode;      // 0 (Good)
+echo $value->sourceTimestamp;  // DateTimeImmutable
 
 $refs = $client->browse(NodeId::numeric(0, 85));
 foreach ($refs as $ref) {
-    echo $ref->getDisplayName() . "\n";
+    echo "{$ref->displayName} ({$ref->nodeId})\n";
 }
 
 $client->disconnect();
@@ -87,16 +93,25 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 
 ## Main classes
 
-- Gianfriaur\OpcuaPhpClient\Client — main client class
+- Gianfriaur\OpcuaPhpClient\Client — main client class, accepts optional ExtensionObjectRepository
 - Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract
-- Gianfriaur\OpcuaPhpClient\Types\NodeId — OPC UA node identifier (numeric, string, guid, opaque)
-- Gianfriaur\OpcuaPhpClient\Types\Variant — typed value container
-- Gianfriaur\OpcuaPhpClient\Types\DataValue — value with status code and timestamps
+- Gianfriaur\OpcuaPhpClient\Types\NodeId — node identifier (public readonly: namespaceIndex, identifier, type)
+- Gianfriaur\OpcuaPhpClient\Types\Variant — typed value (public readonly: type, value, dimensions)
+- Gianfriaur\OpcuaPhpClient\Types\DataValue — value with metadata (public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue())
 - Gianfriaur\OpcuaPhpClient\Types\BuiltinType — enum of 25 OPC UA primitive types
-- Gianfriaur\OpcuaPhpClient\Types\BrowseNode — tree node for recursive browse results
+- Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription — browse result (public readonly: referenceTypeId, isForward, nodeId, browseName, displayName, nodeClass, typeDefinition)
+- Gianfriaur\OpcuaPhpClient\Types\BrowseNode — tree node (public readonly: reference; methods: getChildren(), hasChildren())
+- Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult — public readonly: subscriptionId, revisedPublishingInterval, revisedLifetimeCount, revisedMaxKeepAliveCount
+- Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
+- Gianfriaur\OpcuaPhpClient\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
+- Gianfriaur\OpcuaPhpClient\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
+- Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
+- Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
+- Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex
 - Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy — enum of 6 security policies
 - Gianfriaur\OpcuaPhpClient\Security\SecurityMode — enum (None, Sign, SignAndEncrypt)
 - Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec — interface for custom type codecs
+- Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level, not static)
 
 ## Related packages
 
@@ -108,30 +123,28 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 
 ### PHP alternatives
 
-- techdock/opcua (https://github.com/TECHDOCK-CH/php-opc-ua): PHP 8.4+, binary protocol, requires phpseclib + symfony/cache + monolog + brick/date-time + wapmorgan/binary-stream. Supports Basic256Sha256, no history read, no auto-batching. Still at v0.2.
-- techdock/opcua-webapi-client: PHP 8.1+, HTTP-based (not binary protocol), requires an OPC UA WebAPI gateway. Very early (v0.1).
-- QuickOPC (OPC Labs): commercial, Windows-only, uses COM interop. Not a Composer package.
+- techdock/opcua (https://github.com/TECHDOCK-CH/php-opc-ua): PHP 8.4+, binary protocol, requires phpseclib + symfony/cache + monolog. No history read, no auto-batching. Still at v0.2.
+- techdock/opcua-webapi-client: PHP 8.1+, HTTP-based (not binary protocol), requires OPC UA WebAPI gateway.
+- QuickOPC (OPC Labs): commercial, Windows-only, COM interop.
 
 ### Why this library over alternatives
 
 - Only ext-openssl required (zero Composer dependencies in production)
-- PHP 8.2+ support (wider compatibility than techdock which requires 8.4+)
-- 6 security policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
-- History read support (raw, processed, at-time)
-- Auto-batching with server limits discovery
-- Works on Linux, no Windows/COM dependency
-- Native binary protocol (no HTTP gateway needed)
-- Laravel integration available via gianfriaur/opcua-laravel-client
+- PHP 8.2+ (wider compatibility than techdock which requires 8.4+)
+- 6 security policies, history read, auto-batching
+- Typed returns (public readonly DTOs, not arrays)
+- Per-client codec isolation (no global state)
+- Cross-platform (Linux, macOS, Windows)
+- Native binary protocol (no HTTP gateway)
+- Laravel integration available
 
 ### Cross-language alternatives
 
-- node-opcua (TypeScript/Node.js): most mature open-source OPC UA lib, client + server, MIT
+- node-opcua (TypeScript/Node.js): most mature, client + server, MIT
 - opcua-asyncio (Python): async client + server, LGPL-3.0
-- UA-.NETStandard (C#): OPC Foundation reference implementation, client + server
-- gopcua (Go): pure Go client + server, MIT
-- open62541 (C): most widely used C implementation, client + server, MPL-2.0
-
-The value of this library: if your stack is PHP, you get a native OPC UA client without spinning up a sidecar in another language or depending on COM/FFI/gateways.
+- UA-.NETStandard (C#): OPC Foundation reference implementation
+- gopcua (Go): pure Go, MIT
+- open62541 (C): most widely used C implementation, MPL-2.0
 
 ## Requirements
 

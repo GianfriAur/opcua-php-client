@@ -136,12 +136,12 @@ describe('MonitoredItemService decoding', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $service->decodeCreateMonitoredItemsResponse($decoder);
         expect($result)->toHaveCount(2);
-        expect($result[0]['statusCode'])->toBe(0);
-        expect($result[0]['monitoredItemId'])->toBe(100);
-        expect($result[0]['revisedSamplingInterval'])->toBe(500.0);
-        expect($result[0]['revisedQueueSize'])->toBe(1);
-        expect($result[1]['monitoredItemId'])->toBe(101);
-        expect($result[1]['revisedSamplingInterval'])->toBe(1000.0);
+        expect($result[0]->statusCode)->toBe(0);
+        expect($result[0]->monitoredItemId)->toBe(100);
+        expect($result[0]->revisedSamplingInterval)->toBe(500.0);
+        expect($result[0]->revisedQueueSize)->toBe(1);
+        expect($result[1]->monitoredItemId)->toBe(101);
+        expect($result[1]->revisedSamplingInterval)->toBe(1000.0);
     });
 
     it('decodes a DeleteMonitoredItemsResponse', function () {

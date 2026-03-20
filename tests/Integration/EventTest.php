@@ -13,7 +13,7 @@ describe('Event', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(250.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $eventEmitterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Events', 'EventEmitter']);
 
@@ -24,11 +24,11 @@ describe('Event', function () {
                 1,
             );
 
-            expect(StatusCode::isGood($result['statusCode']))->toBeTrue();
-            expect($result['monitoredItemId'])->toBeInt()->toBeGreaterThan(0);
+            expect(StatusCode::isGood($result->statusCode))->toBeTrue();
+            expect($result->monitoredItemId)->toBeInt()->toBeGreaterThan(0);
 
             // Cleanup
-            $client->deleteMonitoredItems($subId, [$result['monitoredItemId']]);
+            $client->deleteMonitoredItems($subId, [$result->monitoredItemId]);
             $client->deleteSubscription($subId);
         } finally {
             TestHelper::safeDisconnect($client);
@@ -41,7 +41,7 @@ describe('Event', function () {
             $client = TestHelper::connectNoSecurity();
 
             $sub = $client->createSubscription(250.0);
-            $subId = $sub['subscriptionId'];
+            $subId = $sub->subscriptionId;
 
             $eventEmitterNodeId = TestHelper::browseToNode($client, ['TestServer', 'Events', 'EventEmitter']);
 
@@ -51,7 +51,7 @@ describe('Event', function () {
                 ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
                 1,
             );
-            $monId = $monResult['monitoredItemId'];
+            $monId = $monResult->monitoredItemId;
 
             // Call GenerateEvent method to trigger an event
             $eventsNodeId = TestHelper::browseToNode($client, ['TestServer', 'Events']);
@@ -68,7 +68,7 @@ describe('Event', function () {
             $receivedEvent = false;
             for ($i = 0; $i < 5; $i++) {
                 $pub = $client->publish();
-                if (!empty($pub['notifications'])) {
+                if (!empty($pub->notifications)) {
                     $receivedEvent = true;
                     break;
                 }

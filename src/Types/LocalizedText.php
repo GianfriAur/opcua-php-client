@@ -11,17 +11,19 @@ class LocalizedText
      * @param ?string $text
      */
     public function __construct(
-        private readonly ?string $locale,
-        private readonly ?string $text,
+        public readonly ?string $locale,
+        public readonly ?string $text,
     )
     {
     }
 
+    /** @deprecated Access the public property directly instead. Use ->locale instead. */
     public function getLocale(): ?string
     {
         return $this->locale;
     }
 
+    /** @deprecated Access the public property directly instead. Use ->text instead. */
     public function getText(): ?string
     {
         return $this->text;

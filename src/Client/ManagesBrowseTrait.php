@@ -9,6 +9,7 @@ use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 
 trait ManagesBrowseTrait
@@ -58,9 +59,9 @@ trait ManagesBrowseTrait
      * @param ?NodeId $referenceTypeId
      * @param bool $includeSubtypes
      * @param int $nodeClassMask
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
-    public function browseWithContinuation(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, int $nodeClassMask = 0): array
+    public function browseWithContinuation(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, int $nodeClassMask = 0): BrowseResultSet
     {
         return $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
             $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
@@ -71,9 +72,9 @@ trait ManagesBrowseTrait
 
     /**
      * @param string $continuationPoint
-     * @return array{references: ReferenceDescription[], continuationPoint: ?string}
+     * @return BrowseResultSet
      */
-    public function browseNext(string $continuationPoint): array
+    public function browseNext(string $continuationPoint): BrowseResultSet
     {
         return $this->executeWithRetry(function () use ($continuationPoint) {
             $this->ensureConnected();
@@ -107,11 +108,11 @@ trait ManagesBrowseTrait
     ): array
     {
         $result = $this->browseWithContinuation($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
-        $allRefs = $result['references'];
+        $allRefs = $result->references;
 
-        while ($result['continuationPoint'] !== null) {
-            $result = $this->browseNext($result['continuationPoint']);
-            array_push($allRefs, ...$result['references']);
+        while ($result->continuationPoint !== null) {
+            $result = $this->browseNext($result->continuationPoint);
+            array_push($allRefs, ...$result->references);
         }
 
         return $allRefs;

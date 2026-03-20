@@ -244,9 +244,9 @@ describe('ManagesBrowseTrait operations', function () {
         $client = setupConnectedClient($mock);
         $result = $client->browseNext('cont-point');
 
-        expect($result['references'])->toHaveCount(1);
-        expect($result['references'][0]->getDisplayName()->getText())->toBe('ServerArray');
-        expect($result['continuationPoint'])->toBeNull();
+        expect($result->references)->toHaveCount(1);
+        expect($result->references[0]->getDisplayName()->getText())->toBe('ServerArray');
+        expect($result->continuationPoint)->toBeNull();
     });
 
     it('browseAll follows continuation points', function () {
@@ -398,7 +398,7 @@ describe('ManagesTranslateBrowsePathTrait operations', function () {
         ]);
 
         expect($results)->toHaveCount(1);
-        expect($results[0]['targets'][0]['targetId']->getIdentifier())->toBe(2253);
+        expect($results[0]->targets[0]->targetId->getIdentifier())->toBe(2253);
     });
 
     it('resolveNodeId returns NodeId', function () {

@@ -7,6 +7,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 
 class SubscriptionService
 {
@@ -75,9 +76,9 @@ class SubscriptionService
 
     /**
      * @param BinaryDecoder $decoder
-     * @return array{subscriptionId: int, revisedPublishingInterval: float, revisedLifetimeCount: int, revisedMaxKeepAliveCount: int}
+     * @return SubscriptionResult
      */
-    public function decodeCreateSubscriptionResponse(BinaryDecoder $decoder): array
+    public function decodeCreateSubscriptionResponse(BinaryDecoder $decoder): SubscriptionResult
     {
         $decoder->readUInt32();
         $decoder->readUInt32();
@@ -92,12 +93,7 @@ class SubscriptionService
         $revisedLifetimeCount = $decoder->readUInt32();
         $revisedMaxKeepAliveCount = $decoder->readUInt32();
 
-        return [
-            'subscriptionId' => $subscriptionId,
-            'revisedPublishingInterval' => $revisedPublishingInterval,
-            'revisedLifetimeCount' => $revisedLifetimeCount,
-            'revisedMaxKeepAliveCount' => $revisedMaxKeepAliveCount,
-        ];
+        return new SubscriptionResult($subscriptionId, $revisedPublishingInterval, $revisedLifetimeCount, $revisedMaxKeepAliveCount);
     }
 
     /**

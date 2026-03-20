@@ -1,5 +1,39 @@
 # Changelog
 
+## [3.0.0] - 2026-03-X
+
+### Changed
+
+- **`ExtensionObjectRepository` is now instance-level instead of static.** Each `Client` has its own isolated codec registry. Pass it via the constructor (`new Client(extensionObjectRepository: $repo)`) or access it with `$client->getExtensionObjectRepository()`. Codecs registered on one client no longer affect other clients in the same process.
+- **Strict return types for all service responses.** The following methods now return typed DTOs with `public readonly` properties instead of associative arrays:
+  - `createSubscription()` → `SubscriptionResult` (`->subscriptionId`, `->revisedPublishingInterval`, `->revisedLifetimeCount`, `->revisedMaxKeepAliveCount`)
+  - `createMonitoredItems()` → `MonitoredItemResult[]` (`->statusCode`, `->monitoredItemId`, `->revisedSamplingInterval`, `->revisedQueueSize`)
+  - `createEventMonitoredItem()` → `MonitoredItemResult`
+  - `call()` → `CallResult` (`->statusCode`, `->inputArgumentResults`, `->outputArguments`)
+  - `browseWithContinuation()` / `browseNext()` → `BrowseResultSet` (`->references`, `->continuationPoint`)
+  - `publish()` → `PublishResult` (`->subscriptionId`, `->sequenceNumber`, `->moreNotifications`, `->notifications`)
+  - `translateBrowsePaths()` → `BrowsePathResult[]` (`->statusCode`, `->targets`) with `BrowsePathTarget` (`->targetId`, `->remainingPathIndex`)
+
+- **All existing Type classes now expose `public readonly` properties.** You can access `$ref->nodeId`, `$ref->displayName`, `$variant->type`, `$dv->statusCode`, etc. directly instead of calling getter methods. Affected classes: `NodeId`, `Variant`, `DataValue`, `QualifiedName`, `LocalizedText`, `ReferenceDescription`, `EndpointDescription`, `UserTokenPolicy`, `BrowseNode`.
+- PHP 8.5 added to the CI test matrix.
+
+### Added
+
+- `SubscriptionResult`, `MonitoredItemResult`, `CallResult`, `BrowseResultSet`, `PublishResult`, `BrowsePathResult`, `BrowsePathTarget` DTO classes in `Types/`.
+- `Client::getExtensionObjectRepository()` method on `Client` and `OpcUaClientInterface`.
+- `Client` constructor now accepts an optional `?ExtensionObjectRepository $extensionObjectRepository` parameter.
+- `BinaryDecoder` constructor now accepts an optional `?ExtensionObjectRepository` parameter for codec resolution.
+- 750+ unit and integration tests with 99%+ code coverage.
+
+### Deprecated
+
+- Getter methods on Type classes that are now redundant with `public readonly` properties. All existing getters still work but are marked `@deprecated`. Affected methods include `getNodeId()`, `getDisplayName()`, `getBrowseName()`, `getNodeClass()`, `getStatusCode()` (on DataValue), `getSourceTimestamp()`, `getServerTimestamp()`, `getVariant()`, `getType()` (on Variant), `getValue()` (on Variant), `getDimensions()`, `getNamespaceIndex()`, `getIdentifier()`, `getLocale()`, `getText()`, and all getters on `EndpointDescription`, `UserTokenPolicy`, `ReferenceDescription`, `BrowseNode`. Use direct property access (`->property`) instead.
+
+### Breaking Changes
+
+- All service response methods listed above now return typed objects instead of arrays. Code using `$result['key']` must change to `$result->key`.
+- `ExtensionObjectRepository` methods (`register`, `get`, `has`, `unregister`, `clear`) are no longer static. Replace `ExtensionObjectRepository::register(...)` with `$repo->register(...)`.
+
 ## [2.0.0] - 2026-03-19
 
 ### Added
