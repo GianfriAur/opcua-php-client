@@ -1,8 +1,8 @@
 # Security
 
-## Overview
+## What's covered
 
-The library supports the full OPC UA security stack including:
+The library handles the full OPC UA security stack:
 
 - Asymmetric encryption (RSA) for the initial secure channel
 - Symmetric encryption (AES-CBC) for message-level security
@@ -12,7 +12,7 @@ The library supports the full OPC UA security stack including:
 
 ## Security Policies
 
-Each policy defines the algorithms used for encryption and signing:
+Each policy defines the algorithms for encryption and signing:
 
 | Policy | Asymmetric Sign | Asymmetric Encrypt | Symmetric Sign | Symmetric Encrypt | Min Key |
 |--------|----------------|-------------------|---------------|-------------------|---------|
@@ -28,12 +28,12 @@ Each policy defines the algorithms used for encryption and signing:
 ### Generating Test Certificates
 
 ```bash
-# Generate CA key and certificate
+# CA key and certificate
 openssl genpkey -algorithm RSA -out ca.key -pkeyopt rsa_keygen_bits:2048
 openssl req -x509 -new -key ca.key -days 365 -out ca.pem \
   -subj "/CN=Test CA"
 
-# Generate client key and certificate
+# Client key and certificate
 openssl genpkey -algorithm RSA -out client.key -pkeyopt rsa_keygen_bits:2048
 openssl req -new -key client.key -out client.csr \
   -subj "/CN=OPC UA Client" \
@@ -42,11 +42,11 @@ openssl x509 -req -in client.csr -CA ca.pem -CAkey ca.key \
   -CAcreateserial -days 365 -out client.pem \
   -copy_extensions copy
 
-# Convert to DER if needed
+# DER format if you need it
 openssl x509 -in client.pem -outform der -out client.der
 ```
 
-### Configuring the Client
+### Client Configuration
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Client;
@@ -55,37 +55,38 @@ use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
 $client = new Client();
 
-// Set security
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 
-// Set client certificate (PEM or DER accepted)
+// PEM or DER, auto-detected
 $client->setClientCertificate(
     '/path/to/client.pem',
     '/path/to/client.key',
-    '/path/to/ca.pem'       // optional: appended to certificate chain
+    '/path/to/ca.pem'       // optional: appended to the certificate chain
 );
 
 $client->connect('opc.tcp://server:4840');
 ```
 
-## Certificate Management API
+If you don't provide a certificate, one gets auto-generated in memory (RSA 2048, self-signed, with proper OPC UA extensions). Good for testing or servers with auto-accept.
 
-The `CertificateManager` class provides utilities for working with certificates:
+## CertificateManager API
+
+Utilities for working with certificates:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
 
 $cm = new CertificateManager();
 
-// Load certificates (both PEM and DER)
+// Load certificates (PEM and DER both work)
 $derBytes = $cm->loadCertificatePem('/path/to/cert.pem');
 $derBytes = $cm->loadCertificateDer('/path/to/cert.der');
 
 // Load private key
 $privateKey = $cm->loadPrivateKeyPem('/path/to/key.pem');
 
-// Certificate operations
+// Operations
 $thumbprint = $cm->getThumbprint($derBytes);          // SHA1 hash (binary)
 $keyLength = $cm->getPublicKeyLength($derBytes);       // bytes (e.g., 256 for 2048-bit)
 $publicKey = $cm->getPublicKeyFromCert($derBytes);     // OpenSSLAsymmetricKey
@@ -94,20 +95,20 @@ $appUri = $cm->getApplicationUri($derBytes);           // from SAN extension
 
 ## MessageSecurity API
 
-Low-level cryptographic operations:
+Low-level crypto operations:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
 
 $ms = new MessageSecurity();
 
-// Asymmetric operations (RSA)
+// Asymmetric (RSA)
 $signature = $ms->asymmetricSign($data, $privateKey, $policy);
 $valid = $ms->asymmetricVerify($data, $signature, $derCert, $policy);
 $encrypted = $ms->asymmetricEncrypt($data, $derCert, $policy);
 $decrypted = $ms->asymmetricDecrypt($data, $privateKey, $policy);
 
-// Symmetric operations (AES + HMAC)
+// Symmetric (AES + HMAC)
 $signature = $ms->symmetricSign($data, $signingKey, $policy);
 $valid = $ms->symmetricVerify($data, $signature, $signingKey, $policy);
 $encrypted = $ms->symmetricEncrypt($data, $encKey, $iv, $policy);
@@ -118,23 +119,23 @@ $keys = $ms->deriveKeys($secret, $seed, $policy);
 // Returns: ['signingKey' => ..., 'encryptingKey' => ..., 'iv' => ...]
 ```
 
-## How Security Works Internally
+## How It Works Under the Hood
 
 ### Connection Flow with Security
 
-1. **Discovery**: The client connects without security to call GetEndpoints and obtain the server's certificate
-2. **Asymmetric Phase (OpenSecureChannel)**:
+1. **Discovery** — the client connects without security, calls GetEndpoints, grabs the server's certificate
+2. **Asymmetric Phase (OpenSecureChannel):**
    - Client sends OPN request encrypted with server's public key
    - Both sides exchange nonces
    - Symmetric keys are derived from the shared nonces
-3. **Symmetric Phase (Messages)**:
-   - All MSG/CLO messages use derived symmetric keys
-   - Messages are signed with HMAC, encrypted with AES-CBC
-   - Padding follows OPC UA specification (PKCS#7 style)
+3. **Symmetric Phase (Messages):**
+   - All MSG/CLO messages use the derived symmetric keys
+   - Messages signed with HMAC, encrypted with AES-CBC
+   - Padding follows OPC UA spec (PKCS#7 style)
 
 ### SecureChannel Lifecycle
 
-The `SecureChannel` class manages:
+`SecureChannel` manages:
 - Asymmetric key exchange during OpenSecureChannel
 - Symmetric key derivation from nonces
 - Message signing, encryption, and padding

@@ -2,7 +2,7 @@
 
 ## Reading
 
-### Read a Single Value
+### Single Value
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -16,20 +16,20 @@ if (StatusCode::isGood($dataValue->getStatusCode())) {
 }
 ```
 
-### Read a Specific Attribute
+### Specific Attribute
 
-By default, `read()` reads the Value attribute (id=13). You can read other attributes:
+By default `read()` targets the Value attribute (id=13). You can read others:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 
-// Read the DisplayName attribute
+// DisplayName
 $displayName = $client->read(
     NodeId::numeric(0, 2259),
     AttributeId::DisplayName
 );
 
-// Read the DataType attribute
+// DataType
 $dataType = $client->read(
     NodeId::numeric(0, 2259),
     AttributeId::DataType
@@ -38,18 +38,18 @@ $dataType = $client->read(
 
 **Common AttributeId values:**
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `AttributeId::NodeId` | 1 | The NodeId of the node |
-| `AttributeId::NodeClass` | 2 | The class of the node |
-| `AttributeId::BrowseName` | 3 | The browse name |
-| `AttributeId::DisplayName` | 4 | The display name |
-| `AttributeId::Description` | 5 | The description |
+| Constant | Value | What |
+|----------|-------|------|
+| `AttributeId::NodeId` | 1 | The node's NodeId |
+| `AttributeId::NodeClass` | 2 | Node class |
+| `AttributeId::BrowseName` | 3 | Browse name |
+| `AttributeId::DisplayName` | 4 | Display name |
+| `AttributeId::Description` | 5 | Description |
 | `AttributeId::Value` | 13 | The value (default) |
-| `AttributeId::DataType` | 14 | The data type NodeId |
+| `AttributeId::DataType` | 14 | Data type NodeId |
 | `AttributeId::AccessLevel` | 17 | Access level bitmask |
 
-### Read Multiple Values
+### Multiple Values
 
 ```php
 $results = $client->readMulti([
@@ -67,19 +67,17 @@ foreach ($results as $dataValue) {
 
 ### DataValue Properties
 
-The `DataValue` object contains:
-
 ```php
-$dataValue->getValue();             // mixed - the unwrapped value
-$dataValue->getVariant();           // ?Variant - the typed variant
-$dataValue->getStatusCode();        // int - OPC UA status code
+$dataValue->getValue();             // mixed — unwrapped value
+$dataValue->getVariant();           // ?Variant — typed variant
+$dataValue->getStatusCode();        // int — OPC UA status code
 $dataValue->getSourceTimestamp();    // ?DateTimeImmutable
 $dataValue->getServerTimestamp();    // ?DateTimeImmutable
 ```
 
 ## Writing
 
-### Write a Single Value
+### Single Value
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
@@ -97,7 +95,7 @@ if (StatusCode::isGood($statusCode)) {
 }
 ```
 
-### Write Multiple Values
+### Multiple Values
 
 ```php
 $results = $client->writeMulti([
@@ -123,9 +121,9 @@ foreach ($results as $i => $statusCode) {
 }
 ```
 
-### Write to a Specific Attribute
+### Specific Attribute
 
-By default, write targets the Value attribute (id=13):
+By default write targets the Value attribute (id=13):
 
 ```php
 $results = $client->writeMulti([
@@ -140,15 +138,15 @@ $results = $client->writeMulti([
 
 ## Automatic Batching
 
-OPC UA servers may impose limits on the number of nodes per request (`MaxNodesPerRead`, `MaxNodesPerWrite`). The client handles this transparently.
+OPC UA servers can impose limits on how many nodes you can read/write in a single request (`MaxNodesPerRead`, `MaxNodesPerWrite`). The client handles this for you.
 
 ### Server Limits Discovery
 
-After `connect()`, the client automatically reads the server's operation limits from the standard OPC UA nodes:
+After `connect()`, the client reads the server's limits from standard OPC UA nodes:
 - `MaxNodesPerRead` (ns=0, i=11705)
 - `MaxNodesPerWrite` (ns=0, i=11707)
 
-A value of `0` means "no limit". You can inspect the discovered values:
+A value of `0` means "no limit". You can check the discovered values:
 
 ```php
 $client->connect('opc.tcp://localhost:4840');
@@ -157,45 +155,44 @@ echo $client->getServerMaxNodesPerRead();  // e.g. 100, or null if unknown
 echo $client->getServerMaxNodesPerWrite(); // e.g. 100, or null if unknown
 ```
 
-### Transparent Batching
+### How It Works
 
-When the number of items in `readMulti()` or `writeMulti()` exceeds the effective batch size, the client automatically splits the request into multiple smaller requests and merges the results:
+When `readMulti()` or `writeMulti()` gets more items than the batch size allows, it splits the request automatically and merges the results:
 
 ```php
 $client->connect('opc.tcp://localhost:4840');
-// Server reports MaxNodesPerRead = 100
+// Server says MaxNodesPerRead = 100
 
-// This will be split into 10 requests of 100 nodes each
+// This gets split into 10 requests of 100 each
 $results = $client->readMulti($items1000);
-// $results contains all 1000 DataValues in order
+// $results has all 1000 DataValues, in order
 ```
 
 ### Manual Batch Size
 
-You can override the server limit (or set a batch size when the server doesn't report one) using `setBatchSize()`:
+Override the server limit (or set one when the server doesn't report any):
 
 ```php
 $client->setBatchSize(50); // max 50 nodes per request
 $client->connect('opc.tcp://localhost:4840');
 
-// readMulti and writeMulti will batch at 50 regardless of server limits
+// readMulti and writeMulti batch at 50, regardless of server limits
 ```
 
-**Priority order:** `setBatchSize(N)` (N > 0) > server-reported limit > no batching
+**Priority:** `setBatchSize(N)` (N > 0) > server-reported limit > no batching
 
-### Disabling Auto-Batching
+### Disabling Batching
 
-To disable batching entirely — including skipping the server operation limits discovery on `connect()`:
+To skip batching entirely — including the server limits discovery on `connect()`:
 
 ```php
 $client->setBatchSize(0);
 $client->connect('opc.tcp://localhost:4840');
 
-// No discovery call is made, no batching is applied
-// All items are sent in a single request regardless of server limits
+// No discovery call, no batching. Everything goes in one request.
 ```
 
-This can be useful to avoid the extra read request during connection, or when you know the server has no limits and want to minimize overhead.
+Useful if you know the server has no limits and want to save that extra read on connect.
 
 ### Batching Behavior
 
@@ -208,7 +205,7 @@ This can be useful to avoid the extra read request during connection, or when yo
 | `50` | 0 | Yes | 50 |
 | `0` (disabled) | Any | **Skipped** | No batching |
 
-> **Note:** Batching applies only to `readMulti()` and `writeMulti()`. Single `read()` and `write()` are always sent as individual requests.
+> **Note:** Batching only applies to `readMulti()` and `writeMulti()`. Single `read()` and `write()` always go as individual requests.
 
 ## Supported Data Types
 
@@ -239,11 +236,11 @@ This can be useful to avoid the extra read request during connection, or when yo
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 
-// Arrays are passed as PHP arrays in the Variant value
+// Pass PHP arrays as the Variant value
 $variant = new Variant(BuiltinType::Int32, [1, 2, 3, 4, 5]);
 $dataValue = new DataValue($variant);
 
-// Using writeMulti with raw DataValue for more control
+// Or via writeMulti
 $results = $client->writeMulti([
     [
         'nodeId' => NodeId::numeric(2, 2001),
@@ -268,10 +265,10 @@ StatusCode::getName($statusCode);     // e.g. "BadNodeIdUnknown"
 
 **Common status codes:**
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `StatusCode::Good` | `0x00000000` | Operation succeeded |
-| `StatusCode::BadNodeIdUnknown` | `0x80340000` | Node does not exist |
+| Constant | Value | Meaning |
+|----------|-------|---------|
+| `StatusCode::Good` | `0x00000000` | All good |
+| `StatusCode::BadNodeIdUnknown` | `0x80340000` | Node doesn't exist |
 | `StatusCode::BadTypeMismatch` | `0x80740000` | Value type mismatch |
 | `StatusCode::BadNotWritable` | `0x803B0000` | Node is read-only |
 | `StatusCode::BadNotReadable` | `0x803E0000` | Node is not readable |

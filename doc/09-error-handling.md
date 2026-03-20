@@ -2,7 +2,7 @@
 
 ## Exception Hierarchy
 
-All exceptions extend `RuntimeException` through a common base:
+Everything extends `RuntimeException` through a common base:
 
 ```
 RuntimeException
@@ -15,13 +15,13 @@ RuntimeException
         └── ServiceException
 ```
 
-All exceptions are in the `Gianfriaur\OpcuaPhpClient\Exception` namespace.
+All in the `Gianfriaur\OpcuaPhpClient\Exception` namespace.
 
 ## Exception Types
 
 ### OpcUaException
 
-Base exception for all library errors. Catch this to handle any library exception:
+Base for all library errors. Catch this if you want a single catch-all:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
@@ -36,7 +36,7 @@ try {
 
 ### ConfigurationException
 
-Thrown for invalid configuration parameters:
+Bad configuration:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
@@ -44,21 +44,21 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
 // Thrown when:
 // - Invalid endpoint URL format
 // - Certificate file not found or unreadable
-// - Private key file not found or unreadable
+// - Private key file not found
 // - reconnect() called without prior connect()
 ```
 
 ### ConnectionException
 
-Thrown for TCP connection issues:
+TCP-level problems:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 
 // Thrown when:
-// - Cannot connect to host:port
+// - Can't connect to host:port
 // - Connection closed by remote
-// - Read timeout (configurable via $client->setTimeout(), default: 5 seconds)
+// - Read timeout (configurable via setTimeout(), default: 5s)
 // - Failed to send data
 // - "Not connected: call connect() first" (state: Disconnected)
 // - "Connection lost: call reconnect() or connect() to re-establish" (state: Broken)
@@ -66,13 +66,13 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 
 ### EncodingException
 
-Thrown for binary encoding/decoding errors:
+Binary encoding/decoding errors:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
 
 // Thrown when:
-// - Buffer underflow (not enough data to read)
+// - Buffer underflow (not enough data)
 // - Invalid GUID format
 // - Unknown NodeId encoding byte
 // - Unknown variant type
@@ -81,26 +81,26 @@ use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
 
 ### ProtocolException
 
-Thrown for OPC UA protocol violations:
+OPC UA protocol violations:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
 
 // Thrown when:
-// - Server returns ERR during handshake
+// - Server sends ERR during handshake
 // - Unexpected message type (expected ACK, got something else)
 // - Invalid message size
 ```
 
 ### SecurityException
 
-Thrown for security-related errors:
+Crypto problems:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
 
 // Thrown when:
-// - Could not obtain server certificate
+// - Couldn't get server certificate
 // - Failed to parse private key
 // - Asymmetric signing/encryption/decryption failed
 // - Symmetric encryption/decryption failed
@@ -110,7 +110,7 @@ use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
 
 ### ServiceException
 
-Thrown when the OPC UA server returns an error status code. Includes the status code:
+The OPC UA server returned an error. Carries the status code:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
@@ -125,7 +125,7 @@ try {
 }
 ```
 
-## Recommended Error Handling Pattern
+## Recommended Pattern
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
@@ -141,9 +141,9 @@ try {
 } catch (ConnectionException $e) {
     echo "Connection failed: " . $e->getMessage() . "\n";
 
-    // Check if the connection can be recovered
+    // check if recovery is possible
     if ($client->getConnectionState() === ConnectionState::Broken) {
-        // Could try reconnect() or connect() again
+        // could try reconnect() or connect() again
     }
 } catch (SecurityException $e) {
     echo "Security error: " . $e->getMessage() . "\n";
@@ -156,18 +156,17 @@ try {
 }
 ```
 
-> **Tip:** With auto-retry enabled (default: 1 retry after first connect), the client will automatically attempt to reconnect and retry the operation before throwing a `ConnectionException`. You only need manual recovery if auto-retry is exhausted or disabled.
-```
+> **Tip:** With auto-retry enabled (default: 1 retry after first connect), the client tries to reconnect before throwing. You only need manual recovery if auto-retry is exhausted or disabled.
 
 ## Status Codes vs Exceptions
 
-Not all error status codes throw exceptions. The library distinguishes between:
+Not every bad status code triggers an exception. The library distinguishes:
 
-- **Exceptions**: Connection failures, protocol errors, security failures, server-level errors (ERR messages)
-- **Status codes in results**: Per-item results from read/write/call operations return status codes that you should check manually
+- **Exceptions** — connection failures, protocol errors, security failures, server-level errors (ERR messages)
+- **Status codes in results** — per-item results from read/write/call that you should check yourself
 
 ```php
-// This does NOT throw on BadNodeIdUnknown - returns it in the DataValue
+// This does NOT throw on BadNodeIdUnknown — returns it in the DataValue
 $dv = $client->read(NodeId::numeric(0, 99999));
 if (StatusCode::isBad($dv->getStatusCode())) {
     echo "Read failed: " . StatusCode::getName($dv->getStatusCode()) . "\n";
@@ -177,7 +176,7 @@ if (StatusCode::isBad($dv->getStatusCode())) {
 $results = $client->writeMulti([...]);
 foreach ($results as $statusCode) {
     if (StatusCode::isBad($statusCode)) {
-        // Handle write failure for this item
+        // handle failure for this specific item
     }
 }
 ```

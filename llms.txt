@@ -1,0 +1,149 @@
+# OPC UA PHP Client
+
+> Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required.
+
+## What is this
+
+A PHP library for connecting to OPC UA servers (industrial automation protocol). It handles the full communication stack: TCP transport, binary encoding, secure channels, sessions, and all major OPC UA services. Supports PHP 8.2+.
+
+## Use cases
+
+- Read and write process variables from PLCs, SCADA systems, sensors, historians
+- Browse the OPC UA address space programmatically
+- Call OPC UA methods with typed arguments
+- Subscribe to data changes and events
+- Query historical data (raw, processed, at-time)
+- Integrate industrial data into PHP/Laravel applications
+
+## Key features
+
+- Browse: recursive browsing, automatic continuation, tree building
+- Path Resolution: resolve human-readable paths like /Objects/MyPLC/Temperature to NodeIds
+- Read/Write: single and multi operations with all OPC UA data types
+- Method Call: invoke OPC UA methods with typed arguments
+- Subscriptions: data change and event monitoring with publish/acknowledge
+- History Read: raw, processed (aggregated), and at-time historical queries
+- Endpoint Discovery: discover available server endpoints and security policies
+- Security: 6 policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
+- Authentication: Anonymous, Username/Password, X.509 Certificate
+- Auto-Retry: automatic reconnect on connection failures
+- Auto-Batching: transparent batching for readMulti/writeMulti with server limits discovery
+- ExtensionObject Codecs: pluggable codec system for custom OPC UA structures
+- Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
+
+## Architecture
+
+The library is organized in layers:
+
+- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 13 traits for functionality
+- Transport (src/Transport/): TCP socket communication
+- Protocol (src/Protocol/): OPC UA service encoding/decoding (Read, Write, Browse, Call, Subscribe, etc.)
+- Encoding (src/Encoding/): binary serialization (BinaryEncoder, BinaryDecoder)
+- Security (src/Security/): secure channel, crypto operations, certificate management
+- Types (src/Types/): OPC UA data types (NodeId, Variant, DataValue, BuiltinType, etc.)
+- Exception (src/Exception/): exception hierarchy (Connection, Protocol, Security, Service, Encoding, Configuration)
+
+## Installation
+
+```
+composer require gianfriaur/opcua-php-client
+```
+
+## Quick example
+
+```php
+use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+
+$client = new Client();
+$client->connect('opc.tcp://localhost:4840');
+
+$value = $client->read(NodeId::numeric(0, 2259));
+echo $value->getValue();
+
+$refs = $client->browse(NodeId::numeric(0, 85));
+foreach ($refs as $ref) {
+    echo $ref->getDisplayName() . "\n";
+}
+
+$client->disconnect();
+```
+
+## Secure connection example
+
+```php
+use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+
+$client = new Client();
+$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
+$client->setSecurityMode(SecurityMode::SignAndEncrypt);
+$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
+$client->setUserCredentials('operator', 'secret');
+$client->connect('opc.tcp://192.168.1.100:4840');
+```
+
+## Main classes
+
+- Gianfriaur\OpcuaPhpClient\Client — main client class
+- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract
+- Gianfriaur\OpcuaPhpClient\Types\NodeId — OPC UA node identifier (numeric, string, guid, opaque)
+- Gianfriaur\OpcuaPhpClient\Types\Variant — typed value container
+- Gianfriaur\OpcuaPhpClient\Types\DataValue — value with status code and timestamps
+- Gianfriaur\OpcuaPhpClient\Types\BuiltinType — enum of 25 OPC UA primitive types
+- Gianfriaur\OpcuaPhpClient\Types\BrowseNode — tree node for recursive browse results
+- Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy — enum of 6 security policies
+- Gianfriaur\OpcuaPhpClient\Security\SecurityMode — enum (None, Sign, SignAndEncrypt)
+- Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec — interface for custom type codecs
+
+## Related packages
+
+- gianfriaur/opcua-php-client-session-manager: session persistence across PHP requests
+- gianfriaur/opcua-laravel-client: Laravel integration (service provider, facade, config)
+- GianfriAur/opcua-test-server-suite: Docker-based OPC UA test servers
+
+## Alternatives and comparison
+
+### PHP alternatives
+
+- techdock/opcua (https://github.com/TECHDOCK-CH/php-opc-ua): PHP 8.4+, binary protocol, requires phpseclib + symfony/cache + monolog + brick/date-time + wapmorgan/binary-stream. Supports Basic256Sha256, no history read, no auto-batching. Still at v0.2.
+- techdock/opcua-webapi-client: PHP 8.1+, HTTP-based (not binary protocol), requires an OPC UA WebAPI gateway. Very early (v0.1).
+- QuickOPC (OPC Labs): commercial, Windows-only, uses COM interop. Not a Composer package.
+
+### Why this library over alternatives
+
+- Only ext-openssl required (zero Composer dependencies in production)
+- PHP 8.2+ support (wider compatibility than techdock which requires 8.4+)
+- 6 security policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
+- History read support (raw, processed, at-time)
+- Auto-batching with server limits discovery
+- Works on Linux, no Windows/COM dependency
+- Native binary protocol (no HTTP gateway needed)
+- Laravel integration available via gianfriaur/opcua-laravel-client
+
+### Cross-language alternatives
+
+- node-opcua (TypeScript/Node.js): most mature open-source OPC UA lib, client + server, MIT
+- opcua-asyncio (Python): async client + server, LGPL-3.0
+- UA-.NETStandard (C#): OPC Foundation reference implementation, client + server
+- gopcua (Go): pure Go client + server, MIT
+- open62541 (C): most widely used C implementation, client + server, MPL-2.0
+
+The value of this library: if your stack is PHP, you get a native OPC UA client without spinning up a sidecar in another language or depending on COM/FFI/gateways.
+
+## Requirements
+
+- PHP >= 8.2
+- ext-openssl
+
+## License
+
+MIT
+
+## Links
+
+- Repository: https://github.com/GianfriAur/opcua-php-client
+- Documentation: https://github.com/GianfriAur/opcua-php-client/tree/master/doc
+- Issues: https://github.com/GianfriAur/opcua-php-client/issues
+- Packagist: https://packagist.org/packages/gianfriaur/opcua-php-client

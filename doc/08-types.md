@@ -2,21 +2,21 @@
 
 ## NodeId
 
-Identifies a node in the OPC UA address space. Supports four identifier types:
+Identifies a node in the OPC UA address space. Four identifier types:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-// Numeric identifier (most common)
+// Numeric (most common)
 $nodeId = NodeId::numeric(0, 85);           // ns=0;i=85
 
-// String identifier
+// String
 $nodeId = NodeId::string(2, 'Temperature'); // ns=2;s=Temperature
 
-// GUID identifier
+// GUID
 $nodeId = NodeId::guid(1, '550e8400-e29b-41d4-a716-446655440000');
 
-// Opaque (ByteString) identifier - hex encoded
+// Opaque (ByteString) — hex encoded
 $nodeId = NodeId::opaque(1, 'DEADBEEF');
 ```
 
@@ -33,39 +33,54 @@ $nodeId->isOpaque();           // bool
 $nodeId->getEncodingByte();    // int (binary protocol encoding)
 ```
 
+### Parsing and Serialization
+
+```php
+// Parse from OPC UA string format
+$nodeId = NodeId::parse('ns=2;i=1001');
+$nodeId = NodeId::parse('i=85');         // ns=0 implied
+$nodeId = NodeId::parse('ns=2;s=MyNode');
+
+// Serialize back
+echo $nodeId->toString();  // "ns=2;i=1001"
+echo (string) $nodeId;     // same thing (__toString)
+```
+
 ### Encoding Rules
 
-Numeric NodeIds are encoded in the most compact form:
+Numeric NodeIds use the most compact encoding:
 - **TwoByte** (0x00): namespace=0, identifier 0-255
 - **FourByte** (0x01): namespace 0-255, identifier 0-65535
 - **Numeric** (0x02): full UInt16 namespace, UInt32 identifier
 
 ## Variant
 
-A typed value container. Wraps any OPC UA value with its type information:
+Typed value container. Wraps any OPC UA value with its type:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
-// Scalar values
+// Scalars
 $v = new Variant(BuiltinType::Int32, 42);
 $v = new Variant(BuiltinType::String, 'Hello');
 $v = new Variant(BuiltinType::Double, 3.14);
 $v = new Variant(BuiltinType::Boolean, true);
 $v = new Variant(BuiltinType::DateTime, new DateTimeImmutable());
 
-// Array values
+// Arrays
 $v = new Variant(BuiltinType::Int32, [1, 2, 3, 4, 5]);
 $v = new Variant(BuiltinType::String, ['a', 'b', 'c']);
 
-$v->getType();   // BuiltinType enum
-$v->getValue();  // mixed
+$v->getType();          // BuiltinType enum
+$v->getValue();         // mixed
+$v->getDimensions();    // ?int[] — multi-dimensional array dimensions
+$v->isMultiDimensional(); // bool
 ```
 
 ## DataValue
 
-Contains a value with metadata:
+A value with metadata:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
@@ -86,7 +101,7 @@ $dv->getServerTimestamp();   // ?DateTimeImmutable
 
 ## BuiltinType (Enum)
 
-All OPC UA built-in data types:
+All 25 OPC UA built-in data types:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
@@ -120,9 +135,7 @@ BuiltinType::DiagnosticInfo; // 25
 
 ## ExtensionObject Codecs
 
-OPC UA `ExtensionObject` is a container for custom data structures. By default, the library returns them as raw arrays with an opaque binary body. You can register custom codecs to decode them automatically into PHP arrays or objects.
-
-Quick example:
+OPC UA `ExtensionObject` is a container for custom structures. Without a codec, the library gives you back a raw array with an opaque binary body. Register a codec and it gets decoded automatically:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
@@ -133,7 +146,7 @@ $result = $client->read($pointNodeId);
 // $result->getValue() => ['x' => 1.0, 'y' => 2.0, 'z' => 3.0]
 ```
 
-For the full guide on implementing codecs, the repository API, finding type IDs, and design decisions, see [ExtensionObject Codecs](12-extension-object-codecs.md).
+Full guide: [ExtensionObject Codecs](12-extension-object-codecs.md).
 
 ## NodeClass (Enum)
 
@@ -153,17 +166,15 @@ NodeClass::View;           // 128
 
 ## BrowseDirection (Enum)
 
-Specifies the direction for browse operations:
-
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 
-BrowseDirection::Forward;  // 0 - Forward references (children)
-BrowseDirection::Inverse;  // 1 - Inverse references (parents)
-BrowseDirection::Both;     // 2 - Both directions
+BrowseDirection::Forward;  // 0 — children
+BrowseDirection::Inverse;  // 1 — parents
+BrowseDirection::Both;     // 2 — both ways
 ```
 
-Used as the `direction` parameter in `browse()`, `browseAll()`, `browseRecursive()`, etc.
+Used in `browse()`, `browseAll()`, `browseRecursive()`, etc.
 
 ## QualifiedName
 
@@ -198,7 +209,7 @@ echo $lt;          // 'Server Status'
 
 ## StatusCode
 
-Utility class for OPC UA status codes:
+Utility for OPC UA status codes:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
@@ -209,7 +220,7 @@ StatusCode::isUncertain(0x408F0000); // true
 StatusCode::getName(0x80340000);     // 'BadNodeIdUnknown'
 ```
 
-### Defined Constants
+### Constants
 
 | Constant | Value |
 |----------|-------|
@@ -239,7 +250,7 @@ StatusCode::getName(0x80340000);     // 'BadNodeIdUnknown'
 
 ## AttributeId
 
-Constants for node attribute identifiers:
+Constants for node attributes:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
@@ -270,11 +281,11 @@ AttributeId::UserExecutable;         // 22
 
 ## EndpointDescription
 
-Describes a server endpoint (returned by `getEndpoints()`):
+Server endpoint info (from `getEndpoints()`):
 
 ```php
 $ep->getEndpointUrl();           // string
-$ep->getServerCertificate();     // ?string (DER format)
+$ep->getServerCertificate();     // ?string (DER)
 $ep->getSecurityMode();          // int (1=None, 2=Sign, 3=SignAndEncrypt)
 $ep->getSecurityPolicyUri();     // string
 $ep->getUserIdentityTokens();    // UserTokenPolicy[]
@@ -284,7 +295,7 @@ $ep->getSecurityLevel();         // int
 
 ## UserTokenPolicy
 
-Describes an authentication method supported by an endpoint:
+Auth method supported by an endpoint:
 
 ```php
 $policy->getPolicyId();          // ?string
@@ -296,21 +307,19 @@ $policy->getSecurityPolicyUri(); // ?string
 
 ## ConnectionState (Enum)
 
-Represents the current state of the client's connection:
-
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 
-ConnectionState::Disconnected;  // Never connected or cleanly disconnected
-ConnectionState::Connected;     // Connected and operational
-ConnectionState::Broken;        // Connection was lost
+ConnectionState::Disconnected;  // never connected or cleanly disconnected
+ConnectionState::Connected;     // up and running
+ConnectionState::Broken;        // connection was lost
 ```
 
-Used by `Client::getConnectionState()` and `Client::isConnected()`. See [Connection & Configuration](02-connection.md#connection-state) for details.
+Used by `Client::getConnectionState()` and `Client::isConnected()`. See [Connection & Configuration](02-connection.md#connection-state).
 
 ## ReferenceDescription
 
-Describes a reference between nodes (returned by `browse()`):
+A reference between nodes (from `browse()`):
 
 ```php
 $ref->getReferenceTypeId();  // NodeId
@@ -324,19 +333,19 @@ $ref->getTypeDefinition();   // ?NodeId
 
 ## BrowseNode
 
-A tree node returned by `browseRecursive()`. Wraps a `ReferenceDescription` with a list of children:
+Tree node from `browseRecursive()`. Wraps a `ReferenceDescription` with children:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 
-$node->getReference();    // ReferenceDescription - the original reference
+$node->getReference();    // ReferenceDescription
 $node->getNodeId();       // NodeId
 $node->getDisplayName();  // LocalizedText
 $node->getBrowseName();   // QualifiedName
 $node->getNodeClass();    // NodeClass enum
-$node->getChildren();     // BrowseNode[] - child nodes
+$node->getChildren();     // BrowseNode[]
 $node->hasChildren();     // bool
-$node->addChild($child);  // void - add a child node
+$node->addChild($child);  // void
 ```
 
-See [Browsing](03-browsing.md#recursive-browse) for usage examples.
+See [Browsing](03-browsing.md#recursive-browse) for examples.

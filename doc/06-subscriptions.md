@@ -1,12 +1,12 @@
 # Subscriptions & Monitoring
 
-## Overview
+## How it works
 
-OPC UA subscriptions allow you to receive notifications when values change or events occur, instead of polling. The workflow is:
+OPC UA subscriptions let you get notifications when values change or events fire, instead of polling. The flow:
 
 1. Create a subscription
-2. Add monitored items to the subscription
-3. Call `publish()` to receive notifications
+2. Add monitored items to it
+3. Call `publish()` to get notifications
 4. Clean up when done
 
 ## Creating a Subscription
@@ -14,8 +14,8 @@ OPC UA subscriptions allow you to receive notifications when values change or ev
 ```php
 $sub = $client->createSubscription(
     publishingInterval: 1000.0,   // ms between publish cycles
-    lifetimeCount: 2400,          // cycles before subscription expires
-    maxKeepAliveCount: 10,        // cycles before empty notification
+    lifetimeCount: 2400,          // cycles before the subscription expires
+    maxKeepAliveCount: 10,        // cycles before an empty notification
     maxNotificationsPerPublish: 0, // 0 = unlimited
     publishingEnabled: true,
     priority: 0,
@@ -28,7 +28,7 @@ echo "Revised interval: " . $sub['revisedPublishingInterval'] . " ms\n";
 
 ## Data Change Monitoring
 
-Monitor nodes for value changes:
+Watch nodes for value changes:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -38,9 +38,9 @@ $results = $client->createMonitoredItems(
     [
         [
             'nodeId' => NodeId::numeric(0, 2258),    // CurrentTime
-            'samplingInterval' => 500.0,              // ms (optional, default: -1 = server decides)
+            'samplingInterval' => 500.0,              // ms (optional, default: -1 = server picks)
             'queueSize' => 10,                        // max queued values (optional, default: 1)
-            'clientHandle' => 1,                      // client identifier (optional, default: auto)
+            'clientHandle' => 1,                      // your identifier (optional, default: auto)
         ],
         [
             'nodeId' => NodeId::numeric(2, 1001),
@@ -57,18 +57,18 @@ foreach ($results as $result) {
 
 ### MonitoredItem Parameters
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `nodeId` | (required) | The node to monitor |
-| `attributeId` | 13 (Value) | Which attribute to monitor |
+| Parameter | Default | What |
+|-----------|---------|------|
+| `nodeId` | (required) | Node to monitor |
+| `attributeId` | 13 (Value) | Which attribute |
 | `samplingInterval` | -1.0 | Sampling rate in ms (-1 = server default) |
-| `queueSize` | 1 | Max notifications queued |
-| `clientHandle` | auto | Client-side identifier for matching notifications |
+| `queueSize` | 1 | Max queued notifications |
+| `clientHandle` | auto | Client-side ID for matching notifications |
 | `monitoringMode` | 2 (Reporting) | 0=Disabled, 1=Sampling, 2=Reporting |
 
 ## Event Monitoring
 
-Monitor a node for OPC UA events:
+Watch a node for OPC UA events:
 
 ```php
 $result = $client->createEventMonitoredItem(
@@ -81,11 +81,11 @@ $result = $client->createEventMonitoredItem(
 echo "Event monitor status: " . StatusCode::getName($result['statusCode']) . "\n";
 ```
 
-Default select fields: `EventId`, `EventType`, `SourceName`, `Time`, `Message`, `Severity`.
+Default fields: `EventId`, `EventType`, `SourceName`, `Time`, `Message`, `Severity`.
 
 ## Receiving Notifications
 
-Call `publish()` to receive pending notifications:
+Call `publish()` to get what's pending:
 
 ```php
 $response = $client->publish();
@@ -109,12 +109,12 @@ foreach ($response['notifications'] as $notif) {
 
 ### Acknowledging Notifications
 
-Pass acknowledgements to avoid re-receiving the same notifications:
+Pass ack info to `publish()` to avoid re-receiving:
 
 ```php
 $response = $client->publish();
 
-// Next publish acknowledges the previous one
+// next publish acknowledges the previous one
 $response2 = $client->publish([
     [
         'subscriptionId' => $response['subscriptionId'],
@@ -123,7 +123,7 @@ $response2 = $client->publish([
 ]);
 ```
 
-## Polling Loop Example
+## Polling Loop
 
 ```php
 $sub = $client->createSubscription(publishingInterval: 500.0);
@@ -161,4 +161,4 @@ $statuses = $client->deleteMonitoredItems(
 $status = $client->deleteSubscription($subscriptionId);
 ```
 
-The subscription is also automatically cleaned up when you call `$client->disconnect()`.
+Subscriptions also get cleaned up automatically when you call `$client->disconnect()`.

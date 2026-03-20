@@ -1,10 +1,10 @@
 # ExtensionObject Codecs
 
-## Overview
+## The problem
 
-OPC UA `ExtensionObject` is a container for custom data structures defined by the server or by OPC UA companion specifications. Examples include alarm details, diagnostic structures, PLC-specific data types, and any server-defined complex type.
+OPC UA `ExtensionObject` is a container for custom structures — alarm details, diagnostic info, PLC-specific types, anything the server defines beyond the standard types.
 
-By default, the library returns ExtensionObjects as raw arrays with an opaque binary body:
+Without a codec, the library hands you a raw array with a binary blob:
 
 ```php
 $result = $client->read($nodeId);
@@ -12,11 +12,11 @@ $value = $result->getValue();
 // ['typeId' => NodeId, 'encoding' => 1, 'body' => '<binary blob>']
 ```
 
-The **codec system** allows you to register custom decoders that automatically transform these binary blobs into usable PHP arrays or objects.
+The codec system lets you register decoders that turn these blobs into actual PHP arrays or objects.
 
-## Implementing a Codec
+## Writing a Codec
 
-A codec implements the `ExtensionObjectCodec` interface with two methods:
+Implement `ExtensionObjectCodec` with `decode()` and `encode()`:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
@@ -43,11 +43,11 @@ class MyPointCodec implements ExtensionObjectCodec
 }
 ```
 
-The `decode()` method receives a `BinaryDecoder` positioned at the start of the ExtensionObject body. Use the decoder's `read*` methods to extract fields in the order defined by the type's binary encoding. The `encode()` method does the reverse.
+The decoder is positioned at the start of the ExtensionObject body. Read fields in the order the type's binary encoding defines them. `encode()` does the reverse.
 
 ### Available Decoder Methods
 
-Inside `decode()` you can use all `BinaryDecoder` methods:
+Everything `BinaryDecoder` offers:
 
 | Method | OPC UA Type |
 |--------|-------------|
@@ -69,24 +69,22 @@ Inside `decode()` you can use all `BinaryDecoder` methods:
 
 ## Registering a Codec
 
-Use `ExtensionObjectRepository` to register your codec for a specific type NodeId:
-
 ```php
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-// Register by class name (instantiated automatically)
+// By class name (instantiated automatically)
 ExtensionObjectRepository::register(NodeId::numeric(2, 5001), MyPointCodec::class);
 
-// Or register by instance (useful for codecs that need configuration)
+// By instance (useful when the codec needs configuration)
 ExtensionObjectRepository::register(NodeId::numeric(2, 5001), new MyPointCodec());
 ```
 
-The `typeId` is the **binary encoding NodeId** of the ExtensionObject type — this is the NodeId that appears in the `typeId` field of the raw ExtensionObject. You can find it by reading the node without a codec first and inspecting the `typeId` value.
+The `typeId` is the **binary encoding NodeId** — the one that shows up in the `typeId` field of the raw ExtensionObject. To find it, read the node without a codec first and look at the `typeId` value.
 
-## Using a Registered Codec
+## Using It
 
-Once registered, the codec is used automatically whenever the library encounters an ExtensionObject with that `typeId`:
+Once registered, the codec kicks in automatically whenever the library encounters an ExtensionObject with that `typeId`:
 
 ```php
 ExtensionObjectRepository::register(NodeId::numeric(2, 5001), MyPointCodec::class);
@@ -95,10 +93,10 @@ $client->connect('opc.tcp://localhost:4840');
 
 $result = $client->read($pointNodeId);
 $point = $result->getValue();
-// ['x' => 1.0, 'y' => 2.0, 'z' => 3.0]  — decoded by MyPointCodec
+// ['x' => 1.0, 'y' => 2.0, 'z' => 3.0] — decoded by MyPointCodec
 ```
 
-No changes to `read()`, `readMulti()`, or any other client method are needed.
+No changes to `read()`, `readMulti()`, or anything else needed.
 
 ## Repository API
 
@@ -106,22 +104,22 @@ No changes to `read()`, `readMulti()`, or any other client method are needed.
 // Register
 ExtensionObjectRepository::register($typeId, MyCodec::class);
 
-// Check if registered
+// Check
 ExtensionObjectRepository::has($typeId);   // bool
 
-// Get the codec instance
+// Get the instance
 ExtensionObjectRepository::get($typeId);   // ?ExtensionObjectCodec
 
-// Unregister a specific type
+// Remove one
 ExtensionObjectRepository::unregister($typeId);
 
-// Remove all codecs
+// Remove all
 ExtensionObjectRepository::clear();
 ```
 
 ## Finding the TypeId
 
-To find the binary encoding NodeId for a type, read the node without a codec and inspect the raw result:
+Read the node without a codec and look at what comes back:
 
 ```php
 $result = $client->read($nodeId);
@@ -132,17 +130,17 @@ echo $raw['encoding'];   // 1 = binary, 2 = XML
 echo strlen($raw['body']); // body size in bytes
 ```
 
-Use this `typeId` when calling `ExtensionObjectRepository::register()`.
+Use that `typeId` when calling `ExtensionObjectRepository::register()`.
 
 ## Limitations
 
-- **Binary encoding only:** Codecs are used only for ExtensionObjects with binary encoding (`0x01`). XML-encoded ExtensionObjects (`0x02`) are returned as raw XML strings.
-- **Global registry:** The repository is static — codecs registered anywhere are available globally. This is by design for simplicity, but means codecs are shared across all client instances.
-- **No built-in type codecs:** The library does not ship with codecs for standard OPC UA ExtensionObject types (e.g., `ServerStatusDataType`, `EUInformation`). You must implement codecs for the types you need.
+- **Binary only** — codecs work for binary-encoded ExtensionObjects (`0x01`). XML-encoded ones (`0x02`) come back as raw XML strings.
+- **Global registry** — the repository is static, so codecs registered anywhere are visible everywhere. By design, for simplicity, but it means codecs are shared across all client instances in the same process.
+- **No built-in codecs** — the library doesn't ship decoders for standard OPC UA ExtensionObject types (like `ServerStatusDataType` or `EUInformation`). You write the codecs you need.
 
-## Design Note: Why BuiltinTypes Are Not Codecs
+## Why BuiltinTypes aren't codecs
 
-The codec system is designed exclusively for `ExtensionObject` — composite structures whose binary format is defined by the server or the OPC UA companion specifications. OPC UA `BuiltinType` values (`Int32`, `String`, `Double`, `Boolean`, `DateTime`, etc.) are **primitive types defined at the protocol level**: their binary encoding is fixed by the OPC UA specification and hardcoded in `BinaryEncoder`/`BinaryDecoder`. Making them pluggable codecs would add an indirection layer with no practical benefit, since their format never changes and cannot be extended. The two layers serve different purposes:
+The codec system is for `ExtensionObject` — composite structures whose binary format comes from the server or OPC UA companion specs. `BuiltinType` values (`Int32`, `String`, `Double`, etc.) are protocol-level primitives: their encoding is fixed by the spec and hardcoded in `BinaryEncoder`/`BinaryDecoder`. Making them pluggable would add an abstraction layer with zero practical benefit since their format never changes. Two different layers:
 
-- **BuiltinType** — the protocol itself (fixed, spec-defined, always the same)
-- **ExtensionObjectCodec** — application-level structures built on top of the protocol (variable, server-defined, user-extensible)
+- **BuiltinType** — the protocol itself (fixed, spec-defined)
+- **ExtensionObjectCodec** — application-level structures on top of the protocol (variable, server-defined, extensible)

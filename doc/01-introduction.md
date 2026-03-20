@@ -1,13 +1,13 @@
-# OPC UA PHP Client - Introduction
+# Introduction
 
-## Overview
+## What is this
 
-`gianfriaur/opcua-php-client` is a pure PHP implementation of an OPC UA (Open Platform Communications Unified Architecture) client. It communicates directly over TCP using the OPC UA binary protocol, without requiring any external C/C++ extensions or dependencies beyond PHP's built-in `ext-openssl`.
+`gianfriaur/opcua-php-client` is an OPC UA client written entirely in PHP. It speaks the OPC UA binary protocol over TCP, handles secure channels, sessions, and crypto — all without external C/C++ extensions. The only requirement beyond PHP itself is `ext-openssl`.
 
 ## Requirements
 
 - PHP >= 8.2
-- `ext-openssl` (for security features and certificate handling)
+- `ext-openssl` (security and certificate handling)
 
 ## Installation
 
@@ -15,26 +15,24 @@
 composer require gianfriaur/opcua-php-client
 ```
 
-## Features
+## What you can do with it
 
-- **Binary Protocol**: Full OPC UA binary encoding/decoding over TCP
-- **Browse**: Navigate the server's address space with recursive browsing and automatic continuation
-- **Path Resolution**: Resolve human-readable paths to NodeIds (TranslateBrowsePathsToNodeIds)
-- **Read/Write**: Read and write node attribute values (single and multi)
-- **Method Call**: Invoke OPC UA methods on the server
-- **Subscriptions**: Create subscriptions with data change and event monitoring
-- **History Read**: Read raw, processed, and at-time historical data
-- **Endpoint Discovery**: Discover available server endpoints
-- **Security**: Support for multiple security policies and modes
-  - SecurityPolicy: None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss
-  - SecurityMode: None, Sign, SignAndEncrypt
-- **Authentication**: Anonymous, Username/Password, X.509 Certificate
-- **Certificate Management**: PEM/DER loading, thumbprint, public key extraction
-- **Configurable Timeout**: Customizable timeout for connection and I/O operations
-- **Connection State Management**: Track connection state (Disconnected, Connected, Broken) with `reconnect()` support
-- **Auto-Retry**: Automatic reconnect and retry on connection failures (configurable, default: 1 retry after first connect)
-- **Auto-Batching**: Transparent batching for `readMulti`/`writeMulti` with automatic server operation limits discovery
-- **ExtensionObject Codecs**: Pluggable codec system for decoding custom ExtensionObject types
+- **Binary Protocol** — full OPC UA binary encoding/decoding over TCP
+- **Browse** — navigate the server address space, recursive browsing with automatic continuation
+- **Path Resolution** — turn paths like `/Objects/MyPLC/Temperature` into NodeIds (TranslateBrowsePathsToNodeIds)
+- **Read/Write** — read and write node attributes, single and multi
+- **Method Call** — invoke OPC UA methods on the server
+- **Subscriptions** — data change and event monitoring
+- **History Read** — raw, processed, and at-time historical queries
+- **Endpoint Discovery** — discover what the server offers
+- **Security** — 6 security policies (None through Aes256Sha256RsaPss), 3 security modes
+- **Authentication** — anonymous, username/password, X.509 certificate
+- **Certificate Management** — PEM/DER loading, thumbprint, public key extraction
+- **Timeout** — configurable timeout for connection and I/O
+- **Connection State** — track connection lifecycle (Disconnected, Connected, Broken) with `reconnect()`
+- **Auto-Retry** — automatic reconnect and retry on failure (default: 1 retry after first connect)
+- **Auto-Batching** — transparent batching for `readMulti`/`writeMulti` with server limits discovery
+- **ExtensionObject Codecs** — pluggable decoders for custom OPC UA structures
 
 ## Architecture
 

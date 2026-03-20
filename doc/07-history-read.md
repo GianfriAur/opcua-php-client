@@ -1,16 +1,16 @@
 # History Read
 
-## Overview
+## What's available
 
-OPC UA servers with historizing capabilities can store past values. This library supports three types of historical queries:
+OPC UA servers with historizing can store past values. Three types of historical queries:
 
-- **Raw** - Read raw stored values in a time range
-- **Processed** - Read aggregated values (e.g., average, min, max)
-- **At Time** - Read interpolated values at specific timestamps
+- **Raw** — stored values in a time range, as-is
+- **Processed** — aggregated values (average, min, max, etc.)
+- **At Time** — interpolated values at specific timestamps
 
 ## Raw History Read
 
-Read raw historical values within a time range:
+Get raw values within a time range:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -39,17 +39,17 @@ foreach ($values as $dv) {
 
 ### Parameters
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
+| Parameter | Default | What |
+|-----------|---------|------|
 | `nodeId` | (required) | Node to read history from |
 | `startTime` | `null` | Start of time range |
 | `endTime` | `null` | End of time range |
 | `numValuesPerNode` | `0` | Max values (0 = unlimited) |
-| `returnBounds` | `false` | Include bounding values at edges |
+| `returnBounds` | `false` | Include bounding values at the edges |
 
 ## Processed History Read
 
-Read aggregated historical data (requires server support):
+Get aggregated data (server must support it):
 
 ```php
 $startTime = new \DateTimeImmutable('2024-01-01 00:00:00');
@@ -60,11 +60,11 @@ $values = $client->historyReadProcessed(
     $startTime,
     $endTime,
     processingInterval: 3600000.0, // 1 hour intervals in ms
-    aggregateType: NodeId::numeric(0, 2342), // Average aggregate
+    aggregateType: NodeId::numeric(0, 2342), // Average
 );
 ```
 
-**Common aggregate type NodeIds:**
+**Common aggregate types:**
 
 | Aggregate | NodeId |
 |-----------|--------|
@@ -77,7 +77,7 @@ $values = $client->historyReadProcessed(
 
 ## History Read At Time
 
-Read interpolated values at specific points in time:
+Get interpolated values at specific points in time:
 
 ```php
 $timestamps = [

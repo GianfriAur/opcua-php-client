@@ -1,6 +1,12 @@
 {
   "name": "gianfriaur/opcua-php-client",
-  "description": "OPC UA client library for PHP",
+  "description": "Pure PHP OPC UA client — binary protocol over TCP, 6 security policies, browse/read/write/subscribe/history, zero external dependencies",
+  "homepage": "https://github.com/GianfriAur/opcua-php-client",
+  "support": {
+    "issues": "https://github.com/GianfriAur/opcua-php-client/issues",
+    "source": "https://github.com/GianfriAur/opcua-php-client",
+    "docs": "https://github.com/GianfriAur/opcua-php-client/tree/master/doc"
+  },
   "type": "library",
   "license": "MIT",
   "autoload": {
@@ -19,6 +25,25 @@
       "Gianfriaur\\OpcuaPhpClient\\Tests\\": "tests/"
     }
   },
+  "keywords": [
+    "opcua",
+    "opc-ua",
+    "opc ua",
+    "industrial",
+    "iot",
+    "plc",
+    "scada",
+    "automation",
+    "binary-protocol",
+    "client",
+    "modbus",
+    "sensor",
+    "historian",
+    "iiot",
+    "industry-4.0",
+    "mes",
+    "hmi"
+  ],
   "require": {
     "php": "^8.2",
     "ext-openssl": "*"

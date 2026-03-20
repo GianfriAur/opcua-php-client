@@ -1,13 +1,24 @@
-# OPC UA PHP Client
+<h1 align="center"><strong>OPC UA PHP Client</strong></h1>
+<p align="center">
+  Pure PHP OPC UA client — no external dependencies, just <code>ext-openssl</code>.
+</p>
 
-A pure PHP implementation of an OPC UA (Open Platform Communications Unified Architecture) client library. Communicates directly over TCP using the OPC UA binary protocol, with no external C/C++ dependencies beyond PHP's built-in `ext-openssl`.
+<p align="center">
+  <a href="https://github.com/GianfriAur/opcua-php-client/actions/workflows/integration-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/GianfriAur/opcua-php-client/integration-tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
+  <a href="https://codecov.io/gh/GianfriAur/opcua-php-client"><img src="https://img.shields.io/codecov/c/github/GianfriAur/opcua-php-client?style=flat-square&logo=codecov" alt="Coverage"></a>
+  <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/v/gianfriaur/opcua-php-client?style=flat-square&label=packagist" alt="Latest Version"></a>
+  <!-- <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/dt/gianfriaur/opcua-php-client?style=flat-square" alt="Total Downloads"></a> -->
+  <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/php-v/gianfriaur/opcua-php-client?style=flat-square" alt="PHP Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/GianfriAur/opcua-php-client?style=flat-square" alt="License"></a>
+</p>
 
-OPC UA is a platform-independent, service-oriented architecture for industrial automation and IoT. It provides a standardized way to access data from PLCs, SCADA systems, sensors, historians, and other industrial devices. This library allows PHP applications to connect to any OPC UA-compliant server to read/write process variables, browse the address space, call methods, subscribe to data changes and events, and query historical data.
+---
 
-The library handles the full OPC UA communication stack: TCP transport, binary message encoding/decoding, secure channel establishment with asymmetric/symmetric encryption, session management, and all major OPC UA services. It supports six security policies (from None to Aes256Sha256RsaPss) and three authentication modes (Anonymous, Username/Password, X.509 Certificate).
+A PHP library that talks OPC UA binary protocol over TCP. It handles the full stack — transport, encoding, secure channels, sessions, crypto — so you can connect to any OPC UA server straight from PHP, without shelling out to C/C++ libraries.
 
-> **Disclaimer:** OPC UA is a protocol based on persistent sessions and long-lived connections. PHP, by its nature, is designed for a short-lived request/response model (e.g., web requests). This makes using this library **conceptually unsuitable** for scenarios like subscription polling or continuous monitoring, which require a long-running process.\
-> To mitigate this limitation, it is recommended to use this library together with [`gianfriaur/opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager), which provides session persistence and management across PHP requests.
+OPC UA is the industry standard for accessing data from PLCs, SCADA systems, sensors, historians, and IoT devices. This library lets you read/write variables, browse the address space, call methods, subscribe to data changes and events, and query historical data.
+
+> **Note:** OPC UA relies on persistent sessions and long-lived connections, while PHP is inherently short-lived (request/response). For use cases like subscription polling or continuous monitoring, pair this with [`gianfriaur/opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager) to persist sessions across PHP requests.
 
 ## Requirements
 
@@ -26,7 +37,6 @@ composer require gianfriaur/opcua-php-client
 use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
@@ -44,35 +54,37 @@ foreach ($refs as $ref) {
 // Write a value
 $client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
 
-// Disconnect
 $client->disconnect();
 ```
 
 ## Features
 
-- **Browse** - Navigate the server address space with recursive browsing, automatic continuation, and tree building
-- **Path Resolution** - Resolve human-readable paths like `/Objects/MyPLC/Temperature` to NodeIds
-- **Read / Write** - Single and multi read/write with all OPC UA data types
-- **Method Call** - Invoke OPC UA methods with typed arguments and outputs
-- **Subscriptions** - Data change and event monitoring with publish/acknowledge
-- **History Read** - Raw, processed (aggregated), and at-time historical queries
-- **Endpoint Discovery** - Discover available server endpoints and security policies
-- **Security** - Full security stack with 6 policies (None through Aes256Sha256RsaPss)
-- **Authentication** - Anonymous, Username/Password, X.509 Certificate
-- **Configurable Timeout** - Customizable timeout for connection and I/O operations
-- **Connection State** - Track connection lifecycle (Disconnected, Connected, Broken) with `reconnect()` support
-- **Auto-Retry** - Automatic reconnect and retry on connection failures (configurable)
-- **Auto-Batching** - Transparent batching for `readMulti`/`writeMulti` with automatic server limits discovery
-- **ExtensionObject Codecs** - Pluggable codec system for decoding custom OPC UA structures
+| Feature | What it does |
+|---|---|
+| **Browse** | Navigate the address space with recursive browsing, automatic continuation, and tree building |
+| **Path Resolution** | Resolve readable paths like `/Objects/MyPLC/Temperature` to NodeIds |
+| **Read / Write** | Single and multi operations with all OPC UA data types |
+| **Method Call** | Invoke OPC UA methods with typed arguments and outputs |
+| **Subscriptions** | Data change and event monitoring with publish/acknowledge |
+| **History Read** | Raw, processed (aggregated), and at-time historical queries |
+| **Endpoint Discovery** | Discover available server endpoints and security policies |
+| **Security** | Full security stack — 6 policies from None through Aes256Sha256RsaPss |
+| **Authentication** | Anonymous, Username/Password, X.509 Certificate |
+| **Configurable Timeout** | Custom timeout for connection and I/O operations |
+| **Connection State** | Lifecycle tracking (Disconnected, Connected, Broken) with `reconnect()` |
+| **Auto-Retry** | Automatic reconnect and retry on connection failures (configurable) |
+| **Auto-Batching** | Transparent batching for `readMulti`/`writeMulti` with automatic server limits discovery |
+| **ExtensionObject Codecs** | Pluggable codec system for decoding custom OPC UA structures |
 
-## Secure Connection Example
+## Secure Connection
 
 ```php
+use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
 $client = new Client();
-$client->setTimeout(10.0); // optional: custom timeout (default: 5s)
+$client->setTimeout(10.0);
 $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
 $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 $client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
@@ -80,36 +92,43 @@ $client->setUserCredentials('operator', 'secret');
 $client->connect('opc.tcp://192.168.1.100:4840');
 ```
 
+If you don't provide a client certificate, one gets auto-generated in memory (self-signed, RSA 2048) — handy for quick tests or servers with auto-accept.
+
 ## Documentation
 
-Full documentation is available in the [`doc/`](doc/) directory:
+Full docs live in the [`doc/`](doc/) directory:
 
-| # | Document | Description |
-|---|----------|-------------|
+| # | Document | Covers |
+|---|----------|--------|
 | 01 | [Introduction](doc/01-introduction.md) | Overview, requirements, architecture, quick start |
-| 02 | [Connection & Configuration](doc/02-connection.md) | Connecting, security setup, authentication methods |
-| 03 | [Browsing](doc/03-browsing.md) | Navigating the address space, continuation, common NodeIds |
-| 04 | [Reading & Writing](doc/04-reading-writing.md) | Read/write values, multi operations, data types, status codes |
-| 05 | [Method Call](doc/05-method-call.md) | Invoking OPC UA methods, arguments, results |
+| 02 | [Connection & Configuration](doc/02-connection.md) | Connecting, security setup, authentication |
+| 03 | [Browsing](doc/03-browsing.md) | Address space navigation, continuation, common NodeIds |
+| 04 | [Reading & Writing](doc/04-reading-writing.md) | Read/write, multi ops, data types, status codes |
+| 05 | [Method Call](doc/05-method-call.md) | Invoking methods, arguments, results |
 | 06 | [Subscriptions](doc/06-subscriptions.md) | Subscriptions, monitored items, events, publish loop |
 | 07 | [History Read](doc/07-history-read.md) | Raw, processed, and at-time historical queries |
-| 08 | [Types Reference](doc/08-types.md) | Complete reference of all types, enums, and constants |
+| 08 | [Types Reference](doc/08-types.md) | All types, enums, and constants |
 | 09 | [Error Handling](doc/09-error-handling.md) | Exception hierarchy, error patterns |
 | 10 | [Security](doc/10-security.md) | Security policies, certificates, crypto internals |
 | 11 | [Architecture](doc/11-architecture.md) | Project structure, layers, protocol flow, binary encoding |
 | 12 | [ExtensionObject Codecs](doc/12-extension-object-codecs.md) | Custom type decoding, codec interface, repository API |
 
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md) for planned features and improvements.
-
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
-
 ## Testing
 
-This library is fully tested. The test suite uses [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) to spin up a complete OPC UA test environment covering all standard scenarios: browsing, reading, writing, method calls, subscriptions, history read, security policies, authentication modes, and error handling.
+The test suite runs on [Pest PHP](https://pestphp.com/) and covers both unit and integration tests. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite), a Docker-based OPC UA environment with multiple security configurations, custom types, and a broad address space designed to cover real-world scenarios.
+
+```bash
+# Everything
+./vendor/bin/pest
+
+# Unit tests only
+./vendor/bin/pest tests/Unit/
+
+# Integration tests only
+./vendor/bin/pest tests/Integration/ --group=integration
+```
+
+CI runs on PHP 8.2, 8.3, and 8.4 via GitHub Actions.
 
 ## Ecosystem
 
@@ -117,10 +136,22 @@ This library is part of a broader OPC UA ecosystem for PHP:
 
 | Package | Description |
 |---------|-------------|
-| [opcua-php-client](https://github.com/GianfriAur/opcua-php-client) | Pure PHP OPC UA client library (this package) |
-| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Session persistence and management across PHP requests, bridging OPC UA's long-lived sessions with PHP's short-lived request model |
-| [opcua-laravel-client](https://github.com/GianfriAur/opcua-laravel-client) | Laravel integration for OPC UA, providing service provider, facade, and configuration for seamless use within Laravel applications |
-| [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) | Docker-based OPC UA test server suite with multiple security configurations, custom data types, and a comprehensive address space for integration testing |
+| [opcua-php-client](https://github.com/GianfriAur/opcua-php-client) | Pure PHP OPC UA client (this package) |
+| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Session persistence across PHP requests |
+| [opcua-laravel-client](https://github.com/GianfriAur/opcua-laravel-client) | Laravel integration — service provider, facade, config |
+| [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) | Docker-based OPC UA test servers for integration testing |
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned features and what's coming next.
+
+## Contributing
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## License
 

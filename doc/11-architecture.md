@@ -58,7 +58,7 @@ src/
 │   └── BrowseNode.php                   # Recursive browse tree node
 │
 ├── Repository/
-│   └── ExtensionObjectRepository.php    # Global repository for type codecs
+│   └── ExtensionObjectRepository.php    # Global registry for type codecs
 │
 └── Exception/
     ├── OpcUaException.php               # Base exception
@@ -70,7 +70,7 @@ src/
     └── ServiceException.php             # Server errors (with status code)
 ```
 
-## Layer Diagram
+## Layers
 
 ```
 ┌─────────────────────────────────┐
@@ -91,12 +91,12 @@ src/
 
 ## Service Pattern
 
-All protocol services follow a consistent pattern:
+All protocol services follow the same structure:
 
-1. Each service wraps a `SessionService` instance
-2. Each operation has separate encoding and decoding methods
-3. Each supports both secure and non-secure paths
-4. Inner body construction is factored out for reuse between secure and non-secure variants
+1. Each wraps a `SessionService` instance
+2. Separate encoding and decoding methods per operation
+3. Both secure and non-secure paths
+4. Inner body construction is factored out for reuse
 
 ```
 encodeFooRequest()
@@ -107,9 +107,9 @@ decodeFooResponse()
   └── read headers → readResponseHeader() → parse result fields
 ```
 
-## Message Flow
+## Message Format
 
-### Non-Secure Message
+### Non-Secure
 
 ```
 ┌──────────┬─────────────┬──────────┬───────────┬─────────────┐
@@ -121,7 +121,7 @@ decodeFooResponse()
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Secure Message
+### Secure
 
 ```
 ┌──────────┬─────────────┬──────────┐
@@ -139,7 +139,7 @@ decodeFooResponse()
 
 ## Binary Encoding
 
-The library implements the OPC UA Binary encoding specification:
+The library follows the OPC UA Binary encoding spec:
 
 - **Little-endian** byte order for all integers
 - **Length-prefixed** strings (Int32 length + UTF-8 bytes, -1 for null)

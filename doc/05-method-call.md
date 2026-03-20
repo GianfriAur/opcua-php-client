@@ -2,7 +2,7 @@
 
 ## Basic Method Call
 
-OPC UA methods are invoked on a target object. You need both the object's NodeId and the method's NodeId:
+OPC UA methods live on objects. You need both the object's NodeId and the method's NodeId:
 
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -21,16 +21,15 @@ $result = $client->call(
 
 ## Call Result
 
-The `call()` method returns an associative array:
+`call()` returns an associative array:
 
 ```php
 $result = $client->call($objectId, $methodId, $args);
 
-$statusCode = $result['statusCode'];           // int - method execution status
-$inputResults = $result['inputArgumentResults']; // int[] - per-argument validation
-$outputs = $result['outputArguments'];           // Variant[] - output values
+$statusCode = $result['statusCode'];           // int — method execution status
+$inputResults = $result['inputArgumentResults']; // int[] — per-argument validation
+$outputs = $result['outputArguments'];           // Variant[] — output values
 
-// Check if the method succeeded
 if (StatusCode::isGood($statusCode)) {
     foreach ($outputs as $output) {
         echo "Type: " . $output->getType()->name . "\n";
@@ -39,16 +38,16 @@ if (StatusCode::isGood($statusCode)) {
 }
 ```
 
-## Call Without Arguments
+## No Arguments
 
 ```php
 $result = $client->call(
     NodeId::numeric(2, 1000),  // target object
-    NodeId::numeric(2, 1001),  // method with no input arguments
+    NodeId::numeric(2, 1001),  // method with no inputs
 );
 ```
 
-## Call With Multiple Arguments
+## Multiple Arguments
 
 ```php
 $result = $client->call(
