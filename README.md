@@ -1,7 +1,12 @@
 <h1 align="center"><strong>OPC UA PHP Client</strong></h1>
-<p align="center">
-  Pure PHP OPC UA client — no external dependencies, just <code>ext-openssl</code>.
-</p>
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
+    <img alt="OPC UA PHP Client" src="assets/logo-light.svg" width="435">
+  </picture>
+</div>
 
 <p align="center">
   <a href="https://github.com/GianfriAur/opcua-php-client/actions/workflows/integration-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/GianfriAur/opcua-php-client/integration-tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
@@ -30,6 +35,11 @@ This library implements the full OPC UA binary protocol stack in pure PHP: TCP t
 All of this with zero external dependencies beyond `ext-openssl`, and full support for PHP 8.2 through 8.5.
 
 > **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager) to persist sessions across requests — or use it in a long-running worker process.
+
+----
+
+> **A note on versioning:** We're aware of the rapid major releases in a short time frame. This library is under active, full-time development right now — the goal is to reach a production-stable state as quickly as possible. Breaking changes are being bundled and shipped deliberately to avoid dragging them out across many minor releases. Once the API surface settles, major version bumps will become rare. Thanks for your patience.
+
 
 ## Quick Start
 

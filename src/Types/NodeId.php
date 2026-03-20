@@ -6,6 +6,9 @@ namespace Gianfriaur\OpcuaPhpClient\Types;
 
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 
+/**
+ * Represents an OPC UA NodeId, uniquely identifying a node within a server address space.
+ */
 readonly class NodeId
 {
     public const TYPE_NUMERIC = 'numeric';
@@ -27,8 +30,11 @@ readonly class NodeId
     }
 
     /**
+     * Creates a numeric NodeId.
+     *
      * @param int $namespaceIndex
      * @param int $identifier
+     * @return self
      */
     public static function numeric(int $namespaceIndex, int $identifier): self
     {
@@ -36,8 +42,11 @@ readonly class NodeId
     }
 
     /**
+     * Creates a string NodeId.
+     *
      * @param int $namespaceIndex
      * @param string $identifier
+     * @return self
      */
     public static function string(int $namespaceIndex, string $identifier): self
     {
@@ -45,8 +54,11 @@ readonly class NodeId
     }
 
     /**
+     * Creates a GUID NodeId.
+     *
      * @param int $namespaceIndex
      * @param string $guidString
+     * @return self
      */
     public static function guid(int $namespaceIndex, string $guidString): self
     {
@@ -54,52 +66,94 @@ readonly class NodeId
     }
 
     /**
+     * Creates an opaque (ByteString) NodeId.
+     *
      * @param int $namespaceIndex
      * @param string $hexIdentifier
+     * @return self
      */
     public static function opaque(int $namespaceIndex, string $hexIdentifier): self
     {
         return new self($namespaceIndex, $hexIdentifier, self::TYPE_OPAQUE);
     }
 
-    /** @deprecated Access the public property directly instead. Use ->namespaceIndex instead. */
+    /**
+     * @deprecated Access the public property directly instead. Use ->namespaceIndex instead.
+     * @return int
+     * @see NodeId::$namespaceIndex
+     */
     public function getNamespaceIndex(): int
     {
         return $this->namespaceIndex;
     }
 
-    /** @deprecated Access the public property directly instead. Use ->identifier instead. */
+    /**
+     * @deprecated Access the public property directly instead. Use ->identifier instead.
+     * @return int|string
+     * @see NodeId::$identifier
+     */
     public function getIdentifier(): int|string
     {
         return $this->identifier;
     }
 
-    /** @deprecated Access the public property directly instead. Use ->type instead. */
+    /**
+     * @deprecated Access the public property directly instead. Use ->type instead.
+     * @return string
+     * @see NodeId::$type
+     */
     public function getType(): string
     {
         return $this->type;
     }
 
+    /**
+     * Checks whether this NodeId has a numeric identifier type.
+     *
+     * @return bool
+     */
     public function isNumeric(): bool
     {
         return $this->type === self::TYPE_NUMERIC;
     }
 
+    /**
+     * Checks whether this NodeId has a string identifier type.
+     *
+     * @return bool
+     */
     public function isString(): bool
     {
         return $this->type === self::TYPE_STRING;
     }
 
+    /**
+     * Checks whether this NodeId has a GUID identifier type.
+     *
+     * @return bool
+     */
     public function isGuid(): bool
     {
         return $this->type === self::TYPE_GUID;
     }
 
+    /**
+     * Checks whether this NodeId has an opaque identifier type.
+     *
+     * @return bool
+     */
     public function isOpaque(): bool
     {
         return $this->type === self::TYPE_OPAQUE;
     }
 
+    /**
+     * Parses a NodeId from its OPC UA string representation (e.g. "ns=2;i=10" or "s=MyNode").
+     *
+     * @param string $nodeIdString
+     * @return self
+     * @throws InvalidNodeIdException If the string format is invalid or the type identifier is unknown.
+     */
     public static function parse(string $nodeIdString): self
     {
         $namespace = 0;
@@ -131,6 +185,11 @@ readonly class NodeId
         };
     }
 
+    /**
+     * Returns the OPC UA string representation of this NodeId (e.g. "ns=2;i=10").
+     *
+     * @return string
+     */
     public function toString(): string
     {
         $typeChar = match ($this->type) {
@@ -145,11 +204,22 @@ readonly class NodeId
         return "{$prefix}{$typeChar}={$this->identifier}";
     }
 
+    /**
+     * Returns the OPC UA string representation of this NodeId.
+     *
+     * @return string
+     * @see NodeId::toString()
+     */
     public function __toString(): string
     {
         return $this->toString();
     }
 
+    /**
+     * Returns the binary encoding byte for this NodeId based on its type and value range.
+     *
+     * @return int
+     */
     public function getEncodingByte(): int
     {
         if ($this->isNumeric()) {

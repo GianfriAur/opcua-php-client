@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
+/**
+ * Provides OPC UA status code constants and utility methods for status code classification.
+ */
 class StatusCode
 {
     public const Good = 0x00000000;
@@ -58,7 +61,10 @@ class StatusCode
     ];
 
     /**
+     * Checks whether the given status code indicates a good (successful) result.
+     *
      * @param int $code
+     * @return bool
      */
     public static function isGood(int $code): bool
     {
@@ -66,7 +72,10 @@ class StatusCode
     }
 
     /**
+     * Checks whether the given status code indicates a bad (failed) result.
+     *
      * @param int $code
+     * @return bool
      */
     public static function isBad(int $code): bool
     {
@@ -74,7 +83,10 @@ class StatusCode
     }
 
     /**
+     * Checks whether the given status code indicates an uncertain result.
+     *
      * @param int $code
+     * @return bool
      */
     public static function isUncertain(int $code): bool
     {
@@ -82,7 +94,10 @@ class StatusCode
     }
 
     /**
+     * Returns the human-readable name of the given status code, or a hex string if unknown.
+     *
      * @param int $code
+     * @return string
      */
     public static function getName(int $code): string
     {

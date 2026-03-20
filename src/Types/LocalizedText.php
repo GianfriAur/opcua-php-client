@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
+/**
+ * Represents an OPC UA LocalizedText, containing a locale identifier and a text string.
+ */
 readonly class LocalizedText
 {
     /**
@@ -17,18 +20,31 @@ readonly class LocalizedText
     {
     }
 
-    /** @deprecated Access the public property directly instead. Use ->locale instead. */
+    /**
+     * @deprecated Access the public property directly instead. Use ->locale instead.
+     * @return ?string
+     * @see LocalizedText::$locale
+     */
     public function getLocale(): ?string
     {
         return $this->locale;
     }
 
-    /** @deprecated Access the public property directly instead. Use ->text instead. */
+    /**
+     * @deprecated Access the public property directly instead. Use ->text instead.
+     * @return ?string
+     * @see LocalizedText::$text
+     */
     public function getText(): ?string
     {
         return $this->text;
     }
 
+    /**
+     * Returns the binary encoding mask indicating which optional fields are present.
+     *
+     * @return int
+     */
     public function getEncodingMask(): int
     {
         $mask = 0;
@@ -42,6 +58,11 @@ readonly class LocalizedText
         return $mask;
     }
 
+    /**
+     * Returns the text content, or an empty string if text is null.
+     *
+     * @return string
+     */
     public function __toString(): string
     {
         return $this->text ?? '';

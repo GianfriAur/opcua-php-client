@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
+/**
+ * Defines OPC UA attribute identifier constants used in Read and Write operations.
+ */
 class AttributeId
 {
     public const NodeId = 1;

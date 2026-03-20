@@ -39,6 +39,13 @@ use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * OPC UA client implementation providing connection management, browsing, reading, writing, subscriptions, and history access.
+ *
+ * @implements OpcUaClientInterface
+ *
+ * @see OpcUaClientInterface
+ */
 class Client implements OpcUaClientInterface
 {
     use ManagesTimeoutTrait;
@@ -94,6 +101,9 @@ class Client implements OpcUaClientInterface
     private ConnectionState $connectionState = ConnectionState::Disconnected;
     private ExtensionObjectRepository $extensionObjectRepository;
 
+    /**
+     * @param ?ExtensionObjectRepository $extensionObjectRepository Optional custom repository for extension object decoding.
+     */
     public function __construct(?ExtensionObjectRepository $extensionObjectRepository = null)
     {
         $this->transport = new TcpTransport();
@@ -101,14 +111,25 @@ class Client implements OpcUaClientInterface
         $this->initTimeout();
     }
 
+    /**
+     * Return the extension object repository used for custom type decoding.
+     *
+     * @return ExtensionObjectRepository
+     *
+     * @see ExtensionObjectRepository
+     */
     public function getExtensionObjectRepository(): ExtensionObjectRepository
     {
         return $this->extensionObjectRepository;
     }
 
     /**
-     * @param SecurityPolicy $policy
-     * @return Client
+     * Set the security policy for the connection.
+     *
+     * @param SecurityPolicy $policy The security policy to use.
+     * @return self
+     *
+     * @see SecurityPolicy
      */
     public function setSecurityPolicy(SecurityPolicy $policy): self
     {
@@ -118,8 +139,12 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * @param SecurityMode $mode
-     * @return Client
+     * Set the message security mode for the connection.
+     *
+     * @param SecurityMode $mode The security mode to use.
+     * @return self
+     *
+     * @see SecurityMode
      */
     public function setSecurityMode(SecurityMode $mode): self
     {
@@ -129,9 +154,11 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * @param string $username
-     * @param string $password
-     * @return Client
+     * Set username/password credentials for session authentication.
+     *
+     * @param string $username The username.
+     * @param string $password The password.
+     * @return self
      */
     public function setUserCredentials(string $username, string $password): self
     {
@@ -142,10 +169,12 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * @param string $certPath
-     * @param string $keyPath
-     * @param ?string $caCertPath
-     * @return Client
+     * Set the client application certificate and private key for channel-level security.
+     *
+     * @param string $certPath Path to the client certificate file (DER or PEM).
+     * @param string $keyPath Path to the client private key file.
+     * @param ?string $caCertPath Optional path to the CA certificate for chain validation.
+     * @return self
      */
     public function setClientCertificate(string $certPath, string $keyPath, ?string $caCertPath = null): self
     {
@@ -157,9 +186,11 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * @param string $certPath
-     * @param string $keyPath
-     * @return Client
+     * Set the user certificate and private key for X509 identity token authentication.
+     *
+     * @param string $certPath Path to the user certificate file.
+     * @param string $keyPath Path to the user private key file.
+     * @return self
      */
     public function setUserCertificate(string $certPath, string $keyPath): self
     {
@@ -170,8 +201,12 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * @param string $response
-     * @return string
+     * Unwrap a raw transport response, handling ERR messages and secure channel decryption.
+     *
+     * @param string $response The raw response bytes from the transport layer.
+     * @return string The decoded response body.
+     *
+     * @throws ServiceException If the server returned an ERR message.
      */
     private function unwrapResponse(string $response): string
     {
@@ -190,11 +225,22 @@ class Client implements OpcUaClientInterface
         return substr($response, MessageHeader::HEADER_SIZE + 4);
     }
 
+    /**
+     * Create a BinaryDecoder for the given data buffer.
+     *
+     * @param string $data The binary data to decode.
+     * @return BinaryDecoder
+     */
     private function createDecoder(string $data): BinaryDecoder
     {
         return new BinaryDecoder($data, $this->extensionObjectRepository);
     }
 
+    /**
+     * Generate and return the next sequential request ID.
+     *
+     * @return int
+     */
     private function nextRequestId(): int
     {
         return $this->requestId++;
