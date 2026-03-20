@@ -17,6 +17,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 
 ## Key features
 
+- Human-readable NodeId strings: all methods accept `'i=2259'` or `'ns=2;s=MyNode'` in addition to NodeId objects
 - Browse: recursive browsing, automatic continuation, tree building
 - Path Resolution: resolve human-readable paths like /Objects/MyPLC/Temperature to NodeIds
 - Read/Write: single and multi operations with all OPC UA data types
@@ -64,12 +65,13 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-$value = $client->read(NodeId::numeric(0, 2259));
+// String format — all methods accept NodeId|string
+$value = $client->read('i=2259');
 echo $value->getValue();      // unwrapped value
 echo $value->statusCode;      // 0 (Good)
 echo $value->sourceTimestamp;  // DateTimeImmutable
 
-$refs = $client->browse(NodeId::numeric(0, 85));
+$refs = $client->browse('i=85');
 foreach ($refs as $ref) {
     echo "{$ref->displayName} ({$ref->nodeId})\n";
 }

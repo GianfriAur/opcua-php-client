@@ -61,9 +61,10 @@ trait ManagesSubscriptionsTrait
      * Create monitored items within an existing subscription for data change notifications.
      *
      * @param int $subscriptionId The subscription to add items to.
-     * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
+     * @param array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
      * @return MonitoredItemResult[]
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      *
@@ -71,6 +72,13 @@ trait ManagesSubscriptionsTrait
      */
     public function createMonitoredItems(int $subscriptionId, array $monitoredItems): array
     {
+        foreach ($monitoredItems as &$item) {
+            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
+                $item['nodeId'] = NodeId::parse($item['nodeId']);
+            }
+        }
+        unset($item);
+
         return $this->executeWithRetry(function () use ($subscriptionId, $monitoredItems) {
             $this->ensureConnected();
 
@@ -95,23 +103,25 @@ trait ManagesSubscriptionsTrait
      * Create a single event-based monitored item within an existing subscription.
      *
      * @param int $subscriptionId The subscription to add the item to.
-     * @param NodeId $nodeId The node to monitor for events.
+     * @param NodeId|string $nodeId The node to monitor for events.
      * @param string[] $selectFields Event fields to include in notifications.
      * @param int $clientHandle Client-assigned handle for correlating notifications.
      * @return MonitoredItemResult
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      *
      * @see MonitoredItemResult
      */
     public function createEventMonitoredItem(
-        int    $subscriptionId,
-        NodeId $nodeId,
-        array  $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
-        int    $clientHandle = 1,
+        int           $subscriptionId,
+        NodeId|string $nodeId,
+        array         $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
+        int           $clientHandle = 1,
     ): MonitoredItemResult
     {
+        $nodeId = $this->resolveNodeIdParam($nodeId);
         return $this->executeWithRetry(function () use ($subscriptionId, $nodeId, $selectFields, $clientHandle) {
             $this->ensureConnected();
 

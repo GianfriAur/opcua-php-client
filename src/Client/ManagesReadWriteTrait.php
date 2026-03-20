@@ -19,17 +19,19 @@ trait ManagesReadWriteTrait
     /**
      * Read a single attribute from a node.
      *
-     * @param NodeId $nodeId The node to read.
+     * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
      * @return DataValue
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      *
      * @see DataValue
      */
-    public function read(NodeId $nodeId, int $attributeId = 13): DataValue
+    public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue
     {
+        $nodeId = $this->resolveNodeIdParam($nodeId);
         return $this->executeWithRetry(function () use ($nodeId, $attributeId) {
             $this->ensureConnected();
 
@@ -50,14 +52,22 @@ trait ManagesReadWriteTrait
      *
      * Results are automatically batched if the number of items exceeds the effective batch size.
      *
-     * @param array<array{nodeId: NodeId, attributeId?: int}> $items Items to read.
+     * @param array<array{nodeId: NodeId|string, attributeId?: int}> $items Items to read.
      * @return DataValue[]
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function readMulti(array $readItems): array
     {
+        foreach ($readItems as &$item) {
+            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
+                $item['nodeId'] = NodeId::parse($item['nodeId']);
+            }
+        }
+        unset($item);
+
         $batchSize = $this->getEffectiveReadBatchSize();
         if ($batchSize !== null && count($readItems) > $batchSize) {
             return $this->readMultiBatched($readItems, $batchSize);
@@ -106,16 +116,18 @@ trait ManagesReadWriteTrait
     /**
      * Write a value to a node attribute.
      *
-     * @param NodeId $nodeId The node to write to.
+     * @param NodeId|string $nodeId The node to write to.
      * @param mixed $value The value to write.
      * @param BuiltinType $type The OPC UA built-in type of the value.
      * @return int The OPC UA status code for the write result.
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function write(NodeId $nodeId, mixed $value, BuiltinType $type): int
+    public function write(NodeId|string $nodeId, mixed $value, BuiltinType $type): int
     {
+        $nodeId = $this->resolveNodeIdParam($nodeId);
         return $this->executeWithRetry(function () use ($nodeId, $value, $type) {
             $this->ensureConnected();
 
@@ -141,14 +153,22 @@ trait ManagesReadWriteTrait
      *
      * Results are automatically batched if the number of items exceeds the effective batch size.
      *
-     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
+     * @param array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
      * @return int[] OPC UA status codes for each write result.
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function writeMulti(array $writeItems): array
     {
+        foreach ($writeItems as &$item) {
+            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
+                $item['nodeId'] = NodeId::parse($item['nodeId']);
+            }
+        }
+        unset($item);
+
         $batchSize = $this->getEffectiveWriteBatchSize();
         if ($batchSize !== null && count($writeItems) > $batchSize) {
             return $this->writeMultiBatched($writeItems, $batchSize);
@@ -223,18 +243,21 @@ trait ManagesReadWriteTrait
     /**
      * Call a method on an object node.
      *
-     * @param NodeId $objectId The object node that owns the method.
-     * @param NodeId $methodId The method node to invoke.
+     * @param NodeId|string $objectId The object node that owns the method.
+     * @param NodeId|string $methodId The method node to invoke.
      * @param Variant[] $inputArguments Input arguments for the method call.
      * @return CallResult
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      *
      * @see CallResult
      */
-    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): CallResult
+    public function call(NodeId|string $objectId, NodeId|string $methodId, array $inputArguments = []): CallResult
     {
+        $objectId = $this->resolveNodeIdParam($objectId);
+        $methodId = $this->resolveNodeIdParam($methodId);
         return $this->executeWithRetry(function () use ($objectId, $methodId, $inputArguments) {
             $this->ensureConnected();
 

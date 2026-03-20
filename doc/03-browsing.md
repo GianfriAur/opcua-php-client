@@ -7,7 +7,11 @@
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-$references = $client->browse(NodeId::numeric(0, 85)); // Objects folder
+// Using string format
+$references = $client->browse('i=85'); // Objects folder
+
+// Or with a NodeId object
+$references = $client->browse(NodeId::numeric(0, 85));
 
 foreach ($references as $ref) {
     echo sprintf(
@@ -96,7 +100,7 @@ Some servers paginate large result sets. You have two options.
 `browseAll()` follows all continuation points and returns the complete list:
 
 ```php
-$refs = $client->browseAll(NodeId::numeric(0, 85));
+$refs = $client->browseAll('i=85');
 ```
 
 ### Manual
@@ -121,7 +125,7 @@ while ($continuationPoint !== null) {
 `browseRecursive()` walks the address space from a starting node and builds a tree of `BrowseNode` objects. Continuation points are handled at each level, and cycle detection prevents infinite loops on circular references.
 
 ```php
-$tree = $client->browseRecursive(NodeId::numeric(0, 85), maxDepth: 2);
+$tree = $client->browseRecursive('i=85', maxDepth: 2);
 
 foreach ($tree as $node) {
     echo $node->displayName . "\n";

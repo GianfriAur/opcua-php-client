@@ -34,6 +34,22 @@ $nodeId = NodeId::opaque(1, 'DEADBEEF');
 | `getEncodingByte()` | `int` | Binary protocol encoding byte |
 | `__toString()` | `string` | OPC UA string format (e.g. `ns=2;i=1001`) |
 
+**String format in client methods:**
+
+All public client methods that accept a `NodeId` parameter also accept a `NodeId|string` union type. Strings are parsed automatically using OPC UA notation. Invalid strings throw `InvalidNodeIdException`.
+
+```php
+// These are equivalent:
+$client->read(NodeId::numeric(0, 2259));
+$client->read('i=2259');
+
+$client->browse(NodeId::numeric(0, 85));
+$client->browse('i=85');
+
+$client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
+$client->write('ns=2;i=1001', 42, BuiltinType::Int32);
+```
+
 **Parsing and serialization:**
 
 ```php

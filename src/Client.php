@@ -247,4 +247,17 @@ class Client implements OpcUaClientInterface
     {
         return $this->requestId++;
     }
+
+    /**
+     * Resolve a NodeId parameter that may be passed as a string.
+     *
+     * @param NodeId|string $nodeId The node identifier as a NodeId object or OPC UA string format (e.g. 'i=2259', 'ns=2;s=MyNode').
+     * @return NodeId
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     */
+    private function resolveNodeIdParam(NodeId|string $nodeId): NodeId
+    {
+        return is_string($nodeId) ? NodeId::parse($nodeId) : $nodeId;
+    }
 }

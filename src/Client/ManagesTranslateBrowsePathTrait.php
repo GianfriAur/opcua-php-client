@@ -19,9 +19,10 @@ trait ManagesTranslateBrowsePathTrait
     /**
      * Translate one or more browse paths to their target NodeIds.
      *
-     * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
+     * @param array<array{startingNodeId: NodeId|string, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
      * @return BrowsePathResult[]
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
@@ -29,6 +30,13 @@ trait ManagesTranslateBrowsePathTrait
      */
     public function translateBrowsePaths(array $browsePaths): array
     {
+        foreach ($browsePaths as &$item) {
+            if (isset($item['startingNodeId']) && is_string($item['startingNodeId'])) {
+                $item['startingNodeId'] = NodeId::parse($item['startingNodeId']);
+            }
+        }
+        unset($item);
+
         return $this->executeWithRetry(function () use ($browsePaths) {
             $this->ensureConnected();
 
@@ -48,14 +56,18 @@ trait ManagesTranslateBrowsePathTrait
      * Resolve a slash-separated browse path string to a NodeId.
      *
      * @param string $path Slash-separated browse path (e.g. "Objects/MyFolder/MyNode"). Segments may include a namespace prefix like "2:MyNode".
-     * @param ?NodeId $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
+     * @param NodeId|string|null $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
      * @return NodeId
      *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ServiceException If the path cannot be resolved, yields no targets, or the server returns a bad status code.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      */
-    public function resolveNodeId(string $path, ?NodeId $startingNodeId = null): NodeId
+    public function resolveNodeId(string $path, NodeId|string|null $startingNodeId = null): NodeId
     {
+        if (is_string($startingNodeId)) {
+            $startingNodeId = NodeId::parse($startingNodeId);
+        }
         $startingNodeId ??= NodeId::numeric(0, 84); // Root
 
         $path = trim($path, '/');

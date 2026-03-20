@@ -54,21 +54,26 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-// Read server status
-$status = $client->read(NodeId::numeric(0, 2259));
+// Read server status — string format
+$status = $client->read('i=2259');
 echo $status->getValue(); // 0 = Running
+
+// NodeId objects work too
+$status = $client->read(NodeId::numeric(0, 2259));
 
 $client->disconnect();
 ```
 
 That's it. Three lines to connect, read, and disconnect. No config files, no service containers, no XML.
 
+> **Tip:** All client methods accept NodeId strings like `'i=2259'`, `'ns=2;i=1001'`, or `'ns=2;s=MyNode'` anywhere a `NodeId` is expected. Invalid strings throw `InvalidNodeIdException`.
+
 ## See It in Action
 
 ### Browse the address space
 
 ```php
-$refs = $client->browse(NodeId::numeric(0, 85)); // Objects folder
+$refs = $client->browse('i=85'); // Objects folder
 
 foreach ($refs as $ref) {
     echo "{$ref->displayName} ({$ref->nodeId})\n";
@@ -93,7 +98,7 @@ echo $value->sourceTimestamp;    // DateTimeImmutable
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
-$client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
+$client->write('ns=2;i=1001', 42, BuiltinType::Int32);
 ```
 
 ### Call a method on the server
@@ -102,8 +107,8 @@ $client->write(NodeId::numeric(2, 1001), 42, BuiltinType::Int32);
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 $result = $client->call(
-    NodeId::numeric(0, 2253),   // Server object
-    NodeId::numeric(0, 11492),  // GetMonitoredItems
+    'i=2253',   // Server object
+    'i=11492',  // GetMonitoredItems
     [new Variant(BuiltinType::UInt32, 1)],
 );
 
@@ -130,7 +135,7 @@ foreach ($response->notifications as $notif) {
 
 ```php
 $values = $client->historyReadRaw(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',
     startTime: new DateTimeImmutable('-1 hour'),
     endTime: new DateTimeImmutable(),
 );

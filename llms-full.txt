@@ -24,6 +24,7 @@ composer require gianfriaur/opcua-php-client
 ### Features
 
 - Binary Protocol — full OPC UA binary encoding/decoding over TCP
+- Human-readable NodeId strings — all methods accept `'i=2259'` or `'ns=2;s=MyNode'` in addition to NodeId objects; invalid strings throw InvalidNodeIdException
 - Browse — navigate the server address space, recursive browsing with automatic continuation
 - Path Resolution — resolve paths like /Objects/MyPLC/Temperature to NodeIds
 - Read/Write — single and multi operations with all OPC UA data types
@@ -72,12 +73,16 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 $client = new Client();
 $client->connect('opc.tcp://localhost:4840');
 
-$dv = $client->read(NodeId::numeric(0, 2259));
+// String format — all methods accept NodeId|string
+$dv = $client->read('i=2259');
 echo $dv->getValue();       // unwrapped value
 echo $dv->statusCode;       // 0 (Good)
 echo $dv->sourceTimestamp;   // DateTimeImmutable
 
-$refs = $client->browse(NodeId::numeric(0, 85));
+// NodeId objects still work
+$dv = $client->read(NodeId::numeric(0, 2259));
+
+$refs = $client->browse('i=85');
 foreach ($refs as $ref) {
     echo "{$ref->displayName} ({$ref->nodeId})\n";
 }
@@ -161,7 +166,7 @@ foreach ($endpoints as $ep) {
 ### Basic Browse
 
 ```php
-$refs = $client->browse(NodeId::numeric(0, 85)); // Objects folder
+$refs = $client->browse('i=85'); // Objects folder
 foreach ($refs as $ref) {
     echo "{$ref->displayName} (ns={$ref->nodeId->namespaceIndex};i={$ref->nodeId->identifier})\n";
 }
@@ -170,13 +175,13 @@ foreach ($refs as $ref) {
 ### Browse All (automatic continuation)
 
 ```php
-$refs = $client->browseAll(NodeId::numeric(0, 85));
+$refs = $client->browseAll('i=85');
 ```
 
 ### Browse with Continuation (manual)
 
 ```php
-$result = $client->browseWithContinuation(NodeId::numeric(0, 85));
+$result = $client->browseWithContinuation('i=85');
 $allRefs = $result->references;
 
 while ($result->continuationPoint !== null) {
@@ -200,7 +205,7 @@ $ref->typeDefinition    // ?NodeId
 ### Recursive Browse
 
 ```php
-$tree = $client->browseRecursive(NodeId::numeric(0, 85), maxDepth: 3);
+$tree = $client->browseRecursive('i=85', maxDepth: 3);
 foreach ($tree as $node) {
     echo "{$node->reference->displayName}\n";
     foreach ($node->getChildren() as $child) {
@@ -238,7 +243,7 @@ $nodeId = $results[0]->targets[0]->targetId; // NodeId
 ### Read Single Value
 
 ```php
-$dv = $client->read(NodeId::numeric(0, 2259));
+$dv = $client->read('i=2259');  // or NodeId::numeric(0, 2259)
 echo $dv->getValue();        // unwrapped value (via Variant)
 echo $dv->statusCode;        // int
 echo $dv->sourceTimestamp;    // ?DateTimeImmutable
@@ -249,8 +254,8 @@ echo $dv->serverTimestamp;    // ?DateTimeImmutable
 
 ```php
 $results = $client->readMulti([
-    ['nodeId' => NodeId::numeric(0, 2259)],
-    ['nodeId' => NodeId::numeric(0, 2267)],
+    ['nodeId' => 'i=2259'],
+    ['nodeId' => 'i=2267'],
 ]);
 ```
 
@@ -259,7 +264,7 @@ $results = $client->readMulti([
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
-$statusCode = $client->write(NodeId::numeric(2, 1234), 42, BuiltinType::Int32);
+$statusCode = $client->write('ns=2;i=1234', 42, BuiltinType::Int32);
 ```
 
 ### Auto-Batching
@@ -287,8 +292,8 @@ StatusCode::getName($code);     // e.g. "BadNodeIdUnknown"
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 $result = $client->call(
-    NodeId::numeric(0, 2253),
-    NodeId::numeric(0, 11492),
+    'i=2253',   // or NodeId::numeric(0, 2253)
+    'i=11492',
     [new Variant(BuiltinType::UInt32, 1)]
 );
 
@@ -314,8 +319,8 @@ $subscriptionId = $sub->subscriptionId;
 
 ```php
 $results = $client->createMonitoredItems($subscriptionId, [
-    ['nodeId' => NodeId::numeric(0, 2258), 'samplingInterval' => 500.0, 'queueSize' => 10],
-    ['nodeId' => NodeId::numeric(2, 1001)],
+    ['nodeId' => 'i=2258', 'samplingInterval' => 500.0, 'queueSize' => 10],
+    ['nodeId' => 'ns=2;i=1001'],
 ]);
 ```
 
@@ -363,7 +368,7 @@ $client->deleteSubscription($subscriptionId);
 
 ```php
 $values = $client->historyReadRaw(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',
     startTime: new \DateTimeImmutable('-1 hour'),
     endTime: new \DateTimeImmutable(),
     numValuesPerNode: 100,
@@ -378,10 +383,10 @@ foreach ($values as $dv) {
 
 ```php
 $values = $client->historyReadProcessed(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',
     $startTime, $endTime,
     processingInterval: 3600000.0,
-    aggregateType: NodeId::numeric(0, 2342), // Average
+    aggregateType: 'i=2342', // Average
 );
 ```
 
@@ -390,7 +395,7 @@ Aggregates: Average (2342), Interpolative (2341), Minimum (2346), Maximum (2347)
 ### History At Time
 
 ```php
-$values = $client->historyReadAtTime(NodeId::numeric(2, 1001), $timestamps);
+$values = $client->historyReadAtTime('ns=2;i=1001', $timestamps);
 ```
 
 ---
@@ -400,6 +405,7 @@ $values = $client->historyReadAtTime(NodeId::numeric(2, 1001), $timestamps);
 ### NodeId
 Properties: namespaceIndex (int), identifier (int|string), type (string)
 Methods: isNumeric(), isString(), isGuid(), isOpaque(), getEncodingByte(), parse(), toString(), __toString()
+All client methods accept `NodeId|string`. Strings like `'i=2259'`, `'ns=2;i=1001'`, `'ns=2;s=MyNode'` are parsed automatically. Invalid strings throw `InvalidNodeIdException`.
 
 ### Variant
 Properties: type (BuiltinType), value (mixed), dimensions (?array)

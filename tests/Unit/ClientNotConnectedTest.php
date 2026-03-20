@@ -68,7 +68,7 @@ describe('Client throws ConnectionException when not connected', function () {
 
     it('throws on createMonitoredItems', function () {
         $client = new Client();
-        expect(fn() => $client->createMonitoredItems(1, [NodeId::numeric(0, 2259)]))
+        expect(fn() => $client->createMonitoredItems(1, [['nodeId' => NodeId::numeric(0, 2259)]]))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 

@@ -14,7 +14,7 @@ $now = new \DateTimeImmutable();
 $oneHourAgo = $now->modify('-1 hour');
 
 $values = $client->historyReadRaw(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',  // or NodeId::numeric(2, 1001)
     startTime: $oneHourAgo,
     endTime: $now,
     numValuesPerNode: 100,
@@ -50,11 +50,11 @@ $startTime = new \DateTimeImmutable('2024-01-01 00:00:00');
 $endTime = new \DateTimeImmutable('2024-01-02 00:00:00');
 
 $values = $client->historyReadProcessed(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',
     $startTime,
     $endTime,
     processingInterval: 3600000.0, // 1 hour in ms
-    aggregateType: NodeId::numeric(0, 2342), // Average
+    aggregateType: 'i=2342', // Average
 );
 ```
 
@@ -84,7 +84,7 @@ $timestamps = [
 ];
 
 $values = $client->historyReadAtTime(
-    NodeId::numeric(2, 1001),
+    'ns=2;i=1001',
     $timestamps,
 );
 

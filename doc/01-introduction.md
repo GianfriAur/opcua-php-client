@@ -56,6 +56,7 @@ $client->disconnect();
 **Read & Write**
 - Read and write node attributes, single or multi
 - Automatic batching when the server imposes per-request limits
+- Human-readable NodeId strings — all methods accept `'i=2259'` or `'ns=2;s=MyNode'` in addition to NodeId objects
 
 **Advanced**
 - Method calls on the server

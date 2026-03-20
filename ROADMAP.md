@@ -14,7 +14,7 @@
 - [ ] `TBD` integration by default: wirh opcua-php-client-session-manager
 - [X] Browse Filters (`nodeClassMask` → `NodeClass[]`),
 - [X] Browse Filters ResultMask → Won't Do (see below)
-- [ ] Uman readable & interactable functions
+- [X] Human-readable NodeId strings (`NodeId|string` union type)
 - [X] Full ExtensionObject Type System `OPC UA Part 6 5.2.7`
 - [ ] .....
 ------

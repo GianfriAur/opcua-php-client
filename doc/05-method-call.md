@@ -11,8 +11,8 @@ use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
 $result = $client->call(
-    NodeId::numeric(0, 2253),  // Server object
-    NodeId::numeric(0, 11492), // GetMonitoredItems method
+    'i=2253',   // Server object (or NodeId::numeric(0, 2253))
+    'i=11492',  // GetMonitoredItems method
     [
         new Variant(BuiltinType::UInt32, 1), // subscriptionId argument
     ]

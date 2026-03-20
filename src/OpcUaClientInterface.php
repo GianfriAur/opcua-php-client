@@ -25,6 +25,7 @@ use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
+use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 
 /**
@@ -177,18 +178,19 @@ interface OpcUaClientInterface
     /**
      * Browse references from a single node, returning up to one page of results.
      *
-     * @param NodeId $nodeId The node to browse.
+     * @param NodeId|string $nodeId The node to browse.
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
     public function browse(
-        NodeId          $nodeId,
+        NodeId|string   $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
@@ -198,20 +200,21 @@ interface OpcUaClientInterface
     /**
      * Browse references from a single node, returning results with a continuation point for pagination.
      *
-     * @param NodeId $nodeId The node to browse.
+     * @param NodeId|string $nodeId The node to browse.
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseResultSet
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see BrowseResultSet
      */
     public function browseWithContinuation(
-        NodeId          $nodeId,
+        NodeId|string   $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
@@ -234,18 +237,19 @@ interface OpcUaClientInterface
     /**
      * Browse all references from a node, automatically following continuation points.
      *
-     * @param NodeId $nodeId The node to browse.
+     * @param NodeId|string $nodeId The node to browse.
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
     public function browseAll(
-        NodeId          $nodeId,
+        NodeId|string   $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
@@ -270,7 +274,7 @@ interface OpcUaClientInterface
     /**
      * Recursively browse the address space starting from a node, building a tree of BrowseNode objects.
      *
-     * @param NodeId $nodeId The root node to start browsing from.
+     * @param NodeId|string $nodeId The root node to start browsing from.
      * @param BrowseDirection $direction The browse direction.
      * @param ?int $maxDepth Maximum recursion depth, or null to use the default.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
@@ -278,13 +282,14 @@ interface OpcUaClientInterface
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseNode[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see BrowseNode
      */
     public function browseRecursive(
-        NodeId          $nodeId,
+        NodeId|string   $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
         ?int            $maxDepth = null,
         ?NodeId         $referenceTypeId = null,
@@ -295,9 +300,10 @@ interface OpcUaClientInterface
     /**
      * Translate one or more browse paths to their target NodeIds.
      *
-     * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
+     * @param array<array{startingNodeId: NodeId|string, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
      * @return BrowsePathResult[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
@@ -309,34 +315,37 @@ interface OpcUaClientInterface
      * Resolve a slash-separated browse path string to a NodeId.
      *
      * @param string $path Slash-separated browse path (e.g. "Objects/MyFolder/MyNode").
-     * @param ?NodeId $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
+     * @param NodeId|string|null $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
      * @return NodeId
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ServiceException If the path cannot be resolved or yields no targets.
      * @throws ConnectionException If the connection is lost during the request.
      */
-    public function resolveNodeId(string $path, ?NodeId $startingNodeId = null): NodeId;
+    public function resolveNodeId(string $path, NodeId|string|null $startingNodeId = null): NodeId;
 
     /**
      * Read a single attribute from a node.
      *
-     * @param NodeId $nodeId The node to read.
+     * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
      * @return DataValue
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see DataValue
      */
-    public function read(NodeId $nodeId, int $attributeId = 13): DataValue;
+    public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue;
 
     /**
      * Read multiple attributes from one or more nodes in a single request.
      *
-     * @param array<array{nodeId: NodeId, attributeId?: int}> $items Items to read.
+     * @param array<array{nodeId: NodeId|string, attributeId?: int}> $items Items to read.
      * @return DataValue[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
@@ -345,22 +354,24 @@ interface OpcUaClientInterface
     /**
      * Write a value to a node attribute.
      *
-     * @param NodeId $nodeId The node to write to.
+     * @param NodeId|string $nodeId The node to write to.
      * @param mixed $value The value to write.
      * @param BuiltinType $type The OPC UA built-in type of the value.
      * @return int The OPC UA status code for the write result.
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function write(NodeId $nodeId, mixed $value, BuiltinType $type): int;
+    public function write(NodeId|string $nodeId, mixed $value, BuiltinType $type): int;
 
     /**
      * Write multiple values to one or more nodes in a single request.
      *
-     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
+     * @param array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
      * @return int[] OPC UA status codes for each write result.
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
@@ -369,17 +380,18 @@ interface OpcUaClientInterface
     /**
      * Call a method on an object node.
      *
-     * @param NodeId $objectId The object node that owns the method.
-     * @param NodeId $methodId The method node to invoke.
+     * @param NodeId|string $objectId The object node that owns the method.
+     * @param NodeId|string $methodId The method node to invoke.
      * @param Variant[] $inputArguments Input arguments for the method call.
      * @return CallResult
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see CallResult
      */
-    public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): CallResult;
+    public function call(NodeId|string $objectId, NodeId|string $methodId, array $inputArguments = []): CallResult;
 
     /**
      * Create a subscription for receiving data change or event notifications.
@@ -410,9 +422,10 @@ interface OpcUaClientInterface
      * Create monitored items within an existing subscription for data change notifications.
      *
      * @param int $subscriptionId The subscription to add items to.
-     * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
+     * @param array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
      * @return MonitoredItemResult[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
@@ -427,21 +440,22 @@ interface OpcUaClientInterface
      * Create a single event-based monitored item within an existing subscription.
      *
      * @param int $subscriptionId The subscription to add the item to.
-     * @param NodeId $nodeId The node to monitor for events.
+     * @param NodeId|string $nodeId The node to monitor for events.
      * @param string[] $selectFields Event fields to include in notifications.
      * @param int $clientHandle Client-assigned handle for correlating notifications.
      * @return MonitoredItemResult
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see MonitoredItemResult
      */
     public function createEventMonitoredItem(
-        int    $subscriptionId,
-        NodeId $nodeId,
-        array  $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
-        int    $clientHandle = 1,
+        int           $subscriptionId,
+        NodeId|string $nodeId,
+        array         $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
+        int           $clientHandle = 1,
     ): MonitoredItemResult;
 
     /**
@@ -483,18 +497,19 @@ interface OpcUaClientInterface
     /**
      * Read raw historical data for a node.
      *
-     * @param NodeId $nodeId The node to read history from.
+     * @param NodeId|string $nodeId The node to read history from.
      * @param ?DateTimeImmutable $startTime Start of the time range, or null for open-ended.
      * @param ?DateTimeImmutable $endTime End of the time range, or null for open-ended.
      * @param int $numValuesPerNode Maximum values to return (0 = server default).
      * @param bool $returnBounds Whether to include bounding values.
      * @return DataValue[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
     public function historyReadRaw(
-        NodeId             $nodeId,
+        NodeId|string      $nodeId,
         ?DateTimeImmutable $startTime = null,
         ?DateTimeImmutable $endTime = null,
         int                $numValuesPerNode = 0,
@@ -504,18 +519,19 @@ interface OpcUaClientInterface
     /**
      * Read processed (aggregated) historical data for a node.
      *
-     * @param NodeId $nodeId The node to read history from.
+     * @param NodeId|string $nodeId The node to read history from.
      * @param DateTimeImmutable $startTime Start of the time range.
      * @param DateTimeImmutable $endTime End of the time range.
      * @param float $processingInterval Aggregation interval in milliseconds.
      * @param NodeId $aggregateType The aggregate function NodeId (e.g. Average, Count).
      * @return DataValue[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
     public function historyReadProcessed(
-        NodeId             $nodeId,
+        NodeId|string      $nodeId,
         DateTimeImmutable $startTime,
         DateTimeImmutable $endTime,
         float              $processingInterval,
@@ -525,15 +541,16 @@ interface OpcUaClientInterface
     /**
      * Read historical data at specific timestamps for a node.
      *
-     * @param NodeId $nodeId The node to read history from.
+     * @param NodeId|string $nodeId The node to read history from.
      * @param DateTimeImmutable[] $timestamps The exact timestamps to retrieve values for.
      * @return DataValue[]
      *
+     * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
     public function historyReadAtTime(
-        NodeId $nodeId,
-        array  $timestamps,
+        NodeId|string $nodeId,
+        array         $timestamps,
     ): array;
 }

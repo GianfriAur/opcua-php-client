@@ -6,7 +6,11 @@
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
-$dataValue = $client->read(NodeId::numeric(0, 2259)); // ServerStatus_State
+// Using string format
+$dataValue = $client->read('i=2259'); // ServerStatus_State
+
+// Or with a NodeId object
+$dataValue = $client->read(NodeId::numeric(0, 2259));
 
 if (StatusCode::isGood($dataValue->statusCode)) {
     echo "Value: " . $dataValue->getValue() . "\n";
@@ -41,9 +45,9 @@ $dataType = $client->read(NodeId::numeric(0, 2259), AttributeId::DataType);
 
 ```php
 $results = $client->readMulti([
-    ['nodeId' => NodeId::numeric(0, 2259)],
-    ['nodeId' => NodeId::numeric(0, 2267)],
-    ['nodeId' => NodeId::numeric(2, 'Temperature'), 'attributeId' => AttributeId::Value],
+    ['nodeId' => 'i=2259'],
+    ['nodeId' => 'i=2267'],
+    ['nodeId' => 'ns=2;s=Temperature', 'attributeId' => AttributeId::Value],
 ]);
 
 foreach ($results as $dataValue) {
@@ -69,7 +73,7 @@ $dataValue->serverTimestamp;      // ?DateTimeImmutable
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
 $statusCode = $client->write(
-    NodeId::numeric(2, 1234),
+    'ns=2;i=1234',  // or NodeId::numeric(2, 1234)
     42,
     BuiltinType::Int32
 );
@@ -86,17 +90,17 @@ if (StatusCode::isGood($statusCode)) {
 ```php
 $results = $client->writeMulti([
     [
-        'nodeId' => NodeId::numeric(2, 1001),
+        'nodeId' => 'ns=2;i=1001',
         'value' => 3.14,
         'type' => BuiltinType::Double,
     ],
     [
-        'nodeId' => NodeId::numeric(2, 1002),
+        'nodeId' => 'ns=2;i=1002',
         'value' => 'Hello',
         'type' => BuiltinType::String,
     ],
     [
-        'nodeId' => NodeId::numeric(2, 1003),
+        'nodeId' => 'ns=2;i=1003',
         'value' => true,
         'type' => BuiltinType::Boolean,
     ],
