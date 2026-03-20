@@ -25,12 +25,14 @@ foreach ($references as $ref) {
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+
 $references = $client->browse(
     nodeId: NodeId::numeric(0, 85),
     direction: BrowseDirection::Forward,
     referenceTypeId: NodeId::numeric(0, 33),  // HierarchicalReferences
     includeSubtypes: true,
-    nodeClassMask: 0,                         // 0 = all classes
+    nodeClasses: [NodeClass::Object, NodeClass::Variable],  // filter by class
 );
 ```
 
@@ -52,19 +54,24 @@ $references = $client->browse(
 | `NodeId::numeric(0, 46)` | HasProperty |
 | `NodeId::numeric(0, 40)` | HasTypeDefinition |
 
-**Node class mask (bitmask):**
+**Node class filter:**
 
-| Value | Class |
-|-------|-------|
-| 0 | All |
-| 1 | Object |
-| 2 | Variable |
-| 4 | Method |
-| 8 | ObjectType |
-| 16 | VariableType |
-| 32 | ReferenceType |
-| 64 | DataType |
-| 128 | View |
+Pass an array of `NodeClass` enum values to filter results. Empty array (default) means all classes.
+
+```php
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+
+// Only objects and variables
+$refs = $client->browse($nodeId, nodeClasses: [NodeClass::Object, NodeClass::Variable]);
+
+// Only methods
+$refs = $client->browse($nodeId, nodeClasses: [NodeClass::Method]);
+
+// All classes (default)
+$refs = $client->browse($nodeId);
+```
+
+Available `NodeClass` values: `Object`, `Variable`, `Method`, `ObjectType`, `VariableType`, `ReferenceType`, `DataType`, `View`.
 
 ### ReferenceDescription Properties
 
@@ -134,7 +141,7 @@ $tree = $client->browseRecursive(
     maxDepth: 3,
     referenceTypeId: NodeId::numeric(0, 33),
     includeSubtypes: true,
-    nodeClassMask: 0,
+    nodeClasses: [NodeClass::Object, NodeClass::Variable],
 );
 ```
 
@@ -145,7 +152,7 @@ $tree = $client->browseRecursive(
 | `maxDepth` | `null` (configured default: 10) | Max recursion depth. `-1` for unlimited (capped at 256) |
 | `referenceTypeId` | `null` | Filter by reference type |
 | `includeSubtypes` | `true` | Include reference subtypes |
-| `nodeClassMask` | `0` | Filter by node class (0 = all) |
+| `nodeClasses` | `[]` | Filter by `NodeClass` enum values. Empty = all classes |
 
 ### Depth Limits
 

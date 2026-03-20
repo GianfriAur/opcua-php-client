@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
+/**
+ * Provides automatic reconnection retry configuration for failed operations.
+ */
 trait ManagesAutoRetryTrait
 {
     private ?int $autoRetry = null;
 
     /**
-     * @param int $maxRetries
-     * @return static
+     * Set the maximum number of automatic reconnection retries on connection loss.
+     *
+     * @param int $maxRetries Maximum retry count (0 to disable).
+     * @return self
      */
     public function setAutoRetry(int $maxRetries): self
     {
@@ -20,6 +25,10 @@ trait ManagesAutoRetryTrait
     }
 
     /**
+     * Get the current automatic retry count.
+     *
+     * Returns the explicitly configured value, or 1 if a previous connection exists (enabling one automatic reconnect attempt), or 0 otherwise.
+     *
      * @return int
      */
     public function getAutoRetry(): int

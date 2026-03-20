@@ -12,10 +12,22 @@ use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 
+/**
+ * Provides connection lifecycle management including connect, reconnect, disconnect, and automatic retry logic.
+ */
 trait ManagesConnectionTrait
 {
     /**
-     * @param string $endpointUrl
+     * Connect to an OPC UA server endpoint.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL (e.g. "opc.tcp://host:4840").
+     * @return void
+     *
+     * @throws ConfigurationException If the endpoint URL is invalid.
+     * @throws ConnectionException If the TCP connection or handshake fails.
+     *
+     * @see self::reconnect()
+     * @see self::disconnect()
      */
     public function connect(string $endpointUrl): void
     {
@@ -54,6 +66,16 @@ trait ManagesConnectionTrait
         $this->discoverServerOperationLimits();
     }
 
+    /**
+     * Reconnect to the previously connected endpoint.
+     *
+     * @return void
+     *
+     * @throws ConfigurationException If no previous endpoint exists (connect() was never called).
+     * @throws ConnectionException If the reconnection attempt fails.
+     *
+     * @see self::connect()
+     */
     public function reconnect(): void
     {
         if ($this->lastEndpointUrl === null) {
@@ -66,6 +88,11 @@ trait ManagesConnectionTrait
         $this->connect($this->lastEndpointUrl);
     }
 
+    /**
+     * Gracefully disconnect from the server, closing the session and secure channel.
+     *
+     * @return void
+     */
     public function disconnect(): void
     {
         if ($this->session !== null && $this->authenticationToken !== null) {
@@ -89,18 +116,30 @@ trait ManagesConnectionTrait
         $this->connectionState = ConnectionState::Disconnected;
     }
 
+    /**
+     * Check whether the client is currently connected.
+     *
+     * @return bool True if the connection state is Connected, false otherwise.
+     */
     public function isConnected(): bool
     {
         return $this->connectionState === ConnectionState::Connected;
     }
 
+    /**
+     * Get the current connection state.
+     *
+     * @return ConnectionState
+     *
+     * @see ConnectionState
+     */
     public function getConnectionState(): ConnectionState
     {
         return $this->connectionState;
     }
 
     /**
-     * @throws ConnectionException|Exception
+     * @throws ConnectionException
      */
     private function ensureConnected(): void
     {

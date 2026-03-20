@@ -8,11 +8,13 @@
 - [X] Improuve Documentation
 - [X] `ExtensionObjectRepository`: replace static registry with instance-level dependency
 - [X] Strict Return Types
-- [ ] Named Parameters Everywhere
-- [ ] Full PHPDoc / Attribute Documentation
+- [X] Named Parameters Everywhere
+- [X] Full PHPDoc / Attribute Documentation
 - [ ] Fluent / Builder API
 - [ ] `TBD` integration by default: wirh opcua-php-client-session-manager
-- [ ] Browse Filters
+- [X] Browse Filters (`nodeClassMask` → `NodeClass[]`),
+- [ ] Browse Filters ResultMask
+- [ ] Uman readable & interactable functions
 - [ ] .....
 ------
 
@@ -84,6 +86,28 @@ $subscription = $client->createSubscription();
 $subscription->getId(); // int
 $subscription->getPublishingInterval(); // float
 ```
+
+### Uman readable & interactable functions
+
+write isn't easiest to read or write, 
+```php 
+$status = $client->read(NodeId::numeric(0, 2259));
+```
+
+should become
+
+```php 
+$status = $client->read(NodeId::numeric(0, 2259)); // or
+$status = $client->read('ns=0;i=2253'); // or
+$status = $client->read('0;2253'); // or
+$status = $client->read('i=2253'); // or  ns 0 is assumed
+$status = $client->read('2253'); // or ns 0 is assumed
+```
+all this variant is allowed
+
+also a new specific exception should be designed
+
+
 
 ### Named Parameters Everywhere
 Ensure all public method signatures are designed for PHP 8+ named parameters with clear, non-ambiguous parameter names.

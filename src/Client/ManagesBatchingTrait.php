@@ -9,6 +9,9 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Throwable;
 
+/**
+ * Provides batch size configuration and server operation limit discovery for multi-read and multi-write operations.
+ */
 trait ManagesBatchingTrait
 {
     private ?int $batchSize = null;
@@ -16,8 +19,10 @@ trait ManagesBatchingTrait
     private ?int $serverMaxNodesPerWrite = null;
 
     /**
-     * @param int $batchSize
-     * @return Client|ManagesBatchingTrait
+     * Set the batch size for multi-read and multi-write operations.
+     *
+     * @param int $batchSize Maximum items per batch (0 to disable batching).
+     * @return self
      */
     public function setBatchSize(int $batchSize): self
     {
@@ -27,6 +32,8 @@ trait ManagesBatchingTrait
     }
 
     /**
+     * Get the configured batch size, or null if not explicitly set.
+     *
      * @return int|null
      */
     public function getBatchSize(): ?int
@@ -34,11 +41,21 @@ trait ManagesBatchingTrait
         return $this->batchSize;
     }
 
+    /**
+     * Get the server-reported maximum nodes per read operation, or null if unknown.
+     *
+     * @return int|null
+     */
     public function getServerMaxNodesPerRead(): ?int
     {
         return $this->serverMaxNodesPerRead;
     }
 
+    /**
+     * Get the server-reported maximum nodes per write operation, or null if unknown.
+     *
+     * @return int|null
+     */
     public function getServerMaxNodesPerWrite(): ?int
     {
         return $this->serverMaxNodesPerWrite;

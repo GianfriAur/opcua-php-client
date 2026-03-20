@@ -11,12 +11,22 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
+/**
+ * Provides read, write, and method call operations for OPC UA node attributes.
+ */
 trait ManagesReadWriteTrait
 {
     /**
-     * @param NodeId $nodeId
-     * @param int $attributeId
+     * Read a single attribute from a node.
+     *
+     * @param NodeId $nodeId The node to read.
+     * @param int $attributeId The attribute to read (default 13 = Value).
      * @return DataValue
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see DataValue
      */
     public function read(NodeId $nodeId, int $attributeId = 13): DataValue
     {
@@ -36,17 +46,24 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, attributeId?: int}> $items
+     * Read multiple attributes from one or more nodes in a single request.
+     *
+     * Results are automatically batched if the number of items exceeds the effective batch size.
+     *
+     * @param array<array{nodeId: NodeId, attributeId?: int}> $items Items to read.
      * @return DataValue[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function readMulti(array $items): array
+    public function readMulti(array $readItems): array
     {
         $batchSize = $this->getEffectiveReadBatchSize();
-        if ($batchSize !== null && count($items) > $batchSize) {
-            return $this->readMultiBatched($items, $batchSize);
+        if ($batchSize !== null && count($readItems) > $batchSize) {
+            return $this->readMultiBatched($readItems, $batchSize);
         }
 
-        return $this->readMultiRaw($items);
+        return $this->readMultiRaw($readItems);
     }
 
     /**
@@ -87,10 +104,15 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param mixed $value
-     * @param BuiltinType $type
-     * @return int
+     * Write a value to a node attribute.
+     *
+     * @param NodeId $nodeId The node to write to.
+     * @param mixed $value The value to write.
+     * @param BuiltinType $type The OPC UA built-in type of the value.
+     * @return int The OPC UA status code for the write result.
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function write(NodeId $nodeId, mixed $value, BuiltinType $type): int
     {
@@ -115,20 +137,27 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items
-     * @return int[]
+     * Write multiple values to one or more nodes in a single request.
+     *
+     * Results are automatically batched if the number of items exceeds the effective batch size.
+     *
+     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
+     * @return int[] OPC UA status codes for each write result.
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function writeMulti(array $items): array
+    public function writeMulti(array $writeItems): array
     {
         $batchSize = $this->getEffectiveWriteBatchSize();
-        if ($batchSize !== null && count($items) > $batchSize) {
-            return $this->writeMultiBatched($items, $batchSize);
+        if ($batchSize !== null && count($writeItems) > $batchSize) {
+            return $this->writeMultiBatched($writeItems, $batchSize);
         }
 
-        return $this->executeWithRetry(function () use ($items) {
+        return $this->executeWithRetry(function () use ($writeItems) {
             $this->ensureConnected();
 
-            $writeItems = $this->prepareWriteItems($items);
+            $writeItems = $this->prepareWriteItems($writeItems);
 
             $requestId = $this->nextRequestId();
             $request = $this->writeService->encodeWriteMultiRequest($requestId, $writeItems, $this->authenticationToken);
@@ -192,10 +221,17 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param NodeId $objectId
-     * @param NodeId $methodId
-     * @param Variant[] $inputArguments
+     * Call a method on an object node.
+     *
+     * @param NodeId $objectId The object node that owns the method.
+     * @param NodeId $methodId The method node to invoke.
+     * @param Variant[] $inputArguments Input arguments for the method call.
      * @return CallResult
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see CallResult
      */
     public function call(NodeId $objectId, NodeId $methodId, array $inputArguments = []): CallResult
     {

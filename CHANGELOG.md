@@ -15,6 +15,8 @@
   - `translateBrowsePaths()` → `BrowsePathResult[]` (`->statusCode`, `->targets`) with `BrowsePathTarget` (`->targetId`, `->remainingPathIndex`)
 
 - **All existing Type classes now expose `public readonly` properties.** You can access `$ref->nodeId`, `$ref->displayName`, `$variant->type`, `$dv->statusCode`, etc. directly instead of calling getter methods. Affected classes: `NodeId`, `Variant`, `DataValue`, `QualifiedName`, `LocalizedText`, `ReferenceDescription`, `EndpointDescription`, `UserTokenPolicy`, `BrowseNode`.
+- **`nodeClassMask` parameter replaced with `nodeClasses` array.** Browse methods (`browse()`, `browseWithContinuation()`, `browseAll()`, `browseRecursive()`) now accept `NodeClass[] $nodeClasses = []` instead of `int $nodeClassMask = 0`. Pass an array of `NodeClass` enum values (e.g., `[NodeClass::Object, NodeClass::Variable]`) instead of a raw bitmask integer. Empty array means all classes (same as the old `0`).
+- **Ambiguous `$items` parameters renamed** for named parameter clarity: `readMulti($readItems)`, `writeMulti($writeItems)`, `createMonitoredItems($subscriptionId, $monitoredItems)`.
 - PHP 8.5 added to the CI test matrix.
 
 ### Added
@@ -33,6 +35,8 @@
 
 - All service response methods listed above now return typed objects instead of arrays. Code using `$result['key']` must change to `$result->key`.
 - `ExtensionObjectRepository` methods (`register`, `get`, `has`, `unregister`, `clear`) are no longer static. Replace `ExtensionObjectRepository::register(...)` with `$repo->register(...)`.
+- Browse methods no longer accept `int $nodeClassMask`. Use `array $nodeClasses` with `NodeClass` enum values instead. Replace `nodeClassMask: 3` with `nodeClasses: [NodeClass::Object, NodeClass::Variable]`.
+- `readMulti($items)` renamed to `readMulti($readItems)`, `writeMulti($items)` to `writeMulti($writeItems)`, `createMonitoredItems(..., $items)` to `createMonitoredItems(..., $monitoredItems)`. Only affects code using named parameters.
 
 ## [2.0.0] - 2026-03-19
 

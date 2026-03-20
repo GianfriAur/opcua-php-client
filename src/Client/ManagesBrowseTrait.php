@@ -8,15 +8,24 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 
+/**
+ * Provides browse and endpoint discovery operations for the OPC UA address space.
+ */
 trait ManagesBrowseTrait
 {
     /**
-     * @param string $endpointUrl
+     * Discover endpoints available at the given server URL.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL to query.
      * @return EndpointDescription[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function getEndpoints(string $endpointUrl): array
     {
@@ -37,15 +46,21 @@ trait ManagesBrowseTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param BrowseDirection $direction
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * Browse references from a single node.
+     *
+     * @param NodeId $nodeId The node to browse.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
+     * @param bool $includeSubtypes Whether to include subtypes of the reference type.
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function browse(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, int $nodeClassMask = 0): array
+    public function browse(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = []): array
     {
+        $nodeClassMask = self::nodeClassesToMask($nodeClasses);
         return $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
             $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
 
@@ -54,15 +69,21 @@ trait ManagesBrowseTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param BrowseDirection $direction
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * Browse references from a single node, returning results with a continuation point for pagination.
+     *
+     * @param NodeId $nodeId The node to browse.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
+     * @param bool $includeSubtypes Whether to include subtypes of the reference type.
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseResultSet
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function browseWithContinuation(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, int $nodeClassMask = 0): BrowseResultSet
+    public function browseWithContinuation(NodeId $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = []): BrowseResultSet
     {
+        $nodeClassMask = self::nodeClassesToMask($nodeClasses);
         return $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
             $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
 
@@ -71,8 +92,13 @@ trait ManagesBrowseTrait
     }
 
     /**
-     * @param string $continuationPoint
+     * Continue a previously started browse operation using a continuation point.
+     *
+     * @param string $continuationPoint The opaque continuation point from a previous browse.
      * @return BrowseResultSet
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function browseNext(string $continuationPoint): BrowseResultSet
     {
@@ -92,22 +118,27 @@ trait ManagesBrowseTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param BrowseDirection $direction
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * Browse all references from a node, automatically following continuation points.
+     *
+     * @param NodeId $nodeId The node to browse.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
+     * @param bool $includeSubtypes Whether to include subtypes of the reference type.
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function browseAll(
         NodeId          $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): array
     {
-        $result = $this->browseWithContinuation($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
+        $result = $this->browseWithContinuation($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses);
         $allRefs = $result->references;
 
         while ($result->continuationPoint !== null) {
@@ -121,13 +152,18 @@ trait ManagesBrowseTrait
     private const MAX_BROWSE_RECURSIVE_DEPTH = 256;
 
     /**
-     * @param NodeId $nodeId
-     * @param BrowseDirection $direction
-     * @param ?int $maxDepth
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * Recursively browse the address space starting from a node, building a tree of BrowseNode objects.
+     *
+     * @param NodeId $nodeId The root node to start browsing from.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?int $maxDepth Maximum recursion depth, or null to use the default.
+     * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
+     * @param bool $includeSubtypes Whether to include subtypes of the reference type.
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseNode[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function browseRecursive(
         NodeId          $nodeId,
@@ -135,7 +171,7 @@ trait ManagesBrowseTrait
         ?int            $maxDepth = null,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): array
     {
         $resolvedDepth = $maxDepth ?? $this->getDefaultBrowseMaxDepth();
@@ -145,7 +181,7 @@ trait ManagesBrowseTrait
 
         $visited = [];
 
-        return $this->browseRecursiveInternal($nodeId, $effectiveMaxDepth, 1, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask, $visited);
+        return $this->browseRecursiveInternal($nodeId, $effectiveMaxDepth, 1, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses, $visited);
     }
 
     /**
@@ -155,7 +191,7 @@ trait ManagesBrowseTrait
      * @param BrowseDirection $direction
      * @param ?NodeId $referenceTypeId
      * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * @param NodeClass[] $nodeClasses
      * @param array<string, true> $visited
      * @return BrowseNode[]
      */
@@ -166,17 +202,16 @@ trait ManagesBrowseTrait
         BrowseDirection $direction,
         ?NodeId         $referenceTypeId,
         bool            $includeSubtypes,
-        int             $nodeClassMask,
+        array           $nodeClasses,
         array           &$visited,
     ): array
     {
-        $references = $this->browseAll($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
+        $references = $this->browseAll($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses);
         $nodes = [];
 
         foreach ($references as $ref) {
-            $nodeKey = $ref->getNodeId()->__toString();
+            $nodeKey = $ref->nodeId->__toString();
 
-            // Cycle detection: skip already visited nodes
             if (isset($visited[$nodeKey])) {
                 $nodes[] = new BrowseNode($ref);
                 continue;
@@ -187,13 +222,13 @@ trait ManagesBrowseTrait
 
             if ($currentDepth < $maxDepth) {
                 $children = $this->browseRecursiveInternal(
-                    $ref->getNodeId(),
+                    $ref->nodeId,
                     $maxDepth,
                     $currentDepth + 1,
                     $direction,
                     $referenceTypeId,
                     $includeSubtypes,
-                    $nodeClassMask,
+                    $nodeClasses,
                     $visited,
                 );
                 foreach ($children as $child) {
@@ -208,9 +243,11 @@ trait ManagesBrowseTrait
     }
 
     /**
+     * Send a browse request and return a BinaryDecoder for the response body.
+     *
      * @param NodeId $nodeId
      * @param BrowseDirection $direction
-     * @param NodeId|null $referenceTypeId
+     * @param ?NodeId $referenceTypeId
      * @param bool $includeSubtypes
      * @param int $nodeClassMask
      * @return BinaryDecoder
@@ -234,5 +271,20 @@ trait ManagesBrowseTrait
         $response = $this->transport->receive();
         $responseBody = $this->unwrapResponse($response);
         return $this->createDecoder($responseBody);
+    }
+
+    /**
+     * Convert an array of NodeClass enum values to a bitmask integer.
+     *
+     * @param NodeClass[] $nodeClasses
+     * @return int
+     */
+    private static function nodeClassesToMask(array $nodeClasses): int
+    {
+        $mask = 0;
+        foreach ($nodeClasses as $nc) {
+            $mask |= $nc->value;
+        }
+        return $mask;
     }
 }

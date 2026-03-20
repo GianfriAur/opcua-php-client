@@ -10,16 +10,26 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 
+/**
+ * Provides subscription and monitored item management for OPC UA data change and event notifications.
+ */
 trait ManagesSubscriptionsTrait
 {
     /**
-     * @param float $publishingInterval
-     * @param int $lifetimeCount
-     * @param int $maxKeepAliveCount
-     * @param int $maxNotificationsPerPublish
-     * @param bool $publishingEnabled
-     * @param int $priority
+     * Create a subscription for receiving data change or event notifications.
+     *
+     * @param float $publishingInterval Requested publishing interval in milliseconds.
+     * @param int $lifetimeCount Requested lifetime count (number of publishing intervals before expiry).
+     * @param int $maxKeepAliveCount Maximum keep-alive count.
+     * @param int $maxNotificationsPerPublish Maximum notifications per publish response (0 = unlimited).
+     * @param bool $publishingEnabled Whether publishing is initially enabled.
+     * @param int $priority Relative priority of the subscription.
      * @return SubscriptionResult
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see SubscriptionResult
      */
     public function createSubscription(float $publishingInterval = 500.0, int $lifetimeCount = 2400, int $maxKeepAliveCount = 10, int $maxNotificationsPerPublish = 0, bool $publishingEnabled = true, int $priority = 0): SubscriptionResult
     {
@@ -48,13 +58,20 @@ trait ManagesSubscriptionsTrait
     }
 
     /**
-     * @param int $subscriptionId
-     * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items
+     * Create monitored items within an existing subscription for data change notifications.
+     *
+     * @param int $subscriptionId The subscription to add items to.
+     * @param array<array{nodeId: NodeId, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
      * @return MonitoredItemResult[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see MonitoredItemResult
      */
-    public function createMonitoredItems(int $subscriptionId, array $items): array
+    public function createMonitoredItems(int $subscriptionId, array $monitoredItems): array
     {
-        return $this->executeWithRetry(function () use ($subscriptionId, $items) {
+        return $this->executeWithRetry(function () use ($subscriptionId, $monitoredItems) {
             $this->ensureConnected();
 
             $requestId = $this->nextRequestId();
@@ -62,7 +79,7 @@ trait ManagesSubscriptionsTrait
                 $requestId,
                 $this->authenticationToken,
                 $subscriptionId,
-                $items,
+                $monitoredItems,
             );
             $this->transport->send($request);
 
@@ -75,11 +92,18 @@ trait ManagesSubscriptionsTrait
     }
 
     /**
-     * @param int $subscriptionId
-     * @param NodeId $nodeId
-     * @param string[] $selectFields
-     * @param int $clientHandle
+     * Create a single event-based monitored item within an existing subscription.
+     *
+     * @param int $subscriptionId The subscription to add the item to.
+     * @param NodeId $nodeId The node to monitor for events.
+     * @param string[] $selectFields Event fields to include in notifications.
+     * @param int $clientHandle Client-assigned handle for correlating notifications.
      * @return MonitoredItemResult
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see MonitoredItemResult
      */
     public function createEventMonitoredItem(
         int    $subscriptionId,
@@ -113,9 +137,14 @@ trait ManagesSubscriptionsTrait
     }
 
     /**
-     * @param int $subscriptionId
-     * @param int[] $monitoredItemIds
-     * @return int[]
+     * Delete monitored items from a subscription.
+     *
+     * @param int $subscriptionId The subscription owning the monitored items.
+     * @param int[] $monitoredItemIds IDs of the monitored items to delete.
+     * @return int[] OPC UA status codes for each deletion.
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function deleteMonitoredItems(int $subscriptionId, array $monitoredItemIds): array
     {
@@ -140,8 +169,13 @@ trait ManagesSubscriptionsTrait
     }
 
     /**
-     * @param int $subscriptionId
-     * @return int
+     * Delete a subscription and all its monitored items.
+     *
+     * @param int $subscriptionId The subscription to delete.
+     * @return int The OPC UA status code for the deletion.
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function deleteSubscription(int $subscriptionId): int
     {
@@ -167,8 +201,15 @@ trait ManagesSubscriptionsTrait
     }
 
     /**
-     * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements
+     * Send a publish request to receive pending notifications from subscriptions.
+     *
+     * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements Previously received notifications to acknowledge.
      * @return PublishResult
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see PublishResult
      */
     public function publish(array $acknowledgements = []): PublishResult
     {

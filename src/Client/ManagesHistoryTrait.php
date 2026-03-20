@@ -9,15 +9,23 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * Provides historical data access operations for reading raw, processed, and at-time node values.
+ */
 trait ManagesHistoryTrait
 {
     /**
-     * @param NodeId $nodeId
-     * @param ?DateTimeImmutable $startTime
-     * @param ?DateTimeImmutable $endTime
-     * @param int $numValuesPerNode
-     * @param bool $returnBounds
+     * Read raw historical data for a node.
+     *
+     * @param NodeId $nodeId The node to read history from.
+     * @param ?DateTimeImmutable $startTime Start of the time range, or null for open-ended.
+     * @param ?DateTimeImmutable $endTime End of the time range, or null for open-ended.
+     * @param int $numValuesPerNode Maximum values to return (0 = server default).
+     * @param bool $returnBounds Whether to include bounding values.
      * @return DataValue[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadRaw(
         NodeId             $nodeId,
@@ -51,12 +59,17 @@ trait ManagesHistoryTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param DateTimeImmutable $startTime
-     * @param DateTimeImmutable $endTime
-     * @param float $processingInterval
-     * @param NodeId $aggregateType
+     * Read processed (aggregated) historical data for a node.
+     *
+     * @param NodeId $nodeId The node to read history from.
+     * @param DateTimeImmutable $startTime Start of the time range.
+     * @param DateTimeImmutable $endTime End of the time range.
+     * @param float $processingInterval Aggregation interval in milliseconds.
+     * @param NodeId $aggregateType The aggregate function NodeId (e.g. Average, Count).
      * @return DataValue[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadProcessed(
         NodeId            $nodeId,
@@ -90,9 +103,14 @@ trait ManagesHistoryTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param DateTimeImmutable[] $timestamps
+     * Read historical data at specific timestamps for a node.
+     *
+     * @param NodeId $nodeId The node to read history from.
+     * @param DateTimeImmutable[] $timestamps The exact timestamps to retrieve values for.
      * @return DataValue[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadAtTime(
         NodeId $nodeId,

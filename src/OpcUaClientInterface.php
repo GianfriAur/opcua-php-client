@@ -10,6 +10,7 @@ use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
@@ -167,7 +168,7 @@ interface OpcUaClientInterface
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
-     * @param int $nodeClassMask Bitmask to filter by node class (0 for all).
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
      *
      * @throws ConnectionException If the connection is lost during the request.
@@ -178,7 +179,7 @@ interface OpcUaClientInterface
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): array;
 
     /**
@@ -188,7 +189,7 @@ interface OpcUaClientInterface
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
-     * @param int $nodeClassMask Bitmask to filter by node class (0 for all).
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseResultSet
      *
      * @throws ConnectionException If the connection is lost during the request.
@@ -201,7 +202,7 @@ interface OpcUaClientInterface
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): BrowseResultSet;
 
     /**
@@ -224,7 +225,7 @@ interface OpcUaClientInterface
      * @param BrowseDirection $direction The browse direction.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
-     * @param int $nodeClassMask Bitmask to filter by node class (0 for all).
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return ReferenceDescription[]
      *
      * @throws ConnectionException If the connection is lost during the request.
@@ -235,7 +236,7 @@ interface OpcUaClientInterface
         BrowseDirection $direction = BrowseDirection::Forward,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): array;
 
     /**
@@ -261,7 +262,7 @@ interface OpcUaClientInterface
      * @param ?int $maxDepth Maximum recursion depth, or null to use the default.
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
-     * @param int $nodeClassMask Bitmask to filter by node class (0 for all).
+     * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseNode[]
      *
      * @throws ConnectionException If the connection is lost during the request.
@@ -275,7 +276,7 @@ interface OpcUaClientInterface
         ?int            $maxDepth = null,
         ?NodeId         $referenceTypeId = null,
         bool            $includeSubtypes = true,
-        int             $nodeClassMask = 0,
+        array           $nodeClasses = [],
     ): array;
 
     /**
@@ -326,7 +327,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function readMulti(array $items): array;
+    public function readMulti(array $readItems): array;
 
     /**
      * Write a value to a node attribute.
@@ -350,7 +351,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function writeMulti(array $items): array;
+    public function writeMulti(array $writeItems): array;
 
     /**
      * Call a method on an object node.

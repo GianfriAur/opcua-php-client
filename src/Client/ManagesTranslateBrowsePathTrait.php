@@ -11,11 +11,21 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
+/**
+ * Provides browse path translation and NodeId resolution from human-readable paths.
+ */
 trait ManagesTranslateBrowsePathTrait
 {
     /**
+     * Translate one or more browse paths to their target NodeIds.
+     *
      * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
      * @return BrowsePathResult[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws ServiceException If the server returns an error response.
+     *
+     * @see BrowsePathResult
      */
     public function translateBrowsePaths(array $browsePaths): array
     {
@@ -35,10 +45,14 @@ trait ManagesTranslateBrowsePathTrait
     }
 
     /**
-     * @param string $path
-     * @param ?NodeId $startingNodeId
+     * Resolve a slash-separated browse path string to a NodeId.
+     *
+     * @param string $path Slash-separated browse path (e.g. "Objects/MyFolder/MyNode"). Segments may include a namespace prefix like "2:MyNode".
+     * @param ?NodeId $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
      * @return NodeId
-     * @throws ServiceException
+     *
+     * @throws ServiceException If the path cannot be resolved, yields no targets, or the server returns a bad status code.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      */
     public function resolveNodeId(string $path, ?NodeId $startingNodeId = null): NodeId
     {
