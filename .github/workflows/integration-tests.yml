@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: [ '8.2', '8.3', '8.4' ]
+        php-version: [ '8.2', '8.3', '8.4', '8.5' ]
 
     name: PHP ${{ matrix.php-version }}
 
@@ -24,7 +24,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           extensions: openssl, sockets
-          coverage: ${{ matrix.php-version == '8.4' && 'xdebug' || 'none' }}
+          coverage: ${{ matrix.php-version == '8.5' && 'xdebug' || 'none' }}
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
@@ -36,10 +36,10 @@ jobs:
       - name: Run tests
         env:
           OPCUA_CERTS_DIR: ${{ steps.opcua.outputs.certs-dir }}
-        run: vendor/bin/pest ${{ matrix.php-version == '8.4' && '--coverage-clover=coverage/clover.xml --log-junit=results/junit.xml' || '' }}
+        run: vendor/bin/pest ${{ matrix.php-version == '8.5' && '--coverage-clover=coverage/clover.xml --log-junit=results/junit.xml' || '' }}
 
       - name: Upload coverage to Codecov
-        if: matrix.php-version == '8.4'
+        if: matrix.php-version == '8.5'
         uses: codecov/codecov-action@v5
         with:
           files: coverage/clover.xml
@@ -47,7 +47,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload test results to Codecov
-        if: matrix.php-version == '8.4'
+        if: matrix.php-version == '8.5'
         uses: codecov/codecov-action@v5
         with:
           files: results/junit.xml

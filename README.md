@@ -28,7 +28,7 @@ OPC UA is the industry standard for accessing data from PLCs, SCADA systems, sen
 - **Full security stack** — 6 security policies up to Aes256Sha256RsaPss, 3 authentication modes, auto-generated certificates for quick testing.
 - **Batteries included** — browse, read, write, method call, subscriptions, events, history read, path resolution, auto-batching, auto-retry. Everything in one package.
 - **Cross-platform** — works on Linux, macOS, and Windows. No FFI, no COM, no platform-specific extensions.
-- **Thoroughly tested** — 750+ tests with 99%+ code coverage. Unit tests cover encoding, crypto, protocol logic and error paths. Integration tests run against real OPC UA servers across PHP 8.2, 8.3, and 8.4.
+- **Thoroughly tested** — 750+ tests with 99%+ code coverage. Unit tests cover encoding, crypto, protocol logic and error paths. Integration tests run against real OPC UA servers across PHP 8.2, 8.3, 8.4, and 8.5.
 - **Laravel-ready** — drop-in integration via [`opcua-laravel-client`](https://github.com/GianfriAur/opcua-laravel-client) with service provider, facade, and config.
 
 If your stack is PHP and you need to talk to PLCs, SCADA, or any OPC UA server, this is the shortest path from `composer require` to reading your first variable.
@@ -141,7 +141,7 @@ The library has 750+ tests with **99%+ code coverage**, split across unit and in
 ./vendor/bin/pest tests/Integration/ --group=integration
 ```
 
-CI runs on PHP 8.2, 8.3, and 8.4 via GitHub Actions.
+CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 
 ## Ecosystem
 

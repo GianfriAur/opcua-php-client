@@ -44,7 +44,7 @@ composer require gianfriaur/opcua-php-client
 - Auto-Retry — automatic reconnect and retry on failure (default: 1 retry after first connect)
 - Auto-Batching — transparent batching for readMulti/writeMulti with server limits discovery
 - ExtensionObject Codecs — pluggable decoders for custom OPC UA structures
-- Thoroughly tested — 750+ tests, 99%+ code coverage (unit tests for encoding, crypto, protocol logic, error paths; integration tests against real OPC UA servers on PHP 8.2, 8.3, 8.4)
+- Thoroughly tested — 750+ tests, 99%+ code coverage (unit tests for encoding, crypto, protocol logic, error paths; integration tests against real OPC UA servers on PHP 8.2, 8.3, 8.4, 8.5)
 
 ### Architecture
 

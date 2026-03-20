@@ -30,7 +30,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Auto-Batching: transparent batching for readMulti/writeMulti with server limits discovery
 - ExtensionObject Codecs: pluggable codec system for custom OPC UA structures
 - Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
-- Thoroughly tested: 750+ tests, 99%+ code coverage, unit tests for encoding/crypto/protocol + integration tests against real OPC UA servers on PHP 8.2/8.3/8.4
+- Thoroughly tested: 750+ tests, 99%+ code coverage, unit tests for encoding/crypto/protocol + integration tests against real OPC UA servers on PHP 8.2/8.3/8.4/8.5
 
 ## Architecture
 
