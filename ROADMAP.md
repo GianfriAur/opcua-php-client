@@ -2,6 +2,8 @@
 
 ## v2.1.0 
 
+- [X] CodeCoverage
+- [X] Improuve Documentation
 - [ ] 1 - `ExtensionObjectRepository`: replace static registry with instance-level dependency**
 
 
