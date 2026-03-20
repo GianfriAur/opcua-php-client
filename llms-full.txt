@@ -34,6 +34,7 @@ composer require gianfriaur/opcua-php-client
 - Security — 6 policies (None through Aes256Sha256RsaPss), 3 modes
 - Authentication — anonymous, username/password, X.509 certificate
 - Auto-Retry — automatic reconnect on failure
+- Fluent Builder API — readMulti(), writeMulti(), createMonitoredItems(), and translateBrowsePaths() support a chainable builder when called without arguments
 - Auto-Batching — transparent batching for readMulti/writeMulti
 - ExtensionObject Codecs — per-client instance-level codec registry
 - Automatic DataType Discovery — discoverDataTypes() auto-detects custom structures from server metadata (OPC UA 1.04+)
@@ -224,6 +225,14 @@ $value = $client->read($nodeId);
 ### translateBrowsePaths (Advanced)
 
 ```php
+// Fluent builder
+$results = $client->translateBrowsePaths()
+    ->from('i=85')->path('Server', 'ServerStatus')
+    ->execute();
+
+$nodeId = $results[0]->targets[0]->targetId; // NodeId
+
+// Or with array (still works)
 $results = $client->translateBrowsePaths([
     [
         'startingNodeId' => NodeId::numeric(0, 85),
@@ -232,8 +241,6 @@ $results = $client->translateBrowsePaths([
         ],
     ],
 ]);
-
-$nodeId = $results[0]->targets[0]->targetId; // NodeId
 ```
 
 ---
@@ -253,6 +260,13 @@ echo $dv->serverTimestamp;    // ?DateTimeImmutable
 ### Read Multiple Values
 
 ```php
+// Fluent builder
+$results = $client->readMulti()
+    ->node('i=2259')->value()
+    ->node('i=2267')->value()
+    ->execute();
+
+// Or with array (still works)
 $results = $client->readMulti([
     ['nodeId' => 'i=2259'],
     ['nodeId' => 'i=2267'],
@@ -318,6 +332,13 @@ $subscriptionId = $sub->subscriptionId;
 ### Data Change Monitoring
 
 ```php
+// Fluent builder
+$results = $client->createMonitoredItems($subscriptionId)
+    ->add('i=2258')->samplingInterval(500.0)->queueSize(10)
+    ->add('ns=2;i=1001')
+    ->execute();
+
+// Or with array (still works)
 $results = $client->createMonitoredItems($subscriptionId, [
     ['nodeId' => 'i=2258', 'samplingInterval' => 500.0, 'queueSize' => 10],
     ['nodeId' => 'ns=2;i=1001'],
@@ -512,6 +533,7 @@ src/
 ├── Protocol/*Service.php         # 15 OPC UA service classes
 ├── Security/*.php                # SecureChannel, MessageSecurity, CertificateManager, enums
 ├── Types/*.php                   # 22 type/enum/DTO classes (all public readonly)
+├── Builder/*.php                 # Fluent builders for multi-operations
 ├── Repository/ExtensionObjectRepository.php  # Per-client codec registry
 └── Exception/*.php               # 8 exception classes
 ```

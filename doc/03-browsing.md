@@ -250,6 +250,16 @@ For full control over `TranslateBrowsePathsToNodeIds`, including resolving multi
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
+// Fluent builder
+$results = $client->translateBrowsePaths()
+    ->from('i=85')->path('Server', 'ServerStatus')
+    ->execute();
+
+if (StatusCode::isGood($results[0]->statusCode)) {
+    $targetNodeId = $results[0]->targets[0]->targetId;
+}
+
+// Or with array (still works)
 $results = $client->translateBrowsePaths([
     [
         'startingNodeId' => NodeId::numeric(0, 85),
@@ -259,11 +269,9 @@ $results = $client->translateBrowsePaths([
         ],
     ],
 ]);
-
-if (StatusCode::isGood($results[0]->statusCode)) {
-    $targetNodeId = $results[0]->targets[0]->targetId;
-}
 ```
+
+> **Tip:** The builder's `->from()` sets the starting node, and `->path()` accepts segment names as separate arguments. Call `->from()` again to add another path in the same request.
 
 Each path element supports:
 

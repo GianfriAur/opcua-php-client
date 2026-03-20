@@ -85,6 +85,12 @@ src/
 │   ├── StructureField.php            # Field descriptor for structure definitions
 │   └── StructureDefinition.php       # Structure layout for dynamic codecs
 │
+├── Builder/                            # Fluent builders for multi-operations
+│   ├── ReadMultiBuilder.php           # Builder for readMulti()
+│   ├── WriteMultiBuilder.php          # Builder for writeMulti()
+│   ├── MonitoredItemsBuilder.php      # Builder for createMonitoredItems()
+│   └── TranslateBrowsePathsBuilder.php # Builder for translateBrowsePaths()
+│
 ├── Repository/
 │   └── ExtensionObjectRepository.php  # Per-client codec registry
 │

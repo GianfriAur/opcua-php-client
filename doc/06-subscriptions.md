@@ -35,6 +35,18 @@ Add nodes to watch for value changes:
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
+// Fluent builder
+$results = $client->createMonitoredItems($sub->subscriptionId)
+    ->add('i=2258')->samplingInterval(500.0)->queueSize(10)->clientHandle(1)
+    ->add('ns=2;i=1001')
+    ->execute();
+
+foreach ($results as $result) {
+    echo 'Item ' . $result->monitoredItemId
+        . ': ' . StatusCode::getName($result->statusCode) . "\n";
+}
+
+// Or with array (still works)
 $results = $client->createMonitoredItems(
     $sub->subscriptionId,
     [
@@ -49,12 +61,9 @@ $results = $client->createMonitoredItems(
         ],
     ]
 );
-
-foreach ($results as $result) {
-    echo 'Item ' . $result->monitoredItemId
-        . ': ' . StatusCode::getName($result->statusCode) . "\n";
-}
 ```
+
+> **Tip:** The builder's `->add()` starts a new monitored item. Chain `->samplingInterval()`, `->queueSize()`, and `->clientHandle()` to configure it. Unset options use server defaults.
 
 ### Monitored Item Parameters
 

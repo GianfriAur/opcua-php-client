@@ -52,15 +52,19 @@ trait ManagesReadWriteTrait
      *
      * Results are automatically batched if the number of items exceeds the effective batch size.
      *
-     * @param array<array{nodeId: NodeId|string, attributeId?: int}> $items Items to read.
-     * @return DataValue[]
+     * @param ?array<array{nodeId: NodeId|string, attributeId?: int}> $readItems Items to read, or null to get a fluent builder.
+     * @return ($readItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder : DataValue[])
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function readMulti(array $readItems): array
+    public function readMulti(?array $readItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder
     {
+        if ($readItems === null) {
+            return new \Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder($this);
+        }
+
         foreach ($readItems as &$item) {
             if (isset($item['nodeId']) && is_string($item['nodeId'])) {
                 $item['nodeId'] = NodeId::parse($item['nodeId']);
@@ -153,15 +157,19 @@ trait ManagesReadWriteTrait
      *
      * Results are automatically batched if the number of items exceeds the effective batch size.
      *
-     * @param array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
-     * @return int[] OPC UA status codes for each write result.
+     * @param ?array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType, attributeId?: int}> $writeItems Items to write, or null to get a fluent builder.
+     * @return ($writeItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder : int[])
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
-    public function writeMulti(array $writeItems): array
+    public function writeMulti(?array $writeItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder
     {
+        if ($writeItems === null) {
+            return new \Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder($this);
+        }
+
         foreach ($writeItems as &$item) {
             if (isset($item['nodeId']) && is_string($item['nodeId'])) {
                 $item['nodeId'] = NodeId::parse($item['nodeId']);

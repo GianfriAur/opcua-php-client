@@ -10,8 +10,7 @@
 - [X] Strict Return Types
 - [X] Named Parameters Everywhere
 - [X] Full PHPDoc / Attribute Documentation
-- [ ] Fluent / Builder API
-- [ ] `TBD` integration by default: wirh opcua-php-client-session-manager
+- [X] Fluent / Builder API
 - [X] Browse Filters (`nodeClassMask` → `NodeClass[]`),
 - [X] Browse Filters ResultMask → Won't Do (see below)
 - [X] Human-readable NodeId strings (`NodeId|string` union type)
@@ -137,9 +136,20 @@ The `ExtensionObjectCodec` system is intentionally limited to `ExtensionObject`.
 ### Browse ResultMask
 The OPC UA `ResultMask` controls which fields of `ReferenceDescription` are returned in browse results (ReferenceType, IsForward, NodeClass, BrowseName, DisplayName, TypeDefinition). Exposing this would require making most `ReferenceDescription` properties nullable, forcing null-checks on every consumer for a marginal bandwidth saving. The default (all fields) is what 99% of use cases need, and the few bytes saved per reference are irrelevant in typical PHP deployment scenarios (local/LAN connections). No mainstream OPC UA client library (node-opcua, opcua-asyncio) exposes this as a public parameter either.
 
+### Session Manager Integration (here)
+The session manager ([`gianfriaur/opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager)) is intentionally kept as a separate package and will not be merged into this library. The reasons:
+
+- **Cross-platform compatibility.** This client works on Linux, macOS, and Windows. The session manager uses Unix domain sockets for IPC, which are not available on Windows. Integrating it would either break Windows support or leave dead code on that platform.
+- **Zero-dependency philosophy.** This library requires only `ext-openssl`. The session manager depends on `react/event-loop` and `react/socket` — pulling those into the client would force every user to install ReactPHP, even if they don't need session persistence.
+- **Architectural separation.** The client is a synchronous library. The session manager runs as a separate long-lived daemon process with an async event loop. These are fundamentally different execution models that don't belong in the same package.
+- **The daemon is a separate process anyway.** Even if the code lived in the same package, you'd still need to start a separate `php bin/opcua-session-manager` process. It's not middleware you plug in — it's infrastructure you deploy.
+
+The session manager is fully functional as a standalone package. See the [Ecosystem](#ecosystem) section for all related packages.
+
 ### Full OPC UA Server Implementation (here)
 This library is a client-only implementation. Building a server requires a fundamentally different architecture (address space management, session handling, subscription engine, etc.).
 
 ---
 
 Have a suggestion? Open an [issue](https://github.com/gianfriaur/opcua-php-client/issues) or check the [contributing guide](CONTRIBUTING.md).
+

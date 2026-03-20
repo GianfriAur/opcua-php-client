@@ -34,7 +34,9 @@ This library implements the full OPC UA binary protocol stack in pure PHP: TCP t
 
 All of this with zero external dependencies beyond `ext-openssl`, and full support for PHP 8.2 through 8.5.
 
-> **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-php-client-session-manager`](https://github.com/gianfriaur/opcua-php-client-session-manager) to persist sessions across requests — or use it in a long-running worker process.
+> **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager) to persist sessions across requests — or use it in a long-running worker process.
+>
+> The session manager is a **separate package by design** — it runs as a daemon process using ReactPHP and Unix sockets, which would break this library's zero-dependency, cross-platform philosophy if bundled here. See the [Ecosystem](#ecosystem) section for details.
 
 ----
 
@@ -81,6 +83,22 @@ foreach ($refs as $ref) {
     //=> MyPLC (ns=2;i=1000)
 }
 ```
+
+### Read multiple values
+
+```php
+$results = $client->readMulti()
+    ->node('i=2259')->value()
+    ->node('ns=2;i=1001')->displayName()
+    ->node('ns=2;s=Temperature')->value()
+    ->execute();
+
+foreach ($results as $dataValue) {
+    echo $dataValue->getValue() . "\n";
+}
+```
+
+> **Tip:** You can also pass an array to `readMulti([...])` -- the builder is just a fluent alternative.
 
 ### Resolve a path and read a value
 
@@ -215,6 +233,7 @@ $point = $client->read($pointNodeId)->getValue();
 | **Security** | 6 policies from None through Aes256Sha256RsaPss |
 | **Authentication** | Anonymous, Username/Password, X.509 Certificate |
 | **Auto-Retry** | Automatic reconnect on connection failures |
+| **Fluent Builder API** | Chain `readMulti()`, `writeMulti()`, `createMonitoredItems()`, and `translateBrowsePaths()` calls with a fluent builder |
 | **Auto-Batching** | Transparent batching for `readMulti`/`writeMulti` |
 | **ExtensionObject Codecs** | Pluggable per-client codec system for custom structures |
 | **Auto-Discovery** | `discoverDataTypes()` auto-detects custom structures without manual codecs |
@@ -264,7 +283,7 @@ CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 | Package | Description |
 |---------|-------------|
 | [opcua-php-client](https://github.com/GianfriAur/opcua-php-client) | Pure PHP OPC UA client (this package) |
-| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Session persistence across PHP requests |
+| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Daemon-based session persistence across PHP requests. Keeps OPC UA connections alive between short-lived PHP processes via a ReactPHP daemon and Unix sockets. Separate package by design — see [ROADMAP.md](ROADMAP.md#session-manager-integration-here) for rationale. |
 | [opcua-laravel-client](https://github.com/GianfriAur/opcua-laravel-client) | Laravel integration — service provider, facade, config |
 | [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) | Docker-based OPC UA test servers for integration testing |
 

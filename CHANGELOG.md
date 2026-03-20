@@ -32,6 +32,7 @@
 - `DataTypeMapping` — maps OPC UA DataType NodeIds to `BuiltinType` enum values.
 - `StructureDefinitionParser` — parses the binary body of `StructureDefinition` ExtensionObjects.
 - `BinaryDecoder::readVariantValue()` is now public (was private).
+- **Fluent/Builder API** for multi-node operations. `readMulti()`, `writeMulti()`, `createMonitoredItems()`, and `translateBrowsePaths()` now return a fluent builder when called without arguments: `$client->readMulti()->node('i=2259')->value()->node('i=1001')->displayName()->execute()`. The array-based API still works when passing arguments directly.
 - **All methods accepting `NodeId` now also accept `string`.** Pass OPC UA string format directly (e.g., `'i=2259'`, `'ns=2;i=1001'`, `'ns=2;s=MyNode'`). Applies to: `read`, `write`, `browse`, `browseAll`, `browseWithContinuation`, `browseRecursive`, `call` (both params), `historyReadRaw`, `historyReadProcessed`, `historyReadAtTime`, `createEventMonitoredItem`, `resolveNodeId` ($startingNodeId). Also works inside arrays for `readMulti`, `writeMulti`, `createMonitoredItems`, `translateBrowsePaths`.
 
 ### Deprecated

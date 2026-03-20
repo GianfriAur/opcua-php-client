@@ -44,18 +44,28 @@ $dataType = $client->read(NodeId::numeric(0, 2259), AttributeId::DataType);
 ### Reading Multiple Values
 
 ```php
-$results = $client->readMulti([
-    ['nodeId' => 'i=2259'],
-    ['nodeId' => 'i=2267'],
-    ['nodeId' => 'ns=2;s=Temperature', 'attributeId' => AttributeId::Value],
-]);
+// Fluent builder
+$results = $client->readMulti()
+    ->node('i=2259')->value()
+    ->node('i=2267')->value()
+    ->node('ns=2;s=Temperature')->value()
+    ->execute();
 
 foreach ($results as $dataValue) {
     if (StatusCode::isGood($dataValue->statusCode)) {
         echo $dataValue->getValue() . "\n";
     }
 }
+
+// Or with array (still works)
+$results = $client->readMulti([
+    ['nodeId' => 'i=2259'],
+    ['nodeId' => 'i=2267'],
+    ['nodeId' => 'ns=2;s=Temperature', 'attributeId' => AttributeId::Value],
+]);
 ```
+
+> **Tip:** The builder's `->node()` adds a node, then you pick the attribute (`->value()`, `->displayName()`, etc.). Call `->execute()` to send the request.
 
 ### DataValue Properties
 
@@ -88,6 +98,18 @@ if (StatusCode::isGood($statusCode)) {
 ### Writing Multiple Values
 
 ```php
+// Fluent builder
+$results = $client->writeMulti()
+    ->node('ns=2;i=1001')->value(3.14, BuiltinType::Double)
+    ->node('ns=2;i=1002')->value('Hello', BuiltinType::String)
+    ->node('ns=2;i=1003')->value(true, BuiltinType::Boolean)
+    ->execute();
+
+foreach ($results as $i => $statusCode) {
+    echo "Item $i: " . StatusCode::getName($statusCode) . "\n";
+}
+
+// Or with array (still works)
 $results = $client->writeMulti([
     [
         'nodeId' => 'ns=2;i=1001',
@@ -105,11 +127,9 @@ $results = $client->writeMulti([
         'type' => BuiltinType::Boolean,
     ],
 ]);
-
-foreach ($results as $i => $statusCode) {
-    echo "Item $i: " . StatusCode::getName($statusCode) . "\n";
-}
 ```
+
+> **Tip:** The write builder uses `->node()` to pick the target, then `->value($val, $type)` to set what to write. Call `->execute()` to send.
 
 ### Writing to a Specific Attribute
 

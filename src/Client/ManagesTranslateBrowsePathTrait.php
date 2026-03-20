@@ -19,8 +19,8 @@ trait ManagesTranslateBrowsePathTrait
     /**
      * Translate one or more browse paths to their target NodeIds.
      *
-     * @param array<array{startingNodeId: NodeId|string, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
-     * @return BrowsePathResult[]
+     * @param ?array<array{startingNodeId: NodeId|string, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths Paths to translate, or null to get a fluent builder.
+     * @return ($browsePaths is null ? \Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder : BrowsePathResult[])
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
@@ -28,8 +28,12 @@ trait ManagesTranslateBrowsePathTrait
      *
      * @see BrowsePathResult
      */
-    public function translateBrowsePaths(array $browsePaths): array
+    public function translateBrowsePaths(?array $browsePaths = null): array|\Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder
     {
+        if ($browsePaths === null) {
+            return new \Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder($this);
+        }
+
         foreach ($browsePaths as &$item) {
             if (isset($item['startingNodeId']) && is_string($item['startingNodeId'])) {
                 $item['startingNodeId'] = NodeId::parse($item['startingNodeId']);

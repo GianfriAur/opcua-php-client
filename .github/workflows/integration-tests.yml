@@ -36,7 +36,7 @@ jobs:
       - name: Run tests
         env:
           OPCUA_CERTS_DIR: ${{ steps.opcua.outputs.certs-dir }}
-        run: vendor/bin/pest ${{ matrix.php-version == '8.5' && '--coverage-clover=coverage/clover.xml --log-junit=results/junit.xml' || '' }}
+        run: vendor/bin/pest --log-junit=results/junit.xml ${{ matrix.php-version == '8.5' && '--coverage-clover=coverage/clover.xml' || '' }}
 
       - name: Upload coverage to Codecov
         if: matrix.php-version == '8.5'
@@ -47,12 +47,13 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload test results to Codecov
-        if: matrix.php-version == '8.5'
+        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
           files: results/junit.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: test_results
+          flags: test-results
+          disable_search: true
 
       - name: Server logs (on failure)
         if: failure()

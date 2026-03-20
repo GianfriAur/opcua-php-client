@@ -309,7 +309,7 @@ interface OpcUaClientInterface
      *
      * @see BrowsePathResult
      */
-    public function translateBrowsePaths(array $browsePaths): array;
+    public function translateBrowsePaths(?array $browsePaths = null): array|\Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder;
 
     /**
      * Resolve a slash-separated browse path string to a NodeId.
@@ -349,7 +349,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function readMulti(array $readItems): array;
+    public function readMulti(?array $readItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder;
 
     /**
      * Write a value to a node attribute.
@@ -375,7 +375,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function writeMulti(array $writeItems): array;
+    public function writeMulti(?array $writeItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder;
 
     /**
      * Call a method on an object node.
@@ -433,8 +433,8 @@ interface OpcUaClientInterface
      */
     public function createMonitoredItems(
         int   $subscriptionId,
-        array $items,
-    ): array;
+        ?array $items = null,
+    ): array|\Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder;
 
     /**
      * Create a single event-based monitored item within an existing subscription.

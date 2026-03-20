@@ -28,6 +28,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Security: 6 policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
 - Authentication: Anonymous, Username/Password, X.509 Certificate
 - Auto-Retry: automatic reconnect on connection failures
+- Fluent Builder API: readMulti(), writeMulti(), createMonitoredItems(), and translateBrowsePaths() support a chainable builder when called without arguments
 - Auto-Batching: transparent batching for readMulti/writeMulti with server limits discovery
 - ExtensionObject Codecs: per-client instance-level codec registry (not static/global)
 - Automatic DataType Discovery: discoverDataTypes() auto-detects and decodes custom structures without manual codecs (OPC UA 1.04+)
@@ -77,6 +78,35 @@ foreach ($refs as $ref) {
 }
 
 $client->disconnect();
+```
+
+## Fluent Builder API
+
+Multi-operation methods return a fluent builder when called without arguments. The array-based API still works.
+
+```php
+// Read multiple values
+$results = $client->readMulti()
+    ->node('i=2259')->value()
+    ->node('ns=2;i=1001')->displayName()
+    ->execute();
+
+// Write multiple values
+$results = $client->writeMulti()
+    ->node('ns=2;i=1001')->value(3.14, BuiltinType::Double)
+    ->node('ns=2;i=1002')->value('Hello', BuiltinType::String)
+    ->execute();
+
+// Create monitored items
+$results = $client->createMonitoredItems($sub->subscriptionId)
+    ->add('i=2258')->samplingInterval(500.0)->queueSize(10)
+    ->add('ns=2;i=1001')
+    ->execute();
+
+// Translate browse paths
+$results = $client->translateBrowsePaths()
+    ->from('i=85')->path('Server', 'ServerStatus')
+    ->execute();
 ```
 
 ## Secure connection example

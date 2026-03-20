@@ -61,8 +61,8 @@ trait ManagesSubscriptionsTrait
      * Create monitored items within an existing subscription for data change notifications.
      *
      * @param int $subscriptionId The subscription to add items to.
-     * @param array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
-     * @return MonitoredItemResult[]
+     * @param ?array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $monitoredItems Items to monitor, or null to get a fluent builder.
+     * @return ($monitoredItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder : MonitoredItemResult[])
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
@@ -70,8 +70,12 @@ trait ManagesSubscriptionsTrait
      *
      * @see MonitoredItemResult
      */
-    public function createMonitoredItems(int $subscriptionId, array $monitoredItems): array
+    public function createMonitoredItems(int $subscriptionId, ?array $monitoredItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder
     {
+        if ($monitoredItems === null) {
+            return new \Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder($this, $subscriptionId);
+        }
+
         foreach ($monitoredItems as &$item) {
             if (isset($item['nodeId']) && is_string($item['nodeId'])) {
                 $item['nodeId'] = NodeId::parse($item['nodeId']);
