@@ -6,7 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Types;
 
 use DateTimeImmutable;
 
-class DataValue
+readonly class DataValue
 {
     /**
      * @param ?Variant $value
@@ -15,10 +15,10 @@ class DataValue
      * @param ?DateTimeImmutable $serverTimestamp
      */
     public function __construct(
-        private readonly ?Variant           $value = null,
-        public readonly int                $statusCode = 0,
-        public readonly ?DateTimeImmutable $sourceTimestamp = null,
-        public readonly ?DateTimeImmutable $serverTimestamp = null,
+        private ?Variant           $value = null,
+        public int                $statusCode = 0,
+        public ?DateTimeImmutable $sourceTimestamp = null,
+        public ?DateTimeImmutable $serverTimestamp = null,
     )
     {
     }

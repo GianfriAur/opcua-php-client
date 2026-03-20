@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class BrowsePathResult
+readonly class BrowsePathResult
 {
     /**
      * @param int $statusCode
      * @param BrowsePathTarget[] $targets
      */
     public function __construct(
-        public readonly int   $statusCode,
-        public readonly array $targets,
+        public int   $statusCode,
+        public array $targets,
     )
     {
     }

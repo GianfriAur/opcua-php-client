@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class CallResult
+readonly class CallResult
 {
     /**
      * @param int $statusCode
@@ -12,9 +12,9 @@ class CallResult
      * @param Variant[] $outputArguments
      */
     public function __construct(
-        public readonly int   $statusCode,
-        public readonly array $inputArgumentResults,
-        public readonly array $outputArguments,
+        public int   $statusCode,
+        public array $inputArgumentResults,
+        public array $outputArguments,
     )
     {
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class PublishResult
+readonly class PublishResult
 {
     /**
      * @param int $subscriptionId
@@ -14,11 +14,11 @@ class PublishResult
      * @param int[] $availableSequenceNumbers
      */
     public function __construct(
-        public readonly int   $subscriptionId,
-        public readonly int   $sequenceNumber,
-        public readonly bool  $moreNotifications,
-        public readonly array $notifications,
-        public readonly array $availableSequenceNumbers,
+        public int   $subscriptionId,
+        public int   $sequenceNumber,
+        public bool  $moreNotifications,
+        public array $notifications,
+        public array $availableSequenceNumbers,
     )
     {
     }

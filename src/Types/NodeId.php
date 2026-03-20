@@ -6,7 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Types;
 
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 
-class NodeId
+readonly class NodeId
 {
     public const TYPE_NUMERIC = 'numeric';
     public const TYPE_STRING = 'string';
@@ -19,9 +19,9 @@ class NodeId
      * @param string $type
      */
     public function __construct(
-        public readonly int        $namespaceIndex,
-        public readonly int|string $identifier,
-        public readonly string     $type = self::TYPE_NUMERIC,
+        public int        $namespaceIndex,
+        public int|string $identifier,
+        public string     $type = self::TYPE_NUMERIC,
     )
     {
     }

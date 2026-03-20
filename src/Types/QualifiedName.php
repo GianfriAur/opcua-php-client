@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class QualifiedName
+readonly class QualifiedName
 {
     /**
      * @param int $namespaceIndex
      * @param string $name
      */
     public function __construct(
-        public readonly int    $namespaceIndex,
-        public readonly string $name,
+        public int    $namespaceIndex,
+        public string $name,
     )
     {
     }

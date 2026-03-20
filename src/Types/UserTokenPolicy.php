@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class UserTokenPolicy
+readonly class UserTokenPolicy
 {
     /**
      * @param ?string $policyId
@@ -14,11 +14,11 @@ class UserTokenPolicy
      * @param ?string $securityPolicyUri
      */
     public function __construct(
-        public readonly ?string $policyId,
-        public readonly int     $tokenType,
-        public readonly ?string $issuedTokenType,
-        public readonly ?string $issuerEndpointUrl,
-        public readonly ?string $securityPolicyUri,
+        public ?string $policyId,
+        public int     $tokenType,
+        public ?string $issuedTokenType,
+        public ?string $issuerEndpointUrl,
+        public ?string $securityPolicyUri,
     )
     {
     }

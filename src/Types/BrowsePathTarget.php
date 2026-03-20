@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class BrowsePathTarget
+readonly class BrowsePathTarget
 {
     public function __construct(
-        public readonly NodeId $targetId,
-        public readonly int    $remainingPathIndex,
+        public NodeId $targetId,
+        public int    $remainingPathIndex,
     )
     {
     }

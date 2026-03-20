@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class EndpointDescription
+readonly class EndpointDescription
 {
     /**
      * @param string $endpointUrl
@@ -16,13 +16,13 @@ class EndpointDescription
      * @param int $securityLevel
      */
     public function __construct(
-        public readonly string  $endpointUrl,
-        public readonly ?string $serverCertificate,
-        public readonly int     $securityMode,
-        public readonly string  $securityPolicyUri,
-        public readonly array   $userIdentityTokens,
-        public readonly string  $transportProfileUri,
-        public readonly int     $securityLevel,
+        public string  $endpointUrl,
+        public ?string $serverCertificate,
+        public int     $securityMode,
+        public string  $securityPolicyUri,
+        public array   $userIdentityTokens,
+        public string  $transportProfileUri,
+        public int     $securityLevel,
     )
     {
     }

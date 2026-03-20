@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class LocalizedText
+readonly class LocalizedText
 {
     /**
      * @param ?string $locale
      * @param ?string $text
      */
     public function __construct(
-        public readonly ?string $locale,
-        public readonly ?string $text,
+        public ?string $locale,
+        public ?string $text,
     )
     {
     }

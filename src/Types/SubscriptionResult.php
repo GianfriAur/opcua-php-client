@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class SubscriptionResult
+readonly class SubscriptionResult
 {
     public function __construct(
-        public readonly int   $subscriptionId,
-        public readonly float $revisedPublishingInterval,
-        public readonly int   $revisedLifetimeCount,
-        public readonly int   $revisedMaxKeepAliveCount,
+        public int   $subscriptionId,
+        public float $revisedPublishingInterval,
+        public int   $revisedLifetimeCount,
+        public int   $revisedMaxKeepAliveCount,
     )
     {
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Types;
 
-class ReferenceDescription
+readonly class ReferenceDescription
 {
     /**
      * @param NodeId $referenceTypeId
@@ -16,13 +16,13 @@ class ReferenceDescription
      * @param ?NodeId $typeDefinition
      */
     public function __construct(
-        public readonly NodeId        $referenceTypeId,
-        public readonly bool          $isForward,
-        public readonly NodeId        $nodeId,
-        public readonly QualifiedName $browseName,
-        public readonly LocalizedText $displayName,
-        public readonly NodeClass     $nodeClass,
-        public readonly ?NodeId       $typeDefinition = null,
+        public NodeId        $referenceTypeId,
+        public bool          $isForward,
+        public NodeId        $nodeId,
+        public QualifiedName $browseName,
+        public LocalizedText $displayName,
+        public NodeClass     $nodeClass,
+        public ?NodeId       $typeDefinition = null,
     )
     {
     }
