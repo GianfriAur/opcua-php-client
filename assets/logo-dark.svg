@@ -17,6 +17,10 @@
       <stop offset="0%" stop-color="#818CF8" stop-opacity="0.1" />
       <stop offset="100%" stop-color="#A5B4FC" stop-opacity="0.18" />
     </linearGradient>
+    <mask id="ringMask" maskContentUnits="userSpaceOnUse">
+      <rect x="-100" y="-100" width="500" height="500" fill="white" />
+      <circle cx="44" cy="44" r="12" fill="black" />
+    </mask>
   </defs>
 
   <g transform="translate(16, 16)">
@@ -26,9 +30,8 @@
     <line x1="28" y1="32" x2="8" y2="16" stroke="url(#line)" stroke-width="2" stroke-linecap="round" />
     <line x1="28" y1="56" x2="8" y2="72" stroke="url(#line)" stroke-width="2" stroke-linecap="round" />
 
-    <!-- Central ring -->
-    <circle cx="44" cy="44" r="20" fill="url(#brand)" />
-    <circle cx="44" cy="44" r="12" fill="#0F0E1A" />
+    <!-- Central ring (hollow — inner circle is transparent) -->
+    <circle cx="44" cy="44" r="20" fill="url(#brand)" mask="url(#ringMask)" />
 
     <!-- Outer nodes -->
     <circle cx="82" cy="14" r="5.5" fill="url(#node)" />
@@ -40,9 +43,9 @@
     <rect x="37.5" y="42.5" width="13" height="9" rx="2" fill="url(#brand)" />
     <!-- Lock shackle -->
     <path d="M40.5 42.5 V39 a3.5 3.5 0 0 1 7 0 V42.5" fill="none" stroke="url(#brand)" stroke-width="2" stroke-linecap="round" />
-    <!-- Keyhole -->
-    <circle cx="44" cy="46" r="1.3" fill="#0F0E1A" />
-    <rect x="43.35" y="46" width="1.3" height="2.5" rx="0.5" fill="#0F0E1A" />
+    <!-- Keyhole (transparent) -->
+    <circle cx="44" cy="46" r="1.3" fill="black" opacity="0.5" />
+    <rect x="43.35" y="46" width="1.3" height="2.5" rx="0.5" fill="black" opacity="0.5" />
   </g>
 
   <!-- OPC UA -->

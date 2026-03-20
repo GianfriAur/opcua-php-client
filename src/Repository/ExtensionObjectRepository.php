@@ -7,14 +7,20 @@ namespace Gianfriaur\OpcuaPhpClient\Repository;
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * Registry for ExtensionObjectCodec instances, keyed by their OPC UA type NodeId.
+ */
 class ExtensionObjectRepository
 {
     /** @var array<string, ExtensionObjectCodec> */
     private array $codecs = [];
 
     /**
+     * Registers a codec for the given extension object type NodeId.
+     *
      * @param NodeId $typeId
      * @param class-string<ExtensionObjectCodec>|ExtensionObjectCodec $codec
+     * @return void
      */
     public function register(NodeId $typeId, string|ExtensionObjectCodec $codec): void
     {
@@ -26,6 +32,8 @@ class ExtensionObjectRepository
     }
 
     /**
+     * Removes the codec registered for the given type NodeId.
+     *
      * @param NodeId $typeId
      * @return void
      */
@@ -35,6 +43,8 @@ class ExtensionObjectRepository
     }
 
     /**
+     * Returns the codec registered for the given type NodeId, or null if not found.
+     *
      * @param NodeId $typeId
      * @return ExtensionObjectCodec|null
      */
@@ -44,6 +54,8 @@ class ExtensionObjectRepository
     }
 
     /**
+     * Checks whether a codec is registered for the given type NodeId.
+     *
      * @param NodeId $typeId
      * @return bool
      */
@@ -53,6 +65,8 @@ class ExtensionObjectRepository
     }
 
     /**
+     * Removes all registered codecs.
+     *
      * @return void
      */
     public function clear(): void
