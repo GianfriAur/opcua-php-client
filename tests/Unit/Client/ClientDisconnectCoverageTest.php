@@ -16,7 +16,7 @@ use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
-require_once __DIR__ . '/../Security/SecureChannelTest.php';
+require_once __DIR__ . '/../Helpers/SecurityTestHelpers.php';
 
 class FailingMockTransport extends TcpTransport
 {
@@ -227,13 +227,13 @@ describe('ManagesSessionTrait coverage', function () {
     });
 
     it('closeSessionSecure suppresses receive exception (line 119)', function () {
-        [$certDer, $privKey] = generateSecureChannelTestCert();
+        [$certDer, $privKey] = generateTestCertKeyPair();
         $sc = new SecureChannel(SecurityPolicy::Basic256Sha256, SecurityMode::SignAndEncrypt, $certDer, $privKey, $certDer);
 
         $sc->createOpenSecureChannelMessage();
         $clientNonce = $sc->getClientNonce();
         $serverNonce = random_bytes(32);
-        $response = buildEncryptedOPNResponse($certDer, $privKey, $certDer, $privKey, $clientNonce, $serverNonce, 1, 1, SecurityPolicy::Basic256Sha256);
+        $response = buildTestOPNResponse($certDer, $privKey, $certDer, $privKey, $clientNonce, $serverNonce, 1, 1, SecurityPolicy::Basic256Sha256);
         $sc->processOpenSecureChannelResponse($response);
 
         $mock = new FailingMockTransport(failAfterSends: 999, failAfterReceives: 0);
