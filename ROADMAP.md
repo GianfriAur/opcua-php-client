@@ -15,10 +15,223 @@
 - [X] Browse Filters ResultMask → Won't Do (see below)
 - [X] Human-readable NodeId strings (`NodeId|string` union type)
 - [X] Full ExtensionObject Type System `OPC UA Part 6 5.2.7`
-- [ ] .....
+- [ ] Logging (only interface, with client integration), 
+- [ ] MockClient, 
+- [ ] Transfer Subscriptions ( for `gianfriaur/opcua-php-client-session-manager` )
+- [ ] Republish  ( for `gianfriaur/opcua-php-client-session-manager` )
+- [ ] Cache for browse results 
 ------
 
+## v4.0.0
+- [ ] CLI Tool
+- [ ] xml Code Generator
+- [ ] `TBD` Telemetry
+- [ ] Server Trust Management (also for cli)
+- [ ] NodeManagement Services
+- [ ] Triggering / ModifyMonitoredItems
+- [ ] Symfony integration like Laravel ( `gianfriaur/opcua-symfony-client` ) 
+
+
 This document outlines planned improvements and features for the OPC UA PHP Client library.
+
+
+### PSR-3 Logging
+Inject any PSR-3 compatible logger (Monolog, etc.) into the `Client` to observe connection events, retry attempts, batch splits, and protocol errors:
+
+```php
+$client = new Client();
+$client->setLogger($monologInstance);
+```
+
+Log levels:
+- `DEBUG` — binary encode/decode, sequence numbers
+- `INFO` — connect, disconnect, reconnect, batch splits
+- `WARNING` — retry attempts, server limit overrides
+- `ERROR` — connection failures, security errors
+
+### MockClient for testing
+A `MockClient` implementing `OpcUaClientInterface` with configurable responses and no TCP connection, so library consumers can write unit tests without a real OPC UA server:
+
+```php
+$mock = MockClient::create()
+    ->onRead(NodeId::numeric(2, 1001), fn() => DataValue::ofInt32(42))
+    ->onWrite(NodeId::numeric(2, 1001), fn($v) => StatusCode::Good)
+    ->onBrowse(NodeId::numeric(0, 85), fn() => [...]);
+ 
+$service = new MyPlcService($mock);
+$this->assertEquals(42, $service->readTemperature());
+```
+
+### Transfer Subscriptions + Republish
+OPC UA services for recovering subscriptions after a session loss:
+- `TransferSubscriptions` — move existing subscriptions to a new session without data loss
+- `Republish` — re-deliver notifications that were sent but not yet acknowledged
+
+These integrate directly with the `session-manager` daemon to enable zero-data-loss reconnect scenarios.
+
+### PSR-6 / PSR-16 Cache for browse results
+
+Cache `browse`, `browseAll`, and `resolveNodeId` results with a pluggable driver system.
+Useful when the address space is large but changes rarely (typical in industrial PLC environments).
+
+**Built-in drivers:**
+
+| Driver | Scope | Dependencies |
+|--------|-------|--------------|
+| `InMemoryDriver` *(default)* | Per-process | None |
+| `FileDriver` | Persistent across requests | None |
+| `RedisDriver` | Shared across processes/servers | `ext-redis` or `predis/predis` |
+| `MemcachedDriver` | Shared across processes/servers | `ext-memcached` |
+
+**Default TTL:** 300 seconds. Configurable globally on the driver or per-call.
+
+#### Driver interface
+
+```php
+interface BrowseCacheDriverInterface
+{
+    public function get(string $key): mixed;
+    public function set(string $key, mixed $value, ?int $ttl = null): void;
+    public function has(string $key): bool;
+    public function delete(string $key): void;
+    public function flush(): void;
+    public function getDefaultTtl(): int;
+    public function setDefaultTtl(int $seconds): void;
+}
+```
+
+#### Usage
+
+```php
+// In-memory (default, active out of the box — no setup required)
+$client->setBrowseCache(new InMemoryDriver(ttl: 300));
+ 
+// File-based (survives PHP process restart)
+$client->setBrowseCache(new FileDriver('/tmp/opcua-cache', ttl: 600));
+ 
+// Redis (shared across processes/servers)
+$client->setBrowseCache(new RedisDriver($redisConnection, ttl: 3600));
+ 
+// Memcached
+$client->setBrowseCache(new MemcachedDriver($memcached, ttl: 3600));
+ 
+// Custom driver
+$client->setBrowseCache(new MyDriver(ttl: 1800));
+ 
+// Disable cache entirely
+$client->setBrowseCache(null);
+```
+
+The cache is **active by default** using `InMemoryDriver` with a 300-second TTL.
+Pass `null` to disable it entirely.
+
+#### Per-call cache bypass
+
+All three cached methods accept an optional `useCache` parameter to skip the cache for a single call
+and always fetch a fresh result from the server:
+
+```php
+// Standard call — uses cache (default)
+$refs   = $client->browse(NodeId::numeric(0, 85));
+$refs   = $client->browseAll(NodeId::numeric(0, 85));
+$nodeId = $client->resolveNodeId('/Objects/MyPLC/Temperature');
+ 
+// Skip cache for this call only
+$refs   = $client->browse(NodeId::numeric(0, 85), useCache: false);
+$refs   = $client->browseAll(NodeId::numeric(0, 85), useCache: false);
+$nodeId = $client->resolveNodeId('/Objects/MyPLC/Temperature', useCache: false);
+```
+
+#### Cache invalidation
+
+When you know the address space has changed, you can invalidate selectively or flush everything:
+
+```php
+// Invalidate browse results for a specific node
+$client->invalidateBrowseCache(NodeId::numeric(0, 85));
+ 
+// Flush the entire browse cache
+$client->flushBrowseCache();
+```
+
+#### Cache key format
+
+Keys are generated from the endpoint URL, NodeId, and browse parameters.
+This ensures that two clients pointing to different servers never collide,
+and Redis/Memcached caches can be safely shared across multiple PHP processes:
+
+```
+opcua:{endpoint_hash}:browse:{nodeId}:{direction}:{nodeClassMask}
+opcua:{endpoint_hash}:browse-all:{nodeId}:{direction}:{nodeClassMask}
+opcua:{endpoint_hash}:resolve:{path_hash}:{startingNodeId}
+```
+
+### CLI Tool
+A standalone command-line tool for exploring OPC UA servers without writing code. Useful for debugging on-site:
+
+```bash
+# Browse the address space
+php vendor/bin/opcua browse opc.tcp://192.168.1.10:4840 /Objects
+ 
+# Read a node value
+php vendor/bin/opcua read opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
+ 
+# Watch a node value in real time (polling)
+php vendor/bin/opcua watch opc.tcp://192.168.1.10:4840 "ns=2;i=1001" --interval=500
+ 
+# Discover endpoints
+php vendor/bin/opcua endpoints opc.tcp://192.168.1.10:4840
+```
+
+### NodeSet2.xml Code Generator
+Reads an OPC UA NodeSet2.xml file (companion specifications, PLC-specific information models) and generates typed PHP classes with NodeId constants, DTO classes, and pre-registered codecs — eliminating hardcoded numeric NodeIds from application code:
+
+```bash
+php vendor/bin/opcua generate:nodeset path/to/Opc.Ua.Di.NodeSet2.xml --output=src/OpcUa/
+```
+
+Output:
+```php
+// Auto-generated
+class DiNodeIds {
+    public const DeviceType = NodeId::numeric(1, 1001);
+    public const DeviceType_Manufacturer = NodeId::numeric(1, 6005);
+}
+```
+
+### OpenTelemetry Integration
+Distributed tracing and metrics for production monitoring:
+
+- **Spans** on every operation: `opcua.connect`, `opcua.read`, `opcua.write`, `opcua.browse`, `opcua.publish`
+- **Attributes**: endpoint URL, node count, batch count, security policy, retry number
+- **Metrics**: operation latency histogram, active session count, retry rate, batch size distribution
+- Compatible with any OpenTelemetry-compliant backend (Jaeger, Zipkin, Prometheus, Datadog)
+
+
+### Trust Store Management
+Persistent management of trusted/rejected server certificates, instead of accepting every certificate on connect:
+
+Required for certified industrial deployments.
+```php
+$trustStore = new FileTrustStore('/etc/opcua/trusted/', '/etc/opcua/rejected/');
+$client->setTrustStore($trustStore);
+// On first connect: server cert is validated against the trust store
+// Unknown certs trigger a configurable callback (accept/reject/prompt)
+```
+
+### Trust Store Management CLIt
+Verify that the server certificate has not been revoked before connecting. Required for certified industrial deployments.
+
+### Query Services
+`QueryFirst` / `QueryNext` — structured queries on the address space for servers where browse is too slow due to the size of the node tree.
+
+### NodeManagement Services
+`AddNodes`, `DeleteNodes`, `AddReferences` — for OPC UA servers that support dynamic address space modification at runtime.
+
+### Triggering / ModifyMonitoredItems
+- `SetTriggering` — configure a node that triggers sampling of other nodes
+- `ModifyMonitoredItems` — change sampling interval or queue size on existing monitored items without recreating them
+
 
 ## API Redesign
 
