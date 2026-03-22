@@ -18,6 +18,10 @@ class MonitoredItemsBuilder
     /** @var array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> */
     private array $items = [];
 
+    /**
+     * @param OpcUaClientInterface $client
+     * @param int $subscriptionId
+     */
     public function __construct(
         private readonly OpcUaClientInterface $client,
         private readonly int                  $subscriptionId,

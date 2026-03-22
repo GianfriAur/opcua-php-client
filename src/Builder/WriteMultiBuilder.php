@@ -19,6 +19,9 @@ class WriteMultiBuilder
     private array $items = [];
     private NodeId|string|null $currentNodeId = null;
 
+    /**
+     * @param OpcUaClientInterface $client
+     */
     public function __construct(
         private readonly OpcUaClientInterface $client,
     )

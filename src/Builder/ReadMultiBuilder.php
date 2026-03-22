@@ -19,6 +19,9 @@ class ReadMultiBuilder
     /** @var array<array{nodeId: NodeId|string, attributeId?: int}> */
     private array $items = [];
 
+    /**
+     * @param OpcUaClientInterface $client
+     */
     public function __construct(
         private readonly OpcUaClientInterface $client,
     )

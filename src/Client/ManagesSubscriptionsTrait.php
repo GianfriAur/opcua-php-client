@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
+use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 
 /**
@@ -243,6 +244,72 @@ trait ManagesSubscriptionsTrait
             $decoder = $this->createDecoder($responseBody);
 
             return $this->publishService->decodePublishResponse($decoder);
+        });
+    }
+
+    /**
+     * Transfer subscriptions from another session to this session.
+     *
+     * @param int[] $subscriptionIds
+     * @param bool $sendInitialValues
+     * @return TransferResult[]
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     *
+     * @see TransferResult
+     */
+    public function transferSubscriptions(array $subscriptionIds, bool $sendInitialValues = false): array
+    {
+        return $this->executeWithRetry(function () use ($subscriptionIds, $sendInitialValues) {
+            $this->ensureConnected();
+
+            $requestId = $this->nextRequestId();
+            $request = $this->subscriptionService->encodeTransferSubscriptionsRequest(
+                $requestId,
+                $this->authenticationToken,
+                $subscriptionIds,
+                $sendInitialValues,
+            );
+            $this->transport->send($request);
+
+            $response = $this->transport->receive();
+            $responseBody = $this->unwrapResponse($response);
+            $decoder = $this->createDecoder($responseBody);
+
+            return $this->subscriptionService->decodeTransferSubscriptionsResponse($decoder);
+        });
+    }
+
+    /**
+     * Request the server to re-send a previously published notification message.
+     *
+     * @param int $subscriptionId
+     * @param int $retransmitSequenceNumber
+     * @return array{sequenceNumber: int, publishTime: ?\DateTimeImmutable, notifications: array}
+     *
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     */
+    public function republish(int $subscriptionId, int $retransmitSequenceNumber): array
+    {
+        return $this->executeWithRetry(function () use ($subscriptionId, $retransmitSequenceNumber) {
+            $this->ensureConnected();
+
+            $requestId = $this->nextRequestId();
+            $request = $this->subscriptionService->encodeRepublishRequest(
+                $requestId,
+                $this->authenticationToken,
+                $subscriptionId,
+                $retransmitSequenceNumber,
+            );
+            $this->transport->send($request);
+
+            $response = $this->transport->receive();
+            $responseBody = $this->unwrapResponse($response);
+            $decoder = $this->createDecoder($responseBody);
+
+            return $this->subscriptionService->decodeRepublishResponse($decoder);
         });
     }
 }

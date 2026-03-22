@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
+use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 
 class SubscriptionService
 {
@@ -27,6 +28,7 @@ class SubscriptionService
      * @param int $maxNotificationsPerPublish
      * @param bool $publishingEnabled
      * @param int $priority
+     * @return string
      */
     public function encodeCreateSubscriptionRequest(
         int    $requestId,
@@ -105,6 +107,7 @@ class SubscriptionService
      * @param int $maxNotificationsPerPublish
      * @param bool $publishingEnabled
      * @param int $priority
+     * @return string
      */
     private function encodeCreateSubscriptionRequestSecure(
         int    $requestId,
@@ -177,6 +180,7 @@ class SubscriptionService
      * @param int $requestedMaxKeepAliveCount
      * @param int $maxNotificationsPerPublish
      * @param int $priority
+     * @return string
      */
     public function encodeModifySubscriptionRequest(
         int    $requestId,
@@ -258,6 +262,7 @@ class SubscriptionService
      * @param int $requestedMaxKeepAliveCount
      * @param int $maxNotificationsPerPublish
      * @param int $priority
+     * @return string
      */
     private function encodeModifySubscriptionRequestSecure(
         int    $requestId,
@@ -325,6 +330,7 @@ class SubscriptionService
      * @param int $requestId
      * @param NodeId $authToken
      * @param int[] $subscriptionIds
+     * @return string
      */
     public function encodeDeleteSubscriptionsRequest(
         int    $requestId,
@@ -380,6 +386,7 @@ class SubscriptionService
      * @param int $requestId
      * @param NodeId $authToken
      * @param int[] $subscriptionIds
+     * @return string
      */
     private function encodeDeleteSubscriptionsRequestSecure(
         int    $requestId,
@@ -421,6 +428,7 @@ class SubscriptionService
      * @param NodeId $authToken
      * @param bool $publishingEnabled
      * @param int[] $subscriptionIds
+     * @return string
      */
     public function encodeSetPublishingModeRequest(
         int    $requestId,
@@ -478,6 +486,7 @@ class SubscriptionService
      * @param NodeId $authToken
      * @param bool $publishingEnabled
      * @param int[] $subscriptionIds
+     * @return string
      */
     private function encodeSetPublishingModeRequestSecure(
         int    $requestId,
@@ -563,7 +572,155 @@ class SubscriptionService
     }
 
     /**
+     * @param int $requestId
+     * @param NodeId $authToken
+     * @param int[] $subscriptionIds
+     * @param bool $sendInitialValues
+     * @return string
+     */
+    public function encodeTransferSubscriptionsRequest(
+        int    $requestId,
+        NodeId $authToken,
+        array  $subscriptionIds,
+        bool   $sendInitialValues = false,
+    ): string
+    {
+        $body = new BinaryEncoder();
+
+        $body->writeUInt32($this->session->getTokenId());
+        $body->writeUInt32($this->session->getNextSequenceNumber());
+        $body->writeUInt32($requestId);
+
+        $body->writeNodeId(NodeId::numeric(0, 841));
+
+        $body->writeNodeId($authToken);
+        $body->writeInt64(0);
+        $body->writeUInt32($requestId);
+        $body->writeUInt32(0);
+        $body->writeString(null);
+        $body->writeUInt32(10000);
+        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeByte(0);
+
+        $body->writeInt32(count($subscriptionIds));
+        foreach ($subscriptionIds as $id) {
+            $body->writeUInt32($id);
+        }
+        $body->writeBoolean($sendInitialValues);
+
+        return $this->wrapInMessage($body->getBuffer());
+    }
+
+    /**
+     * @param BinaryDecoder $decoder
+     * @return TransferResult[]
+     */
+    public function decodeTransferSubscriptionsResponse(BinaryDecoder $decoder): array
+    {
+        $decoder->readUInt32();
+        $decoder->readUInt32();
+        $decoder->readUInt32();
+
+        $decoder->readNodeId();
+
+        $this->session->readResponseHeader($decoder);
+
+        $resultCount = $decoder->readInt32();
+        $results = [];
+
+        for ($i = 0; $i < $resultCount; $i++) {
+            $statusCode = $decoder->readUInt32();
+            $seqCount = $decoder->readInt32();
+            $seqNumbers = [];
+            for ($j = 0; $j < $seqCount; $j++) {
+                $seqNumbers[] = $decoder->readUInt32();
+            }
+            $results[] = new TransferResult($statusCode, $seqNumbers);
+        }
+
+        $diagCount = $decoder->readInt32();
+        for ($i = 0; $i < $diagCount; $i++) {
+            $this->skipDiagnosticInfo($decoder);
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param int $requestId
+     * @param NodeId $authToken
+     * @param int $subscriptionId
+     * @param int $retransmitSequenceNumber
+     * @return string
+     */
+    public function encodeRepublishRequest(
+        int    $requestId,
+        NodeId $authToken,
+        int    $subscriptionId,
+        int    $retransmitSequenceNumber,
+    ): string
+    {
+        $body = new BinaryEncoder();
+
+        $body->writeUInt32($this->session->getTokenId());
+        $body->writeUInt32($this->session->getNextSequenceNumber());
+        $body->writeUInt32($requestId);
+
+        $body->writeNodeId(NodeId::numeric(0, 832));
+
+        $body->writeNodeId($authToken);
+        $body->writeInt64(0);
+        $body->writeUInt32($requestId);
+        $body->writeUInt32(0);
+        $body->writeString(null);
+        $body->writeUInt32(10000);
+        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeByte(0);
+
+        $body->writeUInt32($subscriptionId);
+        $body->writeUInt32($retransmitSequenceNumber);
+
+        return $this->wrapInMessage($body->getBuffer());
+    }
+
+    /**
+     * @param BinaryDecoder $decoder
+     * @return array{sequenceNumber: int, publishTime: ?\DateTimeImmutable, notifications: array}
+     */
+    public function decodeRepublishResponse(BinaryDecoder $decoder): array
+    {
+        $decoder->readUInt32();
+        $decoder->readUInt32();
+        $decoder->readUInt32();
+
+        $decoder->readNodeId();
+
+        $this->session->readResponseHeader($decoder);
+
+        $sequenceNumber = $decoder->readUInt32();
+        $publishTime = $decoder->readDateTime();
+
+        $notifCount = $decoder->readInt32();
+        $notifications = [];
+        for ($i = 0; $i < $notifCount; $i++) {
+            $decoder->readNodeId();
+            $decoder->readByte();
+            $bodyLen = $decoder->readInt32();
+            if ($bodyLen > 0) {
+                $decoder->skip($bodyLen);
+            }
+        }
+
+        return [
+            'sequenceNumber' => $sequenceNumber,
+            'publishTime' => $publishTime,
+            'notifications' => $notifications,
+        ];
+    }
+
+    /**
      * @param string $bodyBytes
+     * @return string
      */
     private function wrapInMessage(string $bodyBytes): string
     {

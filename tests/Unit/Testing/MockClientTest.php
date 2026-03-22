@@ -323,6 +323,24 @@ describe('MockClient', function () {
         $result = $mock->setLogger(new \Psr\Log\NullLogger());
         expect($result)->toBe($mock);
     });
+
+    it('transferSubscriptions returns default results', function () {
+        $mock = MockClient::create();
+        $results = $mock->transferSubscriptions([1, 2]);
+
+        expect($results)->toHaveCount(2);
+        expect($results[0])->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Types\TransferResult::class);
+        expect($results[0]->statusCode)->toBe(0);
+        expect($results[1]->availableSequenceNumbers)->toBe([]);
+    });
+
+    it('republish returns default result', function () {
+        $mock = MockClient::create();
+        $result = $mock->republish(1, 5);
+
+        expect($result['sequenceNumber'])->toBe(5);
+        expect($result['notifications'])->toBe([]);
+    });
 });
 
 describe('DataValue factory methods', function () {

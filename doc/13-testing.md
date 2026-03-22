@@ -221,6 +221,8 @@ Operations without registered handlers return sensible defaults:
 | `discoverDataTypes()` | `0` |
 | `getEndpoints()` | `[]` |
 | `historyRead*()` | `[]` |
+| `transferSubscriptions()` | `[TransferResult(0, [])]` per subscription ID |
+| `republish()` | `[]` |
 
 ## Example: Testing a Service Class
 

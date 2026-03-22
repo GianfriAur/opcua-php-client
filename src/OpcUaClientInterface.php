@@ -507,6 +507,26 @@ interface OpcUaClientInterface
     public function publish(array $acknowledgements = []): PublishResult;
 
     /**
+     * @param int[] $subscriptionIds
+     * @param bool $sendInitialValues
+     * @return \Gianfriaur\OpcuaPhpClient\Types\TransferResult[]
+     *
+     * @throws ConnectionException If the connection is lost during the request.
+     * @throws ServiceException If the server returns an error response.
+     */
+    public function transferSubscriptions(array $subscriptionIds, bool $sendInitialValues = false): array;
+
+    /**
+     * @param int $subscriptionId
+     * @param int $retransmitSequenceNumber
+     * @return array{sequenceNumber: int, publishTime: ?\DateTimeImmutable, notifications: array}
+     *
+     * @throws ConnectionException If the connection is lost during the request.
+     * @throws ServiceException If the server returns an error response.
+     */
+    public function republish(int $subscriptionId, int $retransmitSequenceNumber): array;
+
+    /**
      * Read raw historical data for a node.
      *
      * @param NodeId|string $nodeId The node to read history from.

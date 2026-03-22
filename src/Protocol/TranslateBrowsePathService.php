@@ -21,6 +21,7 @@ class TranslateBrowsePathService
      * @param int $requestId
      * @param array<array{startingNodeId: NodeId, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths
      * @param NodeId $authToken
+     * @return string
      */
     public function encodeTranslateRequest(int $requestId, array $browsePaths, NodeId $authToken): string
     {
@@ -85,6 +86,7 @@ class TranslateBrowsePathService
      * @param int $requestId
      * @param array $browsePaths
      * @param NodeId $authToken
+     * @return string
      */
     private function encodeTranslateRequestSecure(int $requestId, array $browsePaths, NodeId $authToken): string
     {
@@ -102,10 +104,8 @@ class TranslateBrowsePathService
      */
     private function writeTranslateInnerBody(BinaryEncoder $body, int $requestId, array $browsePaths, NodeId $authToken): void
     {
-        // TranslateBrowsePathsToNodeIds Request NodeId
         $body->writeNodeId(NodeId::numeric(0, 554));
 
-        // Request header
         $body->writeNodeId($authToken);
         $body->writeInt64(0);
         $body->writeUInt32($requestId);
@@ -115,25 +115,18 @@ class TranslateBrowsePathService
         $body->writeNodeId(NodeId::numeric(0, 0));
         $body->writeByte(0);
 
-        // BrowsePaths array
         $body->writeInt32(count($browsePaths));
 
         foreach ($browsePaths as $path) {
-            // StartingNode
             $body->writeNodeId($path['startingNodeId']);
 
-            // RelativePath
             $elements = $path['relativePath'];
             $body->writeInt32(count($elements));
 
             foreach ($elements as $element) {
-                // ReferenceTypeId (default: HierarchicalReferences ns=0;i=33)
                 $body->writeNodeId($element['referenceTypeId'] ?? NodeId::numeric(0, 33));
-                // IsInverse
                 $body->writeBoolean($element['isInverse'] ?? false);
-                // IncludeSubtypes
                 $body->writeBoolean($element['includeSubtypes'] ?? true);
-                // TargetName
                 $body->writeQualifiedName($element['targetName']);
             }
         }

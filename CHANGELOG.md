@@ -34,6 +34,9 @@
 - `StructureField`, `StructureDefinition` DTOs in `Types/` for representing discovered type definitions.
 - `DynamicCodec` — a generic `ExtensionObjectCodec` that decodes/encodes based on a `StructureDefinition`.
 - `DataTypeMapping` — maps OPC UA DataType NodeIds to `BuiltinType` enum values.
+- **`transferSubscriptions()`** — transfer existing subscriptions to a new session after reconnection without data loss. Returns `TransferResult[]` with status codes and available sequence numbers.
+- **`republish()`** — re-request notifications that were sent but not yet acknowledged. Essential for the session manager to recover from session loss.
+- `TransferResult` DTO in `Types/`.
 - `StructureDefinitionParser` — parses the binary body of `StructureDefinition` ExtensionObjects.
 - `BinaryDecoder::readVariantValue()` is now public (was private).
 - **Fluent/Builder API** for multi-node operations. `readMulti()`, `writeMulti()`, `createMonitoredItems()`, and `translateBrowsePaths()` now return a fluent builder when called without arguments: `$client->readMulti()->node('i=2259')->value()->node('i=1001')->displayName()->execute()`. The array-based API still works when passing arguments directly.

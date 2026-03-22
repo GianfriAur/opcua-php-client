@@ -400,6 +400,23 @@ foreach ($response->notifications as $notif) {
 }
 ```
 
+### Transfer & Recovery
+
+Transfer subscriptions to a new session and re-request unacknowledged notifications. Primarily used by the session manager package.
+
+```php
+// Transfer subscriptions from a previous session
+$results = $client->transferSubscriptions([1, 2, 3], sendInitialValues: true);
+foreach ($results as $result) {
+    // $result->statusCode, $result->availableSequenceNumbers
+}
+
+// Re-request an unacknowledged notification
+$notifications = $client->republish(subscriptionId: 1, retransmitSequenceNumber: 42);
+```
+
+TransferResult DTO: statusCode (int), availableSequenceNumbers (int[])
+
 ### Cleanup
 
 ```php
@@ -511,6 +528,7 @@ CallResult: statusCode (int), inputArgumentResults (int[]), outputArguments (Var
 SubscriptionResult: subscriptionId (int), revisedPublishingInterval (float), revisedLifetimeCount (int), revisedMaxKeepAliveCount (int)
 MonitoredItemResult: statusCode (int), monitoredItemId (int), revisedSamplingInterval (float), revisedQueueSize (int)
 PublishResult: subscriptionId (int), sequenceNumber (int), moreNotifications (bool), notifications (array), availableSequenceNumbers (int[])
+TransferResult: statusCode (int), availableSequenceNumbers (int[])
 
 ---
 
@@ -712,6 +730,7 @@ $results = $client->readMulti()
 - Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
 - Gianfriaur\OpcuaPhpClient\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
 - Gianfriaur\OpcuaPhpClient\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
+- Gianfriaur\OpcuaPhpClient\Types\TransferResult — public readonly: statusCode, availableSequenceNumbers
 - Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex

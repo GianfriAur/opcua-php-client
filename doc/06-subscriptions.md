@@ -179,3 +179,47 @@ $status = $client->deleteSubscription($subscriptionId);
 ```
 
 > **Tip:** Subscriptions are automatically cleaned up when you call `$client->disconnect()`.
+
+## Transfer & Recovery
+
+These two methods support subscription transfer and notification recovery. They are primarily useful when working with the [session manager package](https://github.com/GianfriAur/opcua-php-client-session-manager), which persists sessions across PHP requests, but they are exposed on the client for completeness.
+
+### Transferring Subscriptions
+
+Move existing subscriptions from one session to another. This is how the session manager reclaims subscriptions after reconnecting:
+
+```php
+$results = $client->transferSubscriptions(
+    subscriptionIds: [1, 2, 3],
+    sendInitialValues: true,
+);
+
+foreach ($results as $result) {
+    echo 'Status: ' . StatusCode::getName($result->statusCode) . "\n";
+    echo 'Available sequence numbers: ' . implode(', ', $result->availableSequenceNumbers) . "\n";
+}
+```
+
+Each [`TransferResult`](08-types.md#transferresult) contains the status code and a list of sequence numbers available for republishing. Pass `sendInitialValues: true` to have the server queue the current value of each monitored item as an initial notification.
+
+### Republishing Notifications
+
+Re-request a notification message that was not acknowledged. Use the sequence numbers from `TransferResult::$availableSequenceNumbers` or from a previous `publish()` call:
+
+```php
+$notifications = $client->republish(
+    subscriptionId: 1,
+    retransmitSequenceNumber: 42,
+);
+
+foreach ($notifications as $notif) {
+    if ($notif['type'] === 'DataChange') {
+        echo 'Handle ' . $notif['clientHandle']
+            . ': ' . $notif['dataValue']->getValue() . "\n";
+    }
+}
+```
+
+Returns the same notification array format as `publish()`.
+
+> **Note:** In most applications you will not call these methods directly. The session manager package handles transfer and republish automatically when it reconnects a persisted session. These methods are exposed for advanced use cases and custom session recovery logic.

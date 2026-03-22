@@ -25,6 +25,7 @@ use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
+use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
@@ -85,9 +86,6 @@ class MockClient implements OpcUaClientInterface
     {
         return new self();
     }
-
-    // ── Handler registration ────────────────────────────────────────
-
     /**
      * @param NodeId|string $nodeId
      * @param callable(): DataValue $handler
@@ -143,9 +141,6 @@ class MockClient implements OpcUaClientInterface
         $this->resolveHandlers[trim($path, '/')] = $handler;
         return $this;
     }
-
-    // ── Call tracking ───────────────────────────────────────────────
-
     /**
      * @return array<array{method: string, args: array}>
      */
@@ -179,9 +174,6 @@ class MockClient implements OpcUaClientInterface
     {
         $this->calls = [];
     }
-
-    // ── OpcUaClientInterface: connection ────────────────────────────
-
     public function connect(string $endpointUrl): void
     {
         $this->record('connect', [$endpointUrl]);
@@ -204,9 +196,6 @@ class MockClient implements OpcUaClientInterface
 
     public function isConnected(): bool { return $this->state === ConnectionState::Connected; }
     public function getConnectionState(): ConnectionState { return $this->state; }
-
-    // ── OpcUaClientInterface: config ────────────────────────────────
-
     public function setLogger(LoggerInterface $logger): self { $this->logger = $logger; return $this; }
     public function getLogger(): LoggerInterface { return $this->logger; }
     public function getExtensionObjectRepository(): ExtensionObjectRepository { return $this->repository; }
@@ -220,9 +209,6 @@ class MockClient implements OpcUaClientInterface
     public function getServerMaxNodesPerWrite(): ?int { return null; }
     public function setDefaultBrowseMaxDepth(int $maxDepth): self { $this->browseMaxDepth = $maxDepth; return $this; }
     public function getDefaultBrowseMaxDepth(): int { return $this->browseMaxDepth; }
-
-    // ── OpcUaClientInterface: operations ────────────────────────────
-
     public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue
     {
         $this->record('read', [$nodeId, $attributeId]);
@@ -344,9 +330,6 @@ class MockClient implements OpcUaClientInterface
         $this->record('discoverDataTypes', [$namespaceIndex]);
         return 0;
     }
-
-    // ── OpcUaClientInterface: subscriptions ─────────────────────────
-
     public function createSubscription(float $publishingInterval = 500.0, int $lifetimeCount = 2400, int $maxKeepAliveCount = 10, int $maxNotificationsPerPublish = 0, bool $publishingEnabled = true, int $priority = 0): SubscriptionResult
     {
         $this->record('createSubscription', [$publishingInterval]);
@@ -386,8 +369,17 @@ class MockClient implements OpcUaClientInterface
         return new PublishResult(1, 1, false, [], []);
     }
 
-    // ── OpcUaClientInterface: history ───────────────────────────────
+    public function transferSubscriptions(array $subscriptionIds, bool $sendInitialValues = false): array
+    {
+        $this->record('transferSubscriptions', [$subscriptionIds, $sendInitialValues]);
+        return array_map(fn($id) => new TransferResult(0, []), $subscriptionIds);
+    }
 
+    public function republish(int $subscriptionId, int $retransmitSequenceNumber): array
+    {
+        $this->record('republish', [$subscriptionId, $retransmitSequenceNumber]);
+        return ['sequenceNumber' => $retransmitSequenceNumber, 'publishTime' => null, 'notifications' => []];
+    }
     public function historyReadRaw(NodeId|string $nodeId, ?DateTimeImmutable $startTime = null, ?DateTimeImmutable $endTime = null, int $numValuesPerNode = 0, bool $returnBounds = false): array
     {
         $this->record('historyReadRaw', [$nodeId]);
@@ -405,9 +397,6 @@ class MockClient implements OpcUaClientInterface
         $this->record('historyReadAtTime', [$nodeId]);
         return [];
     }
-
-    // ── Internal ────────────────────────────────────────────────────
-
     private function record(string $method, array $args): void
     {
         $this->calls[] = ['method' => $method, 'args' => $args];

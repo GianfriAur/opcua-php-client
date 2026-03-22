@@ -19,6 +19,9 @@ class BrowsePathsBuilder
     /** @var array<array{startingNodeId: NodeId|string, relativePath: array<array{targetName: QualifiedName}>}> */
     private array $paths = [];
 
+    /**
+     * @param OpcUaClientInterface $client
+     */
     public function __construct(
         private readonly OpcUaClientInterface $client,
     )

@@ -267,6 +267,7 @@ $point = $client->read($pointNodeId)->getValue();
 | **Read / Write** | Single and multi operations, all OPC UA data types |
 | **Method Call** | Invoke server methods with typed arguments and results |
 | **Subscriptions** | Data change and event monitoring with publish/acknowledge |
+| **Transfer & Recovery** | Transfer subscriptions across sessions and republish unacknowledged notifications |
 | **History Read** | Raw, processed (aggregated), and at-time historical queries |
 | **Endpoint Discovery** | Discover available endpoints and security policies |
 | **Security** | 6 policies from None through Aes256Sha256RsaPss |

@@ -23,6 +23,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Read/Write: single and multi operations with all OPC UA data types
 - Method Call: invoke OPC UA methods with typed arguments, returns CallResult DTO
 - Subscriptions: data change and event monitoring, returns SubscriptionResult/PublishResult DTOs
+- Transfer & Recovery: transferSubscriptions() and republish() for session migration and notification re-delivery
 - History Read: raw, processed (aggregated), and at-time historical queries
 - Endpoint Discovery: discover available server endpoints and security policies
 - Security: 6 policies (None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss)
@@ -141,6 +142,7 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 - Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
 - Gianfriaur\OpcuaPhpClient\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
 - Gianfriaur\OpcuaPhpClient\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
+- Gianfriaur\OpcuaPhpClient\Types\TransferResult — public readonly: statusCode, availableSequenceNumbers
 - Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex

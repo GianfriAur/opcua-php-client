@@ -17,8 +17,7 @@
 - [X] Full ExtensionObject Type System `OPC UA Part 6 5.2.7`
 - [X] PSR-3 Logging (`setLogger()`, NullLogger default)
 - [X] MockClient for testing
-- [ ] Transfer Subscriptions ( for `gianfriaur/opcua-php-client-session-manager` )
-- [ ] Republish  ( for `gianfriaur/opcua-php-client-session-manager` )
+- [X] Transfer Subscriptions + Republish (for `gianfriaur/opcua-php-client-session-manager`)
 - [ ] Cache for browse results 
 ------
 

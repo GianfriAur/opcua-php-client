@@ -546,6 +546,17 @@ Each entry in `notifications` is an associative array. For data changes: `type`,
 
 ---
 
+### TransferResult
+
+Returned per subscription by `transferSubscriptions()`. See [Subscriptions](06-subscriptions.md#transferring-subscriptions).
+
+| Property | Type | Description |
+|---|---|---|
+| `$result->statusCode` | `int` | Transfer status for this subscription |
+| `$result->availableSequenceNumbers` | `int[]` | Sequence numbers available for republishing |
+
+---
+
 ## Type Discovery
 
 ### StructureField
