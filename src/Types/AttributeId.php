@@ -31,4 +31,5 @@ class AttributeId
     public const Historizing = 20;
     public const Executable = 21;
     public const UserExecutable = 22;
+    public const DataTypeDefinition = 26;
 }

@@ -14,6 +14,7 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Psr\SimpleCache\CacheInterface;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
@@ -217,7 +218,7 @@ class MockClient implements OpcUaClientInterface
     public function getCache(): ?CacheInterface { if (!$this->cacheInitialized) { $this->cache = new InMemoryCache(300); $this->cacheInitialized = true; } return $this->cache; }
     public function invalidateCache(NodeId|string $nodeId): void { $this->record('invalidateCache', [$nodeId]); }
     public function flushCache(): void { $this->record('flushCache', []); $this->getCache()?->clear(); }
-    public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue
     {
         $this->record('read', [$nodeId, $attributeId]);
         $k = $this->key($nodeId);
@@ -236,7 +237,7 @@ class MockClient implements OpcUaClientInterface
         $results = [];
         foreach ($readItems as $item) {
             $nodeId = $item['nodeId'];
-            $results[] = $this->read($nodeId, $item['attributeId'] ?? 13);
+            $results[] = $this->read($nodeId, $item['attributeId'] ?? AttributeId::Value);
         }
         return $results;
     }

@@ -47,6 +47,9 @@ docker compose up -d
 
 # A specific test file
 ./vendor/bin/pest tests/Unit/ClientBatchingTest.php
+
+# With coverage report
+php -d pcov.enabled=1 ./vendor/bin/pest --coverage
 ```
 
 All tests must pass before submitting a pull request.
@@ -62,7 +65,11 @@ src/
 ├── Protocol/                   # OPC UA service encoding/decoding
 ├── Encoding/                   # Binary serialization
 ├── Security/                   # Secure channel, crypto, certificates
-├── Types/                      # OPC UA data types and enums
+├── Cache/                      # PSR-16 cache drivers (InMemoryCache, FileCache)
+├── Builder/                    # Fluent builders for multi-operations
+├── Repository/                 # Per-client codec registry
+├── Testing/                    # MockClient for consumer testing
+├── Types/                      # OPC UA data types, enums, and DTOs
 └── Exception/                  # Exception hierarchy
 
 tests/
@@ -70,6 +77,26 @@ tests/
 └── Integration/                # Integration tests (require test server)
     └── Helpers/TestHelper.php  # Shared test utilities
 ```
+
+## Design Principles
+
+### Zero Runtime Dependencies
+
+This library depends only on `ext-openssl` and PSR interface packages (`psr/log`, `psr/simple-cache`). PSR packages contain interfaces only — no runtime code, no transitive dependencies.
+
+**Do not add Composer dependencies that ship runtime code.** If a feature requires an external library (Redis driver, HTTP client, etc.), it belongs in a separate package or should accept a PSR interface that the consumer provides. This is a deliberate architectural choice — see the [Won't Do](ROADMAP.md#wont-do-by-design) section in the roadmap for examples.
+
+### Cross-Platform Compatibility
+
+The library must work on Linux, macOS, and Windows. Do not use platform-specific APIs (Unix sockets, `pcntl_*` in production code, `/proc`, etc.). The only allowed extension is `ext-openssl`, which is available on all platforms.
+
+### Public Readonly DTOs
+
+All service response types and value objects use `public readonly` properties. Do not add getter methods — access is `$result->subscriptionId`, not `$result->getSubscriptionId()`. Old getters are deprecated but kept for backward compatibility.
+
+### Instance-Level State
+
+The `Client` does not use static state. Each client instance has its own codec registry (`ExtensionObjectRepository`), cache, logger, and configuration. Two clients in the same process must not interfere with each other.
 
 ## Guidelines
 
@@ -79,12 +106,26 @@ tests/
 - Use strict types (`declare(strict_types=1)`)
 - Use type declarations for parameters, return types, and properties
 - Keep methods focused and concise
+- Use `public readonly` properties for DTOs — no getters
+
+### Documentation & Comments
+
+- Every class, trait, interface, and enum must have a PHPDoc description
+- Every public method must have a PHPDoc block with `@param`, `@return`, `@throws`, and `@see` where applicable
+- `@return` and `@param` must be on their own line, not inline with the description
+- **Do not add comments inside function bodies.** No `//`, no `/* */`, no section headers. If the code needs a comment to be understood, the method is too complex — split it into smaller, well-named methods instead. The method name and its PHPDoc should be enough to understand what it does.
+- Update relevant files in `doc/` for new features
+- Update `CHANGELOG.md` with your changes
+- Update `README.md` features list if adding a major feature
+- Update `llms.txt` and `llms-full.txt` if the change affects the public API or architecture
 
 ### Public API Changes
 
 - Any new public method must be added to `OpcUaClientInterface`
 - Configuration methods should return `self` for fluent chaining
 - Use traits (`Client/Manages*Trait.php`) to organize client functionality
+- All methods accepting a `NodeId` should also accept `string` (OPC UA format: `'i=2259'`, `'ns=2;s=MyNode'`)
+- Use `AttributeId` constants instead of magic numbers for attribute IDs
 
 ### Testing
 
@@ -93,24 +134,20 @@ tests/
 - Use Pest PHP syntax (not PHPUnit)
 - Group integration tests with `->group('integration')`
 - Use `TestHelper::safeDisconnect()` in `finally` blocks
+- Use `MockClient` for builder and consumer-facing tests — do not create anonymous classes implementing `OpcUaClientInterface`
+- **Code coverage must remain at or above 99.5%.** Pull requests that drop coverage below this threshold will not be merged. Run `php -d pcov.enabled=1 ./vendor/bin/pest --coverage` to check locally before submitting.
 
 ### Commits
 
 - Use descriptive commit messages
 - Prefix with `[ADD]`, `[UPD]`, `[PATCH]`, `[REF]`, `[DOC]`, `[TEST]` as appropriate
 
-### Documentation
-
-- Update relevant files in `doc/` for new features
-- Update `CHANGELOG.md` with your changes
-- Update `README.md` features list if adding a major feature
-
 ## Pull Request Process
 
 1. Fork the repository and create a feature branch
 2. Write your code and tests
-3. Ensure all tests pass
-4. Update documentation and changelog
+3. Ensure all tests pass and coverage is >= 99.5%
+4. Update documentation, changelog, and llms files
 5. Submit a pull request using the provided template
 6. Wait for review — a maintainer will review your PR, may request changes or ask questions
 7. Once approved, your PR will be merged

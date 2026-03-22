@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient;
 
 use DateTimeImmutable;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
@@ -391,7 +392,7 @@ interface OpcUaClientInterface
      *
      * @see DataValue
      */
-    public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue;
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue;
 
     /**
      * Read multiple attributes from one or more nodes in a single request.

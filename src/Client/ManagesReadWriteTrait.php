@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -29,7 +30,7 @@ trait ManagesReadWriteTrait
      *
      * @see DataValue
      */
-    public function read(NodeId|string $nodeId, int $attributeId = 13): DataValue
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue
     {
         $nodeId = $this->resolveNodeIdParam($nodeId);
         return $this->executeWithRetry(function () use ($nodeId, $attributeId) {
@@ -65,12 +66,7 @@ trait ManagesReadWriteTrait
             return new \Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder($this);
         }
 
-        foreach ($readItems as &$item) {
-            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
-                $item['nodeId'] = NodeId::parse($item['nodeId']);
-            }
-        }
-        unset($item);
+        $this->resolveNodeIdArrayParam($readItems);
 
         $batchSize = $this->getEffectiveReadBatchSize();
         if ($batchSize !== null && count($readItems) > $batchSize) {
@@ -172,12 +168,7 @@ trait ManagesReadWriteTrait
             return new \Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder($this);
         }
 
-        foreach ($writeItems as &$item) {
-            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
-                $item['nodeId'] = NodeId::parse($item['nodeId']);
-            }
-        }
-        unset($item);
+        $this->resolveNodeIdArrayParam($writeItems);
 
         $batchSize = $this->getEffectiveWriteBatchSize();
         if ($batchSize !== null && count($writeItems) > $batchSize) {
@@ -243,7 +234,7 @@ trait ManagesReadWriteTrait
             $writeItems[] = [
                 'nodeId' => $item['nodeId'],
                 'dataValue' => new DataValue($variant),
-                'attributeId' => $item['attributeId'] ?? 13,
+                'attributeId' => $item['attributeId'] ?? AttributeId::Value,
             ];
         }
 

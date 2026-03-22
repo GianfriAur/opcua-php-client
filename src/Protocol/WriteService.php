@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -116,7 +117,7 @@ class WriteService
 
         foreach ($writeItems as $item) {
             $body->writeNodeId($item['nodeId']);
-            $body->writeUInt32($item['attributeId'] ?? 13);
+            $body->writeUInt32($item['attributeId'] ?? AttributeId::Value);
             $body->writeString(null);
 
             $body->writeDataValue($item['dataValue']);

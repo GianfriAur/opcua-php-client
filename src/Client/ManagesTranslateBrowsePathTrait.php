@@ -34,12 +34,7 @@ trait ManagesTranslateBrowsePathTrait
             return new \Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder($this);
         }
 
-        foreach ($browsePaths as &$item) {
-            if (isset($item['startingNodeId']) && is_string($item['startingNodeId'])) {
-                $item['startingNodeId'] = NodeId::parse($item['startingNodeId']);
-            }
-        }
-        unset($item);
+        $this->resolveNodeIdArrayParam($browsePaths, 'startingNodeId');
 
         return $this->executeWithRetry(function () use ($browsePaths) {
             $this->ensureConnected();

@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Protocol;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -24,7 +25,7 @@ class ReadService
      * @param NodeId $authToken
      * @param int $attributeId
      */
-    public function encodeReadRequest(int $requestId, NodeId $nodeId, NodeId $authToken, int $attributeId = 13): string
+    public function encodeReadRequest(int $requestId, NodeId $nodeId, NodeId $authToken, int $attributeId = AttributeId::Value): string
     {
         return $this->encodeReadMultiRequest($requestId, [['nodeId' => $nodeId, 'attributeId' => $attributeId]], $authToken);
     }
@@ -130,7 +131,7 @@ class ReadService
 
         foreach ($readItems as $item) {
             $body->writeNodeId($item['nodeId']);
-            $body->writeUInt32($item['attributeId'] ?? 13);
+            $body->writeUInt32($item['attributeId'] ?? AttributeId::Value);
             $body->writeString(null);
             $body->writeUInt16(0);
             $body->writeString(null);

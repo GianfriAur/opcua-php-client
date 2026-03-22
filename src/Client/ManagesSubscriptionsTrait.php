@@ -77,12 +77,7 @@ trait ManagesSubscriptionsTrait
             return new \Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder($this, $subscriptionId);
         }
 
-        foreach ($monitoredItems as &$item) {
-            if (isset($item['nodeId']) && is_string($item['nodeId'])) {
-                $item['nodeId'] = NodeId::parse($item['nodeId']);
-            }
-        }
-        unset($item);
+        $this->resolveNodeIdArrayParam($monitoredItems);
 
         return $this->executeWithRetry(function () use ($subscriptionId, $monitoredItems) {
             $this->ensureConnected();

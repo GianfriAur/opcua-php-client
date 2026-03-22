@@ -121,6 +121,21 @@ class InMemoryCache implements CacheInterface
     }
 
     /**
+     * Delete all entries whose key starts with the given prefix.
+     *
+     * @param string $prefix
+     * @return void
+     */
+    public function deleteByPrefix(string $prefix): void
+    {
+        foreach (array_keys($this->store) as $key) {
+            if (str_starts_with($key, $prefix)) {
+                unset($this->store[$key]);
+            }
+        }
+    }
+
+    /**
      * Returns the default time-to-live in seconds.
      *
      * @return int

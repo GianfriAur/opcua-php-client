@@ -285,4 +285,21 @@ class Client implements OpcUaClientInterface
     {
         return is_string($nodeId) ? NodeId::parse($nodeId) : $nodeId;
     }
+
+    /**
+     * Resolve string NodeIds in an array of items to NodeId objects.
+     *
+     * @param array $items
+     * @param string $key
+     * @return void
+     */
+    private function resolveNodeIdArrayParam(array &$items, string $key = 'nodeId'): void
+    {
+        foreach ($items as &$item) {
+            if (isset($item[$key]) && is_string($item[$key])) {
+                $item[$key] = NodeId::parse($item[$key]);
+            }
+        }
+        unset($item);
+    }
 }

@@ -7,6 +7,7 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
 use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
+use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -118,12 +119,12 @@ trait ManagesTypeDiscoveryTrait
             return null;
         }
 
-        $dv = $this->read($dataTypeNodeId, 26);
-        if (StatusCode::isBad($dv->statusCode)) {
+        $dataValue = $this->read($dataTypeNodeId, AttributeId::DataTypeDefinition);
+        if (StatusCode::isBad($dataValue->statusCode)) {
             return null;
         }
 
-        $raw = $dv->getValue();
+        $raw = $dataValue->getValue();
         if (!is_array($raw) || !isset($raw['body']) || !is_string($raw['body'])) {
             return null;
         }

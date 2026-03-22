@@ -167,18 +167,8 @@ trait ManagesCacheTrait
      */
     private function invalidateByPrefix(string $prefix): void
     {
-        if (!($this->cache instanceof InMemoryCache)) {
-            return;
+        if ($this->cache instanceof InMemoryCache) {
+            $this->cache->deleteByPrefix($prefix);
         }
-        $reflection = new \ReflectionClass($this->cache);
-        $prop = $reflection->getProperty('store');
-        $store = $prop->getValue($this->cache);
-        $keysToDelete = [];
-        foreach (array_keys($store) as $key) {
-            if (str_starts_with($key, $prefix)) {
-                $keysToDelete[] = $key;
-            }
-        }
-        $this->cache->deleteMultiple($keysToDelete);
     }
 }
