@@ -27,6 +27,7 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Contract for an OPC UA client capable of connecting, browsing, reading, writing, and subscribing to an OPC UA server.
@@ -35,6 +36,17 @@ use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
  */
 interface OpcUaClientInterface
 {
+    /**
+     * @param LoggerInterface $logger
+     * @return self
+     */
+    public function setLogger(LoggerInterface $logger): self;
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface;
+
     /**
      * Return the extension object repository used for custom type decoding.
      *

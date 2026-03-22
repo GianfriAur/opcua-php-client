@@ -112,8 +112,12 @@ trait ManagesBatchingTrait
                     $this->serverMaxNodesPerWrite = $value;
                 }
             }
+            $this->logger->debug('Server limits discovered: MaxNodesPerRead={read}, MaxNodesPerWrite={write}', [
+                'read' => $this->serverMaxNodesPerRead,
+                'write' => $this->serverMaxNodesPerWrite,
+            ]);
         } catch (Throwable) {
-            // Server doesn't support operation limits — not critical
+            $this->logger->warning('Server does not support operation limits discovery');
         }
     }
 

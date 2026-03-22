@@ -127,6 +127,14 @@ src/
 
 Each layer only talks to the one directly below it. The `Client` is the sole public entry point -- everything else is internal.
 
+## Dependencies
+
+The library has a single Composer dependency:
+
+- **`psr/log`** — PSR-3 logger interface. The client accepts any `Psr\Log\LoggerInterface` implementation (Monolog, Laravel, etc.) and defaults to `NullLogger` when none is provided.
+
+The only PHP extension required is `ext-openssl`.
+
 ## Service Pattern
 
 All protocol services follow the same structure:

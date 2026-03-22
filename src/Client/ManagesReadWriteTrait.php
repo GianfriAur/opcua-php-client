@@ -108,6 +108,8 @@ trait ManagesReadWriteTrait
      */
     private function readMultiBatched(array $items, int $batchSize): array
     {
+        $batches = (int)ceil(count($items) / $batchSize);
+        $this->logger->info('Splitting readMulti into {batches} batches of {size}', ['batches' => $batches, 'size' => $batchSize, 'total' => count($items)]);
         $results = [];
         foreach (array_chunk($items, $batchSize) as $batch) {
             $batchResults = $this->readMultiRaw($batch);

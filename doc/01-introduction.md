@@ -72,6 +72,10 @@ $client->disconnect();
 - Anonymous, username/password, and X.509 certificate authentication
 - PEM and DER certificate support with auto-detection
 
+**Observability**
+- PSR-3 logging — pass any compatible logger (Monolog, Laravel, etc.) for structured diagnostics
+- NullLogger by default — zero overhead when logging is not needed
+
 **Reliability**
 - Connection state tracking (Disconnected, Connected, Broken)
 - `reconnect()` for re-establishing dropped connections

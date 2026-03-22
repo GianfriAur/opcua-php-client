@@ -39,6 +39,8 @@ use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * OPC UA client implementation providing connection management, browsing, reading, writing, subscriptions, and history access.
@@ -102,15 +104,36 @@ class Client implements OpcUaClientInterface
     private ?string $lastEndpointUrl = null;
     private ConnectionState $connectionState = ConnectionState::Disconnected;
     private ExtensionObjectRepository $extensionObjectRepository;
+    private LoggerInterface $logger;
 
     /**
      * @param ?ExtensionObjectRepository $extensionObjectRepository Optional custom repository for extension object decoding.
+     * @param ?LoggerInterface $logger Optional PSR-3 logger for connection events, retries, and errors.
      */
-    public function __construct(?ExtensionObjectRepository $extensionObjectRepository = null)
+    public function __construct(?ExtensionObjectRepository $extensionObjectRepository = null, ?LoggerInterface $logger = null)
     {
         $this->transport = new TcpTransport();
         $this->extensionObjectRepository = $extensionObjectRepository ?? new ExtensionObjectRepository();
+        $this->logger = $logger ?? new NullLogger();
         $this->initTimeout();
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return self
+     */
+    public function setLogger(LoggerInterface $logger): self
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     /**

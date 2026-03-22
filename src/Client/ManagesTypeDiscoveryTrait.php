@@ -33,6 +33,7 @@ trait ManagesTypeDiscoveryTrait
     public function discoverDataTypes(?int $namespaceIndex = null): int
     {
         $this->ensureConnected();
+        $this->logger->info('Discovering data types' . ($namespaceIndex !== null ? " for namespace {$namespaceIndex}" : ''));
 
         $tree = $this->browseRecursive(
             NodeId::numeric(0, 22),
@@ -45,6 +46,7 @@ trait ManagesTypeDiscoveryTrait
         $registered = 0;
         $this->discoverFromTree($tree, $namespaceIndex, $registered);
 
+        $this->logger->info('Discovered {count} data type(s)', ['count' => $registered]);
         return $registered;
     }
 

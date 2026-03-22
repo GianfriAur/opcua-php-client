@@ -15,7 +15,7 @@
 - [X] Browse Filters ResultMask → Won't Do (see below)
 - [X] Human-readable NodeId strings (`NodeId|string` union type)
 - [X] Full ExtensionObject Type System `OPC UA Part 6 5.2.7`
-- [ ] Logging (only interface, with client integration), 
+- [X] PSR-3 Logging (`setLogger()`, NullLogger default)
 - [ ] MockClient, 
 - [ ] Transfer Subscriptions ( for `gianfriaur/opcua-php-client-session-manager` )
 - [ ] Republish  ( for `gianfriaur/opcua-php-client-session-manager` )

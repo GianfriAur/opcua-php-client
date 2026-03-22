@@ -25,7 +25,9 @@
 - `Client::getExtensionObjectRepository()` method on `Client` and `OpcUaClientInterface`.
 - `Client` constructor now accepts an optional `?ExtensionObjectRepository $extensionObjectRepository` parameter.
 - `BinaryDecoder` constructor now accepts an optional `?ExtensionObjectRepository` parameter for codec resolution.
-- 750+ unit and integration tests with 99%+ code coverage.
+- 800+ unit and integration tests with 99.5%+ code coverage.
+- **PSR-3 Logging.** Inject any PSR-3 compatible logger (Monolog, Laravel, etc.) via `$client->setLogger($logger)` or the constructor. Logs connection events (INFO), retry attempts (WARNING), batch splits (INFO), failures (ERROR), and protocol details (DEBUG). Uses `NullLogger` by default.
+- `psr/log` ^3.0 added as dependency (interface-only package, zero runtime code).
 - **Automatic DataType discovery.** `$client->discoverDataTypes()` browses the server's DataType hierarchy, reads `DataTypeDefinition` attributes (OPC UA 1.04+), and automatically creates `DynamicCodec` instances for all server-defined structured types. Eliminates the need to manually implement codecs for custom types. Supports Structure, StructureWithOptionalFields, and Union types.
 - `StructureField`, `StructureDefinition` DTOs in `Types/` for representing discovered type definitions.
 - `DynamicCodec` — a generic `ExtensionObjectCodec` that decodes/encodes based on a `StructureDefinition`.

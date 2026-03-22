@@ -46,17 +46,24 @@ trait ManagesConnectionTrait
             $this->discoverServerCertificate($host, $port, $endpointUrl);
         }
 
+        $this->logger->info('Connecting to {endpoint}', ['endpoint' => $endpointUrl]);
+
         try {
             $this->transport->connect($host, $port, $this->getTimeout());
+            $this->logger->debug('TCP connection established to {host}:{port}', ['host' => $host, 'port' => $port]);
 
             $this->doHandshake($endpointUrl);
+            $this->logger->debug('HEL/ACK handshake complete');
 
             $this->openSecureChannel();
+            $this->logger->debug('Secure channel opened (channelId={channelId})', ['channelId' => $this->secureChannelId]);
 
             $this->createAndActivateSession($endpointUrl);
+            $this->logger->debug('Session created and activated');
         } catch (ConnectionException $e) {
             $this->connectionState = ConnectionState::Broken;
             $this->lastEndpointUrl = $endpointUrl;
+            $this->logger->error('Connection failed: {message}', ['message' => $e->getMessage(), 'endpoint' => $endpointUrl]);
             throw $e;
         }
 
@@ -64,6 +71,7 @@ trait ManagesConnectionTrait
         $this->connectionState = ConnectionState::Connected;
 
         $this->discoverServerOperationLimits();
+        $this->logger->info('Connected to {endpoint}', ['endpoint' => $endpointUrl]);
     }
 
     /**
@@ -82,6 +90,7 @@ trait ManagesConnectionTrait
             throw new ConfigurationException('Cannot reconnect: no previous connection endpoint. Call connect() first.');
         }
 
+        $this->logger->info('Reconnecting to {endpoint}', ['endpoint' => $this->lastEndpointUrl]);
         $this->transport->close();
         $this->resetConnectionState();
 
@@ -95,6 +104,7 @@ trait ManagesConnectionTrait
      */
     public function disconnect(): void
     {
+        $this->logger->info('Disconnecting');
         if ($this->session !== null && $this->authenticationToken !== null) {
             try {
                 $this->closeSession();
@@ -170,9 +180,17 @@ trait ManagesConnectionTrait
                 $this->connectionState = ConnectionState::Broken;
 
                 if ($attempt >= $maxRetries || $this->lastEndpointUrl === null) {
+                    $this->logger->error('Operation failed after {attempts} attempt(s): {message}', [
+                        'attempts' => $attempt + 1,
+                        'message' => $e->getMessage(),
+                    ]);
                     throw $e;
                 }
 
+                $this->logger->warning('Connection lost, retrying ({attempt}/{max})', [
+                    'attempt' => $attempt + 1,
+                    'max' => $maxRetries,
+                ]);
                 $this->reconnect();
             }
         }

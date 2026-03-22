@@ -33,6 +33,7 @@ composer require gianfriaur/opcua-php-client
 - History Read — raw, processed, and at-time historical queries
 - Security — 6 policies (None through Aes256Sha256RsaPss), 3 modes
 - Authentication — anonymous, username/password, X.509 certificate
+- PSR-3 Logging — optional structured logging via any PSR-3 logger; NullLogger by default
 - Auto-Retry — automatic reconnect on failure
 - Fluent Builder API — readMulti(), writeMulti(), createMonitoredItems(), and translateBrowsePaths() support a chainable builder when called without arguments
 - Auto-Batching — transparent batching for readMulti/writeMulti
@@ -147,6 +148,29 @@ $client->setUserCredentials('user', 'password');       // username/password
 $client->setUserCertificate('/certs/user.pem', '/certs/user.key'); // X.509
 // or nothing — anonymous by default
 ```
+
+### Logging
+
+The client accepts any PSR-3 logger. Without one, a NullLogger is used (zero overhead).
+
+```php
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('opcua');
+$logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
+
+$client = new Client(logger: $logger);
+// or
+$client->setLogger($logger);
+```
+
+Laravel integration:
+```php
+$client = new Client(logger: app('log'));
+```
+
+Log levels: DEBUG (handshake, secure channel, session), INFO (connect/disconnect, batch splits), WARNING (retries, server limits), ERROR (connection failures).
 
 ### Endpoint Discovery
 

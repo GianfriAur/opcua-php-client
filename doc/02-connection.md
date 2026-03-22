@@ -231,6 +231,55 @@ foreach ($endpoints as $ep) {
 
 **Token types:** `0` = Anonymous, `1` = Username/Password, `2` = X.509 Certificate
 
+## Logging
+
+The client supports [PSR-3](https://www.php-fig.org/psr/psr-3/) logging. Pass any compatible logger to get structured diagnostics about connection lifecycle, protocol events, and errors. When no logger is provided, a `NullLogger` is used — zero overhead.
+
+### Setting up a logger
+
+You can pass a logger at construction time or set it later:
+
+```php
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('opcua');
+$logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
+
+// Via constructor
+$client = new Client(logger: $logger);
+
+// Or after construction
+$client->setLogger($logger);
+```
+
+### Laravel integration
+
+Laravel's logger is PSR-3 compatible out of the box:
+
+```php
+$client = new Client(logger: app('log'));
+```
+
+### What gets logged
+
+| Level | Events |
+|-------|--------|
+| `DEBUG` | Hello/Acknowledge handshake, secure channel open/renew, session create/activate |
+| `INFO` | Successful connect and disconnect, batch splits during multi-operations |
+| `WARNING` | Auto-retry attempts, server-imposed operation limits |
+| `ERROR` | Connection failures, socket errors, protocol violations |
+
+### Disabling logging
+
+Logging is off by default (uses `NullLogger`). If you previously set a logger and want to disable it:
+
+```php
+use Psr\Log\NullLogger;
+
+$client->setLogger(new NullLogger());
+```
+
 ## Disconnecting
 
 Always call `disconnect()` when you are done. It sends CloseSession and CloseSecureChannel, closes the TCP socket, and clears all internal state.

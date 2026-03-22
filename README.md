@@ -196,6 +196,22 @@ $point = $client->read($pointNodeId)->getValue();
 
 Each client gets its own isolated codec registry — no global state, no cross-contamination.
 
+### Add structured logging
+
+```php
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('opcua');
+$logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
+
+$client = new Client(logger: $logger);
+$client->connect('opc.tcp://localhost:4840');
+// Logs: handshake, secure channel, session creation, reads, retries, errors...
+```
+
+Any [PSR-3](https://www.php-fig.org/psr/psr-3/) logger works — Monolog, Laravel's logger, or your own. Without one, logging is silently disabled (`NullLogger`).
+
 ### Auto-discover custom types
 
 ```php
@@ -209,7 +225,7 @@ $point = $client->read($pointNodeId)->getValue();
 
 ## Why This Library?
 
-- **Zero dependencies** — only `ext-openssl`. No phpseclib, no symfony/cache, no monolog.
+- **Zero runtime dependencies** — only `ext-openssl`. Optional PSR-3 logging via any compatible logger (Monolog, Laravel, etc.).
 - **PHP 8.2+** — runs on any modern PHP.
 - **Native binary protocol** — speaks OPC UA directly over TCP. No HTTP gateway, no REST bridge, no sidecar.
 - **Full security stack** — 6 policies up to Aes256Sha256RsaPss, 3 auth modes, auto-generated certs.
@@ -237,6 +253,7 @@ $point = $client->read($pointNodeId)->getValue();
 | **Auto-Batching** | Transparent batching for `readMulti`/`writeMulti` |
 | **ExtensionObject Codecs** | Pluggable per-client codec system for custom structures |
 | **Auto-Discovery** | `discoverDataTypes()` auto-detects custom structures without manual codecs |
+| **PSR-3 Logging** | Optional structured logging via any PSR-3 logger — connect, retry, errors, protocol details |
 
 ## Documentation
 
