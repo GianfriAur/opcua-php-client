@@ -13,6 +13,7 @@ use Gianfriaur\OpcuaPhpClient\Protocol\HelloMessage;
 use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
 use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelRequest;
 use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelResponse;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
 use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -58,7 +59,7 @@ trait ManagesHandshakeTrait
         $session = $this->performDiscoveryHandshake($discoveryTransport, $endpointUrl);
 
         $getEndpointsService = new GetEndpointsService($session);
-        $request = $getEndpointsService->encodeGetEndpointsRequest(1, $endpointUrl, NodeId::numeric(0, 0));
+        $request = $getEndpointsService->encodeGetEndpointsRequest(1, $endpointUrl, NodeId::numeric(0, ServiceTypeId::NULL));
         $discoveryTransport->send($request);
 
         $response = $discoveryTransport->receive();

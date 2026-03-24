@@ -51,7 +51,7 @@ class GetEndpointsService extends AbstractProtocolService
      */
     private function writeGetEndpointsInnerBody(BinaryEncoder $body, int $requestId, string $endpointUrl, NodeId $authToken): void
     {
-        $body->writeNodeId(NodeId::numeric(0, 428));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::GET_ENDPOINTS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

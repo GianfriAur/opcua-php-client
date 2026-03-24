@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
@@ -66,7 +67,7 @@ trait ManagesTranslateBrowsePathTrait
         if (is_string($startingNodeId)) {
             $startingNodeId = NodeId::parse($startingNodeId);
         }
-        $startingNodeId ??= NodeId::numeric(0, 84); // Root
+        $startingNodeId ??= NodeId::numeric(0, ServiceTypeId::ROOT); // Root
 
         $normalizedPath = trim($path, '/');
         $cacheKey = $this->buildCacheKey('resolve', $startingNodeId, md5($normalizedPath));

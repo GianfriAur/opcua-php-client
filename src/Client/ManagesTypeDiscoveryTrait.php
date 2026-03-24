@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
 use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
 use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
@@ -57,10 +58,10 @@ trait ManagesTypeDiscoveryTrait
         }
 
         $tree = $this->browseRecursive(
-            NodeId::numeric(0, 22),
+            NodeId::numeric(0, ServiceTypeId::BASE_DATA_TYPE),
             BrowseDirection::Forward,
             maxDepth: 10,
-            referenceTypeId: NodeId::numeric(0, 45),
+            referenceTypeId: NodeId::numeric(0, ServiceTypeId::HAS_SUBTYPE),
             nodeClasses: [NodeClass::DataType],
         );
 
@@ -157,7 +158,7 @@ trait ManagesTypeDiscoveryTrait
             $encodingRefs = $this->browse(
                 $dataTypeNodeId,
                 BrowseDirection::Forward,
-                NodeId::numeric(0, 38),
+                NodeId::numeric(0, ServiceTypeId::HAS_ENCODING),
             );
 
             foreach ($encodingRefs as $ref) {

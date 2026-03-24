@@ -17,7 +17,7 @@
 
 ### Refactoring
 - [x] Protocol service base class — extract the repeated encode/decode pattern (security check, token/sequence/requestId header, wrapInMessage vs buildMessage) into a shared base class or trait. Currently duplicated identically across all 15 Protocol service classes.
-- [ ] Service NodeId constants — replace hard-coded OPC UA service type NodeIds (461, 462, 467, 631, 673, 635, 712, etc.) with named constants in a dedicated `ServiceTypeId` class for readability.
+- [x] Service NodeId constants — replace hard-coded OPC UA service type NodeIds (461, 462, 467, 631, 673, 635, 712, etc.) with named constants in a dedicated `ServiceTypeId` class for readability.
 - [x] Diagnostic info skip helper — extract the repeated `readInt32` + loop + `skipDiagnosticInfo` pattern into a single `skipDiagnosticInfoArray()` method. Currently duplicated in 8+ Protocol service decode methods.
 - [x] Response metadata helper — extract the repeated 5-line response header reading boilerplate (token, sequence, requestId, typeNodeId, readResponseHeader) into a single `readResponseMetadata()` method in SessionService.
 - [x] Break down long methods — split `discoverServerCertificate()` (72 lines), `openSecureChannelWithSecurity()` (68 lines), and `createAndActivateSession()` (56 lines) into smaller focused methods.

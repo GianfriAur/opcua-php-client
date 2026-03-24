@@ -160,7 +160,7 @@ class HistoryReadService extends AbstractProtocolService
         int $detailsTypeId,
         string $detailsBody,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 664));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::HISTORY_READ_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

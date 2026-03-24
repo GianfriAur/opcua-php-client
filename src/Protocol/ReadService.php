@@ -73,7 +73,7 @@ class ReadService extends AbstractProtocolService
      */
     private function writeReadInnerBody(BinaryEncoder $body, int $requestId, array $readItems, NodeId $authToken): void
     {
-        $body->writeNodeId(NodeId::numeric(0, 631));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::READ_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

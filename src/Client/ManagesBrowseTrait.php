@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Event\NodeBrowsed;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
@@ -38,7 +39,7 @@ trait ManagesBrowseTrait
                 $this->ensureConnected();
 
                 $requestId = $this->nextRequestId();
-                $authToken = $this->authenticationToken ?? NodeId::numeric(0, 0);
+                $authToken = $this->authenticationToken ?? NodeId::numeric(0, ServiceTypeId::NULL);
                 $request = $this->getEndpointsService->encodeGetEndpointsRequest($requestId, $endpointUrl, $authToken);
                 $this->transport->send($request);
 

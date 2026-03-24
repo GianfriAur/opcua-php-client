@@ -141,11 +141,11 @@ class BrowseService extends AbstractProtocolService
         bool $includeSubtypes,
         int $nodeClassMask,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 527));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::BROWSE_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
-        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $body->writeInt64(0);
         $body->writeUInt32(0);
 
@@ -155,7 +155,7 @@ class BrowseService extends AbstractProtocolService
 
         $body->writeNodeId($nodeId);
         $body->writeUInt32($direction->value);
-        $body->writeNodeId($referenceTypeId ?? NodeId::numeric(0, 33));
+        $body->writeNodeId($referenceTypeId ?? NodeId::numeric(0, ServiceTypeId::HIERARCHICAL_REFERENCES));
         $body->writeBoolean($includeSubtypes);
         $body->writeUInt32($nodeClassMask);
         $body->writeUInt32(0x3F);
@@ -169,7 +169,7 @@ class BrowseService extends AbstractProtocolService
      */
     private function writeBrowseNextInnerBody(BinaryEncoder $body, int $requestId, string $continuationPoint, NodeId $authToken): void
     {
-        $body->writeNodeId(NodeId::numeric(0, 533));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::BROWSE_NEXT_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

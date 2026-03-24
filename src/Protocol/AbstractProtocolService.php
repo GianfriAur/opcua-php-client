@@ -86,7 +86,7 @@ abstract class AbstractProtocolService
         $body->writeUInt32(0);
         $body->writeString(null);
         $body->writeUInt32($timeoutHint);
-        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $body->writeByte(0);
     }
 

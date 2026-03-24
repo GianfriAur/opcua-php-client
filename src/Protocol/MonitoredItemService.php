@@ -73,7 +73,7 @@ class MonitoredItemService extends AbstractProtocolService
         array $items,
         int $timestampsToReturn,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 751));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::CREATE_MONITORED_ITEMS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -94,7 +94,7 @@ class MonitoredItemService extends AbstractProtocolService
 
             $body->writeUInt32($item['clientHandle'] ?? $index + 1);
             $body->writeDouble($item['samplingInterval'] ?? -1.0);
-            $body->writeNodeId(NodeId::numeric(0, 0));
+            $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
             $body->writeByte(0x00);
             $body->writeUInt32($item['queueSize'] ?? 1);
             $body->writeBoolean(true);
@@ -141,7 +141,7 @@ class MonitoredItemService extends AbstractProtocolService
         array $selectFields,
         int $clientHandle,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 751));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::CREATE_MONITORED_ITEMS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -163,7 +163,7 @@ class MonitoredItemService extends AbstractProtocolService
         $body->writeDouble(0.0);
 
         $filterBody = $this->buildEventFilterBody($selectFields);
-        $body->writeNodeId(NodeId::numeric(0, 727));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::EVENT_FILTER_ENCODING));
         $body->writeByte(0x01);
         $body->writeInt32(strlen($filterBody));
         $body->writeRawBytes($filterBody);
@@ -182,7 +182,7 @@ class MonitoredItemService extends AbstractProtocolService
         $filter->writeInt32(count($selectFields));
 
         foreach ($selectFields as $fieldName) {
-            $filter->writeNodeId(NodeId::numeric(0, 2041));
+            $filter->writeNodeId(NodeId::numeric(0, ServiceTypeId::SIMPLE_ATTRIBUTE_OPERAND_ENCODING));
 
             $filter->writeInt32(1);
             $filter->writeUInt16(0);
@@ -249,7 +249,7 @@ class MonitoredItemService extends AbstractProtocolService
         int $subscriptionId,
         array $monitoredItemIds,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 781));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::DELETE_MONITORED_ITEMS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

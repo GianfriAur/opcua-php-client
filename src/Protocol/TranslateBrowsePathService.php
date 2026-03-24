@@ -67,7 +67,7 @@ class TranslateBrowsePathService extends AbstractProtocolService
      */
     private function writeTranslateInnerBody(BinaryEncoder $body, int $requestId, array $browsePaths, NodeId $authToken): void
     {
-        $body->writeNodeId(NodeId::numeric(0, 554));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::TRANSLATE_BROWSE_PATHS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -80,7 +80,7 @@ class TranslateBrowsePathService extends AbstractProtocolService
             $body->writeInt32(count($elements));
 
             foreach ($elements as $element) {
-                $body->writeNodeId($element['referenceTypeId'] ?? NodeId::numeric(0, 33));
+                $body->writeNodeId($element['referenceTypeId'] ?? NodeId::numeric(0, ServiceTypeId::HIERARCHICAL_REFERENCES));
                 $body->writeBoolean($element['isInverse'] ?? false);
                 $body->writeBoolean($element['includeSubtypes'] ?? true);
                 $body->writeQualifiedName($element['targetName']);

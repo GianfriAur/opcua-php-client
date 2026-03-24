@@ -152,7 +152,7 @@ class PublishService extends AbstractProtocolService
         NodeId $authToken,
         array $acknowledgements,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 826));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::PUBLISH_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

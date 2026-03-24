@@ -10,6 +10,7 @@ use Gianfriaur\OpcuaPhpClient\Event\SessionClosed;
 use Gianfriaur\OpcuaPhpClient\Event\SessionCreated;
 use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
 use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -158,7 +159,7 @@ trait ManagesSessionTrait
      */
     private function prepareCloseSessionMessage(BinaryEncoder $innerBody, int $requestId): void
     {
-        $innerBody->writeNodeId(NodeId::numeric(0, 473));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::CLOSE_SESSION_REQUEST));
 
         $innerBody->writeNodeId($this->authenticationToken);
         $innerBody->writeInt64(0);
@@ -166,7 +167,7 @@ trait ManagesSessionTrait
         $innerBody->writeUInt32(0);
         $innerBody->writeString(null);
         $innerBody->writeUInt32(10000);
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeByte(0);
 
         $innerBody->writeBoolean(true);

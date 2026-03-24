@@ -23,6 +23,7 @@ use Gianfriaur\OpcuaPhpClient\Event\SubscriptionCreated;
 use Gianfriaur\OpcuaPhpClient\Event\SubscriptionDeleted;
 use Gianfriaur\OpcuaPhpClient\Event\SubscriptionKeepAlive;
 use Gianfriaur\OpcuaPhpClient\Event\SubscriptionTransferred;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
@@ -126,7 +127,7 @@ trait ManagesSubscriptionsTrait
             $results = $this->monitoredItemService->decodeCreateMonitoredItemsResponse($decoder);
 
             foreach ($results as $i => $result) {
-                $itemNodeId = $monitoredItems[$i]['nodeId'] ?? NodeId::numeric(0, 0);
+                $itemNodeId = $monitoredItems[$i]['nodeId'] ?? NodeId::numeric(0, ServiceTypeId::NULL);
                 $this->dispatch(fn () => new MonitoredItemCreated(
                     $this,
                     $subscriptionId,

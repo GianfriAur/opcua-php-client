@@ -26,15 +26,15 @@ class SecureChannelRequest
         $body->writeUInt32(1);
         $body->writeUInt32(1);
 
-        $body->writeNodeId(NodeId::numeric(0, 446));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::OPEN_SECURE_CHANNEL_REQUEST));
 
-        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $body->writeInt64(0);
         $body->writeUInt32(1);
         $body->writeUInt32(0);
         $body->writeString(null);
         $body->writeUInt32(10000);
-        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $body->writeByte(0);
 
         $body->writeUInt32(0);

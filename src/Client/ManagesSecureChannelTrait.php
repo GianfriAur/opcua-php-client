@@ -20,6 +20,7 @@ use Gianfriaur\OpcuaPhpClient\Protocol\PublishService;
 use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
 use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelRequest;
 use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelResponse;
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
 use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
 use Gianfriaur\OpcuaPhpClient\Protocol\TranslateBrowsePathService;
@@ -196,15 +197,15 @@ trait ManagesSecureChannelTrait
         $requestId = $this->nextRequestId();
 
         $innerBody = new BinaryEncoder();
-        $innerBody->writeNodeId(NodeId::numeric(0, 452));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::CLOSE_SECURE_CHANNEL_REQUEST));
 
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeInt64(0);
         $innerBody->writeUInt32($requestId);
         $innerBody->writeUInt32(0);
         $innerBody->writeString(null);
         $innerBody->writeUInt32(10000);
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeByte(0);
 
         $message = $this->secureChannel->buildMessage($innerBody->getBuffer(), 'CLO');

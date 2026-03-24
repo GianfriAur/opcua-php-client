@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
+use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Throwable;
@@ -93,8 +94,8 @@ trait ManagesBatchingTrait
         }
 
         $items = [
-            ['nodeId' => NodeId::numeric(0, 11705)],
-            ['nodeId' => NodeId::numeric(0, 11707)],
+            ['nodeId' => NodeId::numeric(0, ServiceTypeId::MAX_NODES_PER_READ)],
+            ['nodeId' => NodeId::numeric(0, ServiceTypeId::MAX_NODES_PER_WRITE)],
         ];
 
         try {

@@ -83,7 +83,7 @@ class CallService extends AbstractProtocolService
         array $inputArguments,
         NodeId $authToken,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 712));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::CALL_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

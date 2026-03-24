@@ -102,7 +102,7 @@ class SessionService
         $this->writeSecurityHeader($body);
         $this->writeSequenceHeader($body, $requestId);
 
-        $body->writeNodeId(NodeId::numeric(0, 461));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::CREATE_SESSION_REQUEST));
 
         $this->writeRequestHeader($body, $requestId);
 
@@ -187,7 +187,7 @@ class SessionService
         $this->writeSecurityHeader($body);
         $this->writeSequenceHeader($body, $requestId);
 
-        $body->writeNodeId(NodeId::numeric(0, 467));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::ACTIVATE_SESSION_REQUEST));
 
         $body->writeNodeId($authenticationToken);
         $body->writeInt64(0);
@@ -195,7 +195,7 @@ class SessionService
         $body->writeUInt32(0);
         $body->writeString(null);
         $body->writeUInt32(10000);
-        $body->writeNodeId(NodeId::numeric(0, 0));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $body->writeByte(0);
 
         $body->writeString(null);
@@ -271,13 +271,13 @@ class SessionService
      */
     private function writeRequestHeader(BinaryEncoder $encoder, int $requestHandle): void
     {
-        $encoder->writeNodeId(NodeId::numeric(0, 0));
+        $encoder->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $encoder->writeInt64(0);
         $encoder->writeUInt32($requestHandle);
         $encoder->writeUInt32(0);
         $encoder->writeString(null);
         $encoder->writeUInt32(10000);
-        $encoder->writeNodeId(NodeId::numeric(0, 0));
+        $encoder->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $encoder->writeByte(0);
     }
 
@@ -392,15 +392,15 @@ class SessionService
     {
         $innerBody = new BinaryEncoder();
 
-        $innerBody->writeNodeId(NodeId::numeric(0, 461));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::CREATE_SESSION_REQUEST));
 
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeInt64(0);
         $innerBody->writeUInt32($requestId);
         $innerBody->writeUInt32(0);
         $innerBody->writeString(null);
         $innerBody->writeUInt32(10000);
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeByte(0);
 
         $applicationUri = $this->secureChannel->getCertificateManager()->getApplicationUri(
@@ -450,7 +450,7 @@ class SessionService
     ): string {
         $innerBody = new BinaryEncoder();
 
-        $innerBody->writeNodeId(NodeId::numeric(0, 467));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::ACTIVATE_SESSION_REQUEST));
 
         $innerBody->writeNodeId($authenticationToken);
         $innerBody->writeInt64(0);
@@ -458,7 +458,7 @@ class SessionService
         $innerBody->writeUInt32(0);
         $innerBody->writeString(null);
         $innerBody->writeUInt32(10000);
-        $innerBody->writeNodeId(NodeId::numeric(0, 0));
+        $innerBody->writeNodeId(NodeId::numeric(0, ServiceTypeId::NULL));
         $innerBody->writeByte(0);
 
         $this->writeClientSignature($innerBody, $serverNonce);
@@ -546,7 +546,7 @@ class SessionService
      */
     private function writeAnonymousIdentityToken(BinaryEncoder $encoder): void
     {
-        $encoder->writeNodeId(NodeId::numeric(0, 321));
+        $encoder->writeNodeId(NodeId::numeric(0, ServiceTypeId::ANONYMOUS_IDENTITY_TOKEN));
         $encoder->writeByte(0x01);
 
         $tokenBody = new BinaryEncoder();
@@ -568,7 +568,7 @@ class SessionService
         string $password,
         ?string $serverNonce,
     ): void {
-        $encoder->writeNodeId(NodeId::numeric(0, 324));
+        $encoder->writeNodeId(NodeId::numeric(0, ServiceTypeId::USERNAME_IDENTITY_TOKEN));
         $encoder->writeByte(0x01);
 
         $tokenBody = new BinaryEncoder();
@@ -609,7 +609,7 @@ class SessionService
      */
     private function writeX509IdentityToken(BinaryEncoder $encoder, string $userCertDer): void
     {
-        $encoder->writeNodeId(NodeId::numeric(0, 327));
+        $encoder->writeNodeId(NodeId::numeric(0, ServiceTypeId::X509_IDENTITY_TOKEN));
         $encoder->writeByte(0x01);
 
         $tokenBody = new BinaryEncoder();

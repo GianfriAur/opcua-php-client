@@ -66,7 +66,7 @@ class WriteService extends AbstractProtocolService
      */
     private function writeWriteInnerBody(BinaryEncoder $body, int $requestId, array $writeItems, NodeId $authToken): void
     {
-        $body->writeNodeId(NodeId::numeric(0, 673));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::WRITE_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 

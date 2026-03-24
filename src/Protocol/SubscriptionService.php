@@ -87,7 +87,7 @@ class SubscriptionService extends AbstractProtocolService
         bool $publishingEnabled,
         int $priority,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 787));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::CREATE_SUBSCRIPTION_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -177,7 +177,7 @@ class SubscriptionService extends AbstractProtocolService
         int $maxNotificationsPerPublish,
         int $priority,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 793));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::MODIFY_SUBSCRIPTION_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -237,7 +237,7 @@ class SubscriptionService extends AbstractProtocolService
         NodeId $authToken,
         array $subscriptionIds,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 847));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::DELETE_SUBSCRIPTIONS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -299,7 +299,7 @@ class SubscriptionService extends AbstractProtocolService
         bool $publishingEnabled,
         array $subscriptionIds,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 799));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::SET_PUBLISHING_MODE_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -370,7 +370,7 @@ class SubscriptionService extends AbstractProtocolService
         array $subscriptionIds,
         bool $sendInitialValues,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 841));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::TRANSFER_SUBSCRIPTIONS_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
@@ -443,7 +443,7 @@ class SubscriptionService extends AbstractProtocolService
         int $subscriptionId,
         int $retransmitSequenceNumber,
     ): void {
-        $body->writeNodeId(NodeId::numeric(0, 832));
+        $body->writeNodeId(NodeId::numeric(0, ServiceTypeId::REPUBLISH_REQUEST));
 
         $this->writeRequestHeader($body, $requestId, $authToken);
 
