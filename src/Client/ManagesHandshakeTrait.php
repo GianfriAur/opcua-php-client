@@ -55,9 +55,36 @@ trait ManagesHandshakeTrait
         $discoveryTransport = new TcpTransport();
         $discoveryTransport->connect($host, $port, $this->getTimeout());
 
+        $session = $this->performDiscoveryHandshake($discoveryTransport, $endpointUrl);
+
+        $getEndpointsService = new GetEndpointsService($session);
+        $request = $getEndpointsService->encodeGetEndpointsRequest(1, $endpointUrl, NodeId::numeric(0, 0));
+        $discoveryTransport->send($request);
+
+        $response = $discoveryTransport->receive();
+        $responseBody = substr($response, MessageHeader::HEADER_SIZE + 4);
+        $decoder = new BinaryDecoder($responseBody);
+        $endpoints = $getEndpointsService->decodeGetEndpointsResponse($decoder);
+
+        $this->extractServerCertificateFromEndpoints($endpoints);
+
+        $discoveryTransport->close();
+
+        if ($this->serverCertDer === null) {
+            throw new SecurityException('Could not obtain server certificate from GetEndpoints');
+        }
+    }
+
+    /**
+     * @param TcpTransport $transport
+     * @param string $endpointUrl
+     * @return SessionService
+     */
+    private function performDiscoveryHandshake(TcpTransport $transport, string $endpointUrl): SessionService
+    {
         $helloMessage = new HelloMessage(endpointUrl: $endpointUrl);
-        $discoveryTransport->send($helloMessage->encode());
-        $helloResponse = $discoveryTransport->receive();
+        $transport->send($helloMessage->encode());
+        $helloResponse = $transport->receive();
         $helloDecoder = new BinaryDecoder($helloResponse);
         $helloHeader = MessageHeader::decode($helloDecoder);
         if ($helloHeader->getMessageType() !== 'ACK') {
@@ -66,8 +93,8 @@ trait ManagesHandshakeTrait
         AcknowledgeMessage::decode($helloDecoder);
 
         $opnRequest = new SecureChannelRequest();
-        $discoveryTransport->send($opnRequest->encode());
-        $opnResponse = $discoveryTransport->receive();
+        $transport->send($opnRequest->encode());
+        $opnResponse = $transport->receive();
         $opnDecoder = new BinaryDecoder($opnResponse);
         $opnHeader = MessageHeader::decode($opnDecoder);
         if ($opnHeader->getMessageType() !== 'OPN') {
@@ -75,34 +102,23 @@ trait ManagesHandshakeTrait
         }
         $opnDecoder->readUInt32();
         $scResponse = SecureChannelResponse::decode($opnDecoder);
-        $discoveryChannelId = $scResponse->getSecureChannelId();
-        $discoveryTokenId = $scResponse->getTokenId();
 
-        $session = new SessionService($discoveryChannelId, $discoveryTokenId);
-        $getEndpointsService = new GetEndpointsService($session);
-        $requestId = 1;
-        $request = $getEndpointsService->encodeGetEndpointsRequest($requestId, $endpointUrl, NodeId::numeric(0, 0));
-        $discoveryTransport->send($request);
+        return new SessionService($scResponse->getSecureChannelId(), $scResponse->getTokenId());
+    }
 
-        $response = $discoveryTransport->receive();
-        $responseBody = substr($response, MessageHeader::HEADER_SIZE + 4);
-        $decoder = new BinaryDecoder($responseBody);
-        $endpoints = $getEndpointsService->decodeGetEndpointsResponse($decoder);
-
+    /**
+     * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription[] $endpoints
+     */
+    private function extractServerCertificateFromEndpoints(array $endpoints): void
+    {
         foreach ($endpoints as $ep) {
             if ($ep->getSecurityPolicyUri() === $this->securityPolicy->value
                 && $ep->getSecurityMode() === $this->securityMode->value
                 && $ep->getServerCertificate() !== null
             ) {
                 $this->serverCertDer = $ep->getServerCertificate();
-                foreach ($ep->getUserIdentityTokens() as $tokenPolicy) {
-                    match ($tokenPolicy->getTokenType()) {
-                        1 => $this->usernamePolicyId = $tokenPolicy->getPolicyId(),
-                        2 => $this->certificatePolicyId = $tokenPolicy->getPolicyId(),
-                        0 => $this->anonymousPolicyId = $tokenPolicy->getPolicyId(),
-                        default => null,
-                    };
-                }
+                $this->extractTokenPolicies($ep);
+
                 break;
             }
         }
@@ -111,15 +127,25 @@ trait ManagesHandshakeTrait
             foreach ($endpoints as $ep) {
                 if ($ep->getServerCertificate() !== null) {
                     $this->serverCertDer = $ep->getServerCertificate();
+
                     break;
                 }
             }
         }
+    }
 
-        $discoveryTransport->close();
-
-        if ($this->serverCertDer === null) {
-            throw new SecurityException('Could not obtain server certificate from GetEndpoints');
+    /**
+     * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint
+     */
+    private function extractTokenPolicies(\Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint): void
+    {
+        foreach ($endpoint->getUserIdentityTokens() as $tokenPolicy) {
+            match ($tokenPolicy->getTokenType()) {
+                1 => $this->usernamePolicyId = $tokenPolicy->getPolicyId(),
+                2 => $this->certificatePolicyId = $tokenPolicy->getPolicyId(),
+                0 => $this->anonymousPolicyId = $tokenPolicy->getPolicyId(),
+                default => null,
+            };
         }
     }
 }

@@ -25,6 +25,12 @@
 - Documentation: [Events](doc/14-events.md) chapter with full event reference, Laravel integration, and practical examples.
 - **Code style enforcement.** Added `friendsofphp/php-cs-fixer` with Laravel-style rules (PSR-12 + opinionated). Run `composer format` before committing. `.editorconfig` included for IDE support.
 
+### Refactored
+
+- **`discoverServerCertificate()`** (72 lines) split into `discoverServerCertificate()`, `performDiscoveryHandshake()`, `extractServerCertificateFromEndpoints()`, and `extractTokenPolicies()`.
+- **`openSecureChannelWithSecurity()`** (68 lines) split into `openSecureChannelWithSecurity()`, `loadClientCertificateAndKey()`, and `buildCertificateChain()`.
+- **`createAndActivateSession()`** (56 lines) split into `createAndActivateSession()`, `createSession()`, `activateSession()`, and `loadUserCertificate()`.
+
 ## [3.0.0] - 2026-03-22
 
 ### Changed

@@ -81,40 +81,8 @@ trait ManagesSecureChannelTrait
 
     private function openSecureChannelWithSecurity(): void
     {
-        $certManager = new CertificateManager();
-
-        $clientCertDer = null;
-        $clientPrivateKey = null;
-
-        if ($this->clientCertPath !== null && $this->clientKeyPath !== null) {
-            $certContent = file_get_contents($this->clientCertPath);
-            if ($certContent === false) {
-                throw new ConfigurationException("Failed to read client certificate: {$this->clientCertPath}");
-            }
-
-            if (str_contains($certContent, '-----BEGIN')) {
-                $clientCertDer = $certManager->loadCertificatePem($this->clientCertPath);
-            } else {
-                $clientCertDer = $certManager->loadCertificateDer($this->clientCertPath);
-            }
-
-            $clientPrivateKey = $certManager->loadPrivateKeyPem($this->clientKeyPath);
-        } else {
-            $generated = $certManager->generateSelfSignedCertificate();
-            $clientCertDer = $generated['certDer'];
-            $clientPrivateKey = $generated['privateKey'];
-        }
-
-        $clientCertChainDer = $clientCertDer;
-        if ($clientCertDer !== null && $this->caCertPath !== null) {
-            $caCertContent = file_get_contents($this->caCertPath);
-            if ($caCertContent !== false) {
-                $caCertDer = str_contains($caCertContent, '-----BEGIN')
-                    ? $certManager->loadCertificatePem($this->caCertPath)
-                    : $certManager->loadCertificateDer($this->caCertPath);
-                $clientCertChainDer = $clientCertDer . $caCertDer;
-            }
-        }
+        [$clientCertDer, $clientPrivateKey] = $this->loadClientCertificateAndKey();
+        $clientCertChainDer = $this->buildCertificateChain($clientCertDer);
 
         $this->secureChannel = new SecureChannel(
             $this->securityPolicy,
@@ -146,6 +114,54 @@ trait ManagesSecureChannelTrait
         );
 
         $this->initServices($this->session);
+    }
+
+    /**
+     * @return array{0: ?string, 1: mixed}
+     */
+    private function loadClientCertificateAndKey(): array
+    {
+        $certManager = new CertificateManager();
+
+        if ($this->clientCertPath !== null && $this->clientKeyPath !== null) {
+            $certContent = file_get_contents($this->clientCertPath);
+            if ($certContent === false) {
+                throw new ConfigurationException("Failed to read client certificate: {$this->clientCertPath}");
+            }
+
+            $clientCertDer = str_contains($certContent, '-----BEGIN')
+                ? $certManager->loadCertificatePem($this->clientCertPath)
+                : $certManager->loadCertificateDer($this->clientCertPath);
+
+            return [$clientCertDer, $certManager->loadPrivateKeyPem($this->clientKeyPath)];
+        }
+
+        $generated = $certManager->generateSelfSignedCertificate();
+
+        return [$generated['certDer'], $generated['privateKey']];
+    }
+
+    /**
+     * @param ?string $clientCertDer
+     * @return ?string
+     */
+    private function buildCertificateChain(?string $clientCertDer): ?string
+    {
+        if ($clientCertDer === null || $this->caCertPath === null) {
+            return $clientCertDer;
+        }
+
+        $caCertContent = file_get_contents($this->caCertPath);
+        if ($caCertContent === false) {
+            return $clientCertDer;
+        }
+
+        $certManager = new CertificateManager();
+        $caCertDer = str_contains($caCertContent, '-----BEGIN')
+            ? $certManager->loadCertificatePem($this->caCertPath)
+            : $certManager->loadCertificateDer($this->caCertPath);
+
+        return $clientCertDer . $caCertDer;
     }
 
     private function closeSecureChannel(): void

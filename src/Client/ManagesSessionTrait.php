@@ -20,6 +20,15 @@ trait ManagesSessionTrait
      */
     private function createAndActivateSession(string $endpointUrl): void
     {
+        $this->createSession($endpointUrl);
+        $this->activateSession($endpointUrl);
+    }
+
+    /**
+     * @param string $endpointUrl
+     */
+    private function createSession(string $endpointUrl): void
+    {
         $requestId = $this->nextRequestId();
         $request = $this->session->encodeCreateSessionRequest($requestId, $endpointUrl);
         $this->transport->send($request);
@@ -40,22 +49,15 @@ trait ManagesSessionTrait
                 $this->secureChannel->setServerCertDer($sessionResult['serverCertificate']);
             }
         }
+    }
 
+    /**
+     * @param string $endpointUrl
+     */
+    private function activateSession(string $endpointUrl): void
+    {
         $requestId = $this->nextRequestId();
-
-        $userCertDer = null;
-        $userPrivateKey = null;
-
-        if ($this->userCertPath !== null && $this->userKeyPath !== null) {
-            $certManager = new CertificateManager();
-            $certContent = file_get_contents($this->userCertPath);
-            if ($certContent !== false && str_contains($certContent, '-----BEGIN')) {
-                $userCertDer = $certManager->loadCertificatePem($this->userCertPath);
-            } elseif ($certContent !== false) {
-                $userCertDer = $certManager->loadCertificateDer($this->userCertPath);
-            }
-            $userPrivateKey = $certManager->loadPrivateKeyPem($this->userKeyPath);
-        }
+        [$userCertDer, $userPrivateKey] = $this->loadUserCertificate();
 
         $request = $this->session->encodeActivateSessionRequest(
             $requestId,
@@ -73,6 +75,28 @@ trait ManagesSessionTrait
         $decoder = $this->createDecoder($responseBody);
         $this->session->decodeActivateSessionResponse($decoder);
         $this->dispatch(fn () => new SessionActivated($this, $endpointUrl));
+    }
+
+    /**
+     * @return array{0: ?string, 1: mixed}
+     */
+    private function loadUserCertificate(): array
+    {
+        if ($this->userCertPath === null || $this->userKeyPath === null) {
+            return [null, null];
+        }
+
+        $certManager = new CertificateManager();
+        $certContent = file_get_contents($this->userCertPath);
+
+        $userCertDer = null;
+        if ($certContent !== false && str_contains($certContent, '-----BEGIN')) {
+            $userCertDer = $certManager->loadCertificatePem($this->userCertPath);
+        } elseif ($certContent !== false) {
+            $userCertDer = $certManager->loadCertificateDer($this->userCertPath);
+        }
+
+        return [$userCertDer, $certManager->loadPrivateKeyPem($this->userKeyPath)];
     }
 
     private function closeSession(): void
