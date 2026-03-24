@@ -127,7 +127,10 @@ describe('SessionService', function () {
         $session = new SessionService(10, 20);
         $authToken = NodeId::numeric(0, 999);
         $bytes = $session->encodeActivateSessionRequest(
-            1, $authToken, 'admin', 'admin123',
+            1,
+            $authToken,
+            'admin',
+            'admin123',
         );
 
         expect(strlen($bytes))->toBeGreaterThan(0);

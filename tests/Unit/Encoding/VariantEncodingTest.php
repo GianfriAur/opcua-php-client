@@ -238,7 +238,7 @@ describe('Variant encoding/decoding', function () {
 
     it('throws EncodingException for DiagnosticInfo encoding', function () {
         $encoder = new BinaryEncoder();
-        expect(fn() => $encoder->writeVariant(new Variant(BuiltinType::DiagnosticInfo, null)))
+        expect(fn () => $encoder->writeVariant(new Variant(BuiltinType::DiagnosticInfo, null)))
             ->toThrow(EncodingException::class);
     });
 
@@ -246,7 +246,7 @@ describe('Variant encoding/decoding', function () {
         // Type ID 0 is invalid for variant
         $data = pack('C', 0);
         $decoder = new BinaryDecoder($data);
-        expect(fn() => $decoder->readVariant())
+        expect(fn () => $decoder->readVariant())
             ->toThrow(EncodingException::class);
     });
 });

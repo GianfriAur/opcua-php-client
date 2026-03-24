@@ -26,8 +26,7 @@ class ReadMultiBuilder
      */
     public function __construct(
         private readonly OpcUaClientInterface $client,
-    )
-    {
+    ) {
     }
 
     /**
@@ -39,6 +38,7 @@ class ReadMultiBuilder
     public function node(NodeId|string $nodeId): self
     {
         $this->items[] = ['nodeId' => $nodeId];
+
         return $this;
     }
 
@@ -110,9 +110,10 @@ class ReadMultiBuilder
      */
     public function attribute(int $attributeId): self
     {
-        if (!empty($this->items)) {
+        if (! empty($this->items)) {
             $this->items[array_key_last($this->items)]['attributeId'] = $attributeId;
         }
+
         return $this;
     }
 

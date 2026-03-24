@@ -17,10 +17,10 @@ readonly class NodeValueWritten
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public NodeId               $nodeId,
-        public mixed                $value,
-        public BuiltinType          $type,
-        public int                  $statusCode,
+        public NodeId $nodeId,
+        public mixed $value,
+        public BuiltinType $type,
+        public int $statusCode,
     ) {
     }
 }

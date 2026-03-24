@@ -16,9 +16,8 @@ readonly class BrowsePathResult
      * @param BrowsePathTarget[] $targets
      */
     public function __construct(
-        public int   $statusCode,
+        public int $statusCode,
         public array $targets,
-    )
-    {
+    ) {
     }
 }

@@ -15,8 +15,8 @@ readonly class RetryExhausted
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $attempts,
-        public \Throwable           $exception,
+        public int $attempts,
+        public \Throwable $exception,
     ) {
     }
 }

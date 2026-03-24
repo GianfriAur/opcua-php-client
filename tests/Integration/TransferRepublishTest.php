@@ -83,7 +83,7 @@ describe('Republish', function () {
 
                 expect($result)->toHaveKeys(['sequenceNumber', 'publishTime', 'notifications']);
                 expect($result['sequenceNumber'])->toBe($response->sequenceNumber);
-            } catch (\Gianfriaur\OpcuaPhpClient\Exception\ServiceException $e) {
+            } catch (Gianfriaur\OpcuaPhpClient\Exception\ServiceException $e) {
                 expect(StatusCode::isBad($e->getStatusCode()))->toBeTrue();
             }
         } finally {
@@ -101,7 +101,7 @@ describe('Republish', function () {
             try {
                 $result = $client->republish($sub->subscriptionId, 99999);
                 expect($result)->toHaveKey('sequenceNumber');
-            } catch (\Gianfriaur\OpcuaPhpClient\Exception\OpcUaException) {
+            } catch (Gianfriaur\OpcuaPhpClient\Exception\OpcUaException) {
                 expect(true)->toBeTrue();
             }
         } finally {

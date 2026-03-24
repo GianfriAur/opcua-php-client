@@ -15,9 +15,9 @@ readonly class RetryAttempt
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $attempt,
-        public int                  $maxRetries,
-        public \Throwable           $exception,
+        public int $attempt,
+        public int $maxRetries,
+        public \Throwable $exception,
     ) {
     }
 }

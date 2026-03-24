@@ -16,7 +16,7 @@ describe('Structure', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('TestPoint');
             expect($names)->toContain('TestRange');
             expect($names)->toContain('TestPerson');

@@ -19,15 +19,14 @@ readonly class EndpointDescription
      * @param int $securityLevel
      */
     public function __construct(
-        public string  $endpointUrl,
+        public string $endpointUrl,
         public ?string $serverCertificate,
-        public int     $securityMode,
-        public string  $securityPolicyUri,
-        public array   $userIdentityTokens,
-        public string  $transportProfileUri,
-        public int     $securityLevel,
-    )
-    {
+        public int $securityMode,
+        public string $securityPolicyUri,
+        public array $userIdentityTokens,
+        public string $transportProfileUri,
+        public int $securityLevel,
+    ) {
     }
 
     /**

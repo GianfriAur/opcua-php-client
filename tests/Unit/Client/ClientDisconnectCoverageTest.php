@@ -21,8 +21,11 @@ require_once __DIR__ . '/../Helpers/SecurityTestHelpers.php';
 class FailingMockTransport extends TcpTransport
 {
     private int $sendCount = 0;
+
     private int $receiveCount = 0;
+
     private int $failAfterSends;
+
     private int $failAfterReceives;
 
     public function __construct(int $failAfterSends = 0, int $failAfterReceives = 0)
@@ -31,7 +34,9 @@ class FailingMockTransport extends TcpTransport
         $this->failAfterReceives = $failAfterReceives;
     }
 
-    public function connect(string $host, int $port, null|float $timeout = null): void {}
+    public function connect(string $host, int $port, null|float $timeout = null): void
+    {
+    }
 
     public function send(string $data): void
     {
@@ -50,8 +55,14 @@ class FailingMockTransport extends TcpTransport
         throw new ConnectionException('Mock receive failure');
     }
 
-    public function close(): void {}
-    public function isConnected(): bool { return true; }
+    public function close(): void
+    {
+    }
+
+    public function isConnected(): bool
+    {
+        return true;
+    }
 }
 
 function setProperty(Client $client, string $name, mixed $value): void
@@ -63,6 +74,7 @@ function setProperty(Client $client, string $name, mixed $value): void
 function invokeMethod(Client $client, string $name, array $args = []): mixed
 {
     $ref = new ReflectionMethod($client, $name);
+
     return $ref->invokeArgs($client, $args);
 }
 
@@ -120,7 +132,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         setProperty($client, 'transport', $mock);
         setProperty($client, 'connectionState', ConnectionState::Connected);
 
-        expect(fn() => invokeMethod($client, 'openSecureChannelNoSecurity'))
+        expect(fn () => invokeMethod($client, 'openSecureChannelNoSecurity'))
             ->toThrow(ProtocolException::class, 'Expected OPN response');
     });
 
@@ -130,7 +142,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         $cert = openssl_csr_sign($csr, null, $privKey, 365);
         openssl_x509_export($cert, $certPem);
 
-        $cm = new \Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem(writeTmpFile($certPem));
         $derPath = writeTmpFile($certDer);
 
@@ -152,7 +164,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
 
         try {
             invokeMethod($client, 'openSecureChannelWithSecurity');
-        } catch (\Gianfriaur\OpcuaPhpClient\Exception\ConnectionException) {
+        } catch (ConnectionException) {
             // Expected — mock transport has no OPN response
         }
 
@@ -171,7 +183,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         $keyPath = writeTmpFile($keyPem);
         $caPath = writeTmpFile($certPem);
 
-        $cm = new \Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem($certPath);
 
         $mock = new MockTransport();
@@ -187,7 +199,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
 
         try {
             invokeMethod($client, 'openSecureChannelWithSecurity');
-        } catch (\Gianfriaur\OpcuaPhpClient\Exception\ConnectionException) {
+        } catch (ConnectionException) {
         }
 
         cleanupTmpFiles();
@@ -203,6 +215,7 @@ function writeTmpFile(string $content): string
     $path = tempnam(sys_get_temp_dir(), 'opcua_test_');
     file_put_contents($path, $content);
     $_tempFiles[] = $path;
+
     return $path;
 }
 
@@ -210,7 +223,9 @@ function cleanupTmpFiles(): void
 {
     global $_tempFiles;
     foreach ($_tempFiles as $path) {
-        if (file_exists($path)) @unlink($path);
+        if (file_exists($path)) {
+            @unlink($path);
+        }
     }
     $_tempFiles = [];
 }
@@ -251,7 +266,7 @@ describe('ManagesSessionTrait coverage', function () {
         openssl_x509_export($cert, $certPem);
         openssl_pkey_export($privKey, $keyPem);
 
-        $cm = new \Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem(writeTmpFile($certPem));
         $derPath = writeTmpFile($certDer);
         $keyPath = writeTmpFile($keyPem);

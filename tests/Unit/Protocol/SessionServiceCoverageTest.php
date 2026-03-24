@@ -56,7 +56,7 @@ describe('SessionService wrapWithSecureChannel (non-secure)', function () {
 
         expect(substr($result, 0, 3))->toBe('MSG');
         $decoder = new BinaryDecoder($result);
-        $header = \Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
+        $header = Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
         expect($header->getMessageSize())->toBe(strlen($result));
     });
 

@@ -123,7 +123,7 @@ describe('TranslateBrowsePathService diagnostic info handling', function () {
         );
 
         $decoder = new BinaryDecoder($bytes);
-        $header = \Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
+        $header = Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
         expect($header->getMessageType())->toBe('MSG');
         expect(strlen($bytes))->toBeGreaterThan(40);
     });

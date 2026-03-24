@@ -15,8 +15,8 @@ readonly class ConnectionFailed
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public string               $endpointUrl,
-        public \Throwable           $exception,
+        public string $endpointUrl,
+        public \Throwable $exception,
     ) {
     }
 }

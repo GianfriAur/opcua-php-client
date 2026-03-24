@@ -22,8 +22,7 @@ class DynamicCodec implements ExtensionObjectCodec
      */
     public function __construct(
         private readonly StructureDefinition $definition,
-    )
-    {
+    ) {
     }
 
     /**
@@ -72,7 +71,7 @@ class DynamicCodec implements ExtensionObjectCodec
 
         foreach ($this->definition->fields as $field) {
             if ($this->definition->structureType === StructureDefinition::WITH_OPTIONAL_FIELDS && $field->isOptional) {
-                if (!(($optionalMask >> $optionalIndex) & 1)) {
+                if (! (($optionalMask >> $optionalIndex) & 1)) {
                     $result[$field->name] = null;
                     $optionalIndex++;
                     continue;
@@ -120,13 +119,14 @@ class DynamicCodec implements ExtensionObjectCodec
                     $this->encodeField($encoder, $field, $value[$field->name]);
                 }
             }
+
             return;
         }
 
         $optionalIndex = 0;
         foreach ($this->definition->fields as $field) {
             if ($this->definition->structureType === StructureDefinition::WITH_OPTIONAL_FIELDS && $field->isOptional) {
-                if (!isset($value[$field->name]) || $value[$field->name] === null) {
+                if (! isset($value[$field->name]) || $value[$field->name] === null) {
                     $optionalIndex++;
                     continue;
                 }
@@ -152,6 +152,7 @@ class DynamicCodec implements ExtensionObjectCodec
             for ($j = 0; $j < $length; $j++) {
                 $arr[] = $this->decodeSingleValue($decoder, $builtinType);
             }
+
             return $arr;
         }
 
@@ -188,6 +189,7 @@ class DynamicCodec implements ExtensionObjectCodec
             foreach ($arr as $item) {
                 $this->encodeSingleValue($encoder, $builtinType, $item);
             }
+
             return;
         }
 

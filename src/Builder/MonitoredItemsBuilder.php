@@ -26,9 +26,8 @@ class MonitoredItemsBuilder
      */
     public function __construct(
         private readonly OpcUaClientInterface $client,
-        private readonly int                  $subscriptionId,
-    )
-    {
+        private readonly int $subscriptionId,
+    ) {
     }
 
     /**
@@ -40,6 +39,7 @@ class MonitoredItemsBuilder
     public function add(NodeId|string $nodeId): self
     {
         $this->items[] = ['nodeId' => $nodeId];
+
         return $this;
     }
 
@@ -51,9 +51,10 @@ class MonitoredItemsBuilder
      */
     public function samplingInterval(float $ms): self
     {
-        if (!empty($this->items)) {
+        if (! empty($this->items)) {
             $this->items[array_key_last($this->items)]['samplingInterval'] = $ms;
         }
+
         return $this;
     }
 
@@ -65,9 +66,10 @@ class MonitoredItemsBuilder
      */
     public function queueSize(int $size): self
     {
-        if (!empty($this->items)) {
+        if (! empty($this->items)) {
             $this->items[array_key_last($this->items)]['queueSize'] = $size;
         }
+
         return $this;
     }
 
@@ -79,9 +81,10 @@ class MonitoredItemsBuilder
      */
     public function clientHandle(int $handle): self
     {
-        if (!empty($this->items)) {
+        if (! empty($this->items)) {
             $this->items[array_key_last($this->items)]['clientHandle'] = $handle;
         }
+
         return $this;
     }
 
@@ -93,9 +96,10 @@ class MonitoredItemsBuilder
      */
     public function attributeId(int $attributeId): self
     {
-        if (!empty($this->items)) {
+        if (! empty($this->items)) {
             $this->items[array_key_last($this->items)]['attributeId'] = $attributeId;
         }
+
         return $this;
     }
 

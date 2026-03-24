@@ -68,7 +68,7 @@ describe('Event', function () {
             $receivedEvent = false;
             for ($i = 0; $i < 5; $i++) {
                 $pub = $client->publish();
-                if (!empty($pub->notifications)) {
+                if (! empty($pub->notifications)) {
                     $receivedEvent = true;
                     break;
                 }

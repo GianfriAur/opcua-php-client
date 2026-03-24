@@ -9,6 +9,7 @@ use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
 function callEnsureNotFalse(string $class, mixed $result, string $message): mixed
 {
     $ref = new ReflectionMethod($class, 'ensureNotFalse');
+
     return $ref->invoke(null, $result, $message);
 }
 
@@ -27,7 +28,7 @@ describe('CertificateManager::ensureNotFalse', function () {
     });
 
     it('throws SecurityException when result is false', function () {
-        expect(fn() => callEnsureNotFalse(CertificateManager::class, false, 'Something failed'))
+        expect(fn () => callEnsureNotFalse(CertificateManager::class, false, 'Something failed'))
             ->toThrow(SecurityException::class, 'Something failed');
     });
 });
@@ -40,7 +41,7 @@ describe('MessageSecurity::ensureNotFalse', function () {
     });
 
     it('throws SecurityException when result is false', function () {
-        expect(fn() => callEnsureNotFalse(MessageSecurity::class, false, 'Crypto failed'))
+        expect(fn () => callEnsureNotFalse(MessageSecurity::class, false, 'Crypto failed'))
             ->toThrow(SecurityException::class, 'Crypto failed');
     });
 });

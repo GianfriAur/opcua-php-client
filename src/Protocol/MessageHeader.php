@@ -22,9 +22,8 @@ class MessageHeader
     public function __construct(
         private readonly string $messageType,
         private readonly string $chunkType,
-        private readonly int    $messageSize,
-    )
-    {
+        private readonly int $messageSize,
+    ) {
     }
 
     public function getMessageType(): string

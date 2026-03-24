@@ -15,10 +15,10 @@ readonly class OffNormalAlarmTriggered
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $clientHandle,
+        public int $subscriptionId,
+        public int $clientHandle,
         public ?string $sourceName = null,
-        public ?int    $severity = null,
+        public ?int $severity = null,
     ) {
     }
 }

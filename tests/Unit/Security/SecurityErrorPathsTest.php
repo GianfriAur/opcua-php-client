@@ -31,7 +31,7 @@ describe('MessageSecurity symmetric error paths', function () {
         $iv = random_bytes(16);
         $data = random_bytes(7);
 
-        expect(fn() => $ms->symmetricEncrypt($data, $key, $iv, SecurityPolicy::Basic256Sha256))
+        expect(fn () => $ms->symmetricEncrypt($data, $key, $iv, SecurityPolicy::Basic256Sha256))
             ->toThrow(SecurityException::class, 'Symmetric encryption failed');
     });
 
@@ -41,7 +41,7 @@ describe('MessageSecurity symmetric error paths', function () {
         $iv = random_bytes(16);
         $data = random_bytes(7);
 
-        expect(fn() => $ms->symmetricDecrypt($data, $key, $iv, SecurityPolicy::Basic256Sha256))
+        expect(fn () => $ms->symmetricDecrypt($data, $key, $iv, SecurityPolicy::Basic256Sha256))
             ->toThrow(SecurityException::class, 'Symmetric decryption failed');
     });
 });
@@ -54,7 +54,7 @@ describe('MessageSecurity asymmetric error paths', function () {
 
         $garbage = random_bytes(256);
 
-        expect(fn() => $ms->asymmetricDecrypt($garbage, $privKey, SecurityPolicy::Basic256Sha256))
+        expect(fn () => $ms->asymmetricDecrypt($garbage, $privKey, SecurityPolicy::Basic256Sha256))
             ->toThrow(SecurityException::class, 'Asymmetric decryption failed');
     });
 
@@ -62,7 +62,7 @@ describe('MessageSecurity asymmetric error paths', function () {
         $ms = new MessageSecurity();
         $fakeDer = random_bytes(100);
 
-        expect(fn() => $ms->asymmetricEncrypt('data', $fakeDer, SecurityPolicy::Basic256Sha256))
+        expect(fn () => $ms->asymmetricEncrypt('data', $fakeDer, SecurityPolicy::Basic256Sha256))
             ->toThrow(SecurityException::class);
     });
 
@@ -70,7 +70,7 @@ describe('MessageSecurity asymmetric error paths', function () {
         $ms = new MessageSecurity();
         $fakeDer = random_bytes(100);
 
-        expect(fn() => $ms->asymmetricVerify('data', 'sig', $fakeDer, SecurityPolicy::Basic256Sha256))
+        expect(fn () => $ms->asymmetricVerify('data', 'sig', $fakeDer, SecurityPolicy::Basic256Sha256))
             ->toThrow(SecurityException::class);
     });
 });
@@ -80,14 +80,14 @@ describe('CertificateManager error paths', function () {
     it('getPublicKeyLength throws on invalid DER', function () {
         $cm = new CertificateManager();
 
-        expect(fn() => $cm->getPublicKeyLength('not-a-certificate'))
+        expect(fn () => $cm->getPublicKeyLength('not-a-certificate'))
             ->toThrow(SecurityException::class, 'Failed to read certificate');
     });
 
     it('getPublicKeyFromCert throws on invalid DER', function () {
         $cm = new CertificateManager();
 
-        expect(fn() => $cm->getPublicKeyFromCert('not-a-certificate'))
+        expect(fn () => $cm->getPublicKeyFromCert('not-a-certificate'))
             ->toThrow(SecurityException::class, 'Failed to read certificate');
     });
 
@@ -98,7 +98,7 @@ describe('CertificateManager error paths', function () {
         $tmp = tempnam(sys_get_temp_dir(), 'opcua_bad_');
         file_put_contents($tmp, $badPem);
 
-        expect(fn() => $cm->loadCertificatePem($tmp))
+        expect(fn () => $cm->loadCertificatePem($tmp))
             ->toThrow(SecurityException::class, 'Failed to decode PEM');
 
         unlink($tmp);

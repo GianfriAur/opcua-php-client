@@ -52,7 +52,12 @@
     "psr/event-dispatcher": "^1.0"
   },
   "require-dev": {
-    "pestphp/pest": "^3.0"
+    "pestphp/pest": "^3.0",
+    "friendsofphp/php-cs-fixer": "^3.0"
+  },
+  "scripts": {
+    "format": "php-cs-fixer fix --config=.php-cs-fixer.php --allow-risky=yes",
+    "format:check": "php-cs-fixer fix --config=.php-cs-fixer.php --allow-risky=yes --dry-run --diff"
   },
   "config": {
     "allow-plugins": {

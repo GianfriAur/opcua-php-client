@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Helpers/SecurityTestHelpers.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
 use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
@@ -25,7 +23,7 @@ describe('SecureChannel OPN signature verification failure', function () {
 
         $response = buildTestOPNResponse($certDer, $otherKey, $certDer, $privKey, $channel->getClientNonce(), random_bytes(32), 1, 1, $policy);
 
-        expect(fn() => $channel->processOpenSecureChannelResponse($response))
+        expect(fn () => $channel->processOpenSecureChannelResponse($response))
             ->toThrow(SecurityException::class, 'signature verification failed');
     });
 });

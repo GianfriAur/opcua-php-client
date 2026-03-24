@@ -27,7 +27,7 @@ describe('Connection', function () {
             $refs = $client->browse(NodeId::numeric(0, 85));
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('Server');
         } finally {
             TestHelper::safeDisconnect($client);
@@ -53,19 +53,19 @@ describe('Connection', function () {
         $client->disconnect();
 
         // After disconnect, operations should fail
-        expect(fn() => $client->browse(NodeId::numeric(0, 85)))
+        expect(fn () => $client->browse(NodeId::numeric(0, 85)))
             ->toThrow(ConnectionException::class);
     })->group('integration');
 
     it('throws on connection to invalid host', function () {
         $client = new Client();
-        expect(fn() => $client->connect('opc.tcp://invalid.host.that.does.not.exist:4840/UA/TestServer'))
+        expect(fn () => $client->connect('opc.tcp://invalid.host.that.does.not.exist:4840/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     })->group('integration');
 
     it('throws on connection to invalid port', function () {
         $client = new Client();
-        expect(fn() => $client->connect('opc.tcp://localhost:59999/UA/TestServer'))
+        expect(fn () => $client->connect('opc.tcp://localhost:59999/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     })->group('integration');
 

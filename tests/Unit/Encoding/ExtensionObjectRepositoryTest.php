@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpIllegalPsrClassPathInspection */
+<?php
+
+/** @noinspection PhpIllegalPsrClassPathInspection */
 
 declare(strict_types=1);
 
@@ -84,20 +86,20 @@ describe('ExtensionObjectRepository', function () {
         $repo = new ExtensionObjectRepository();
         $repo->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
-        $client = new \Gianfriaur\OpcuaPhpClient\Client($repo);
+        $client = new Gianfriaur\OpcuaPhpClient\Client($repo);
         expect($client->getExtensionObjectRepository())->toBe($repo);
         expect($client->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
     });
 
     it('Client creates empty repository when none provided', function () {
-        $client = new \Gianfriaur\OpcuaPhpClient\Client();
+        $client = new Gianfriaur\OpcuaPhpClient\Client();
         $repo = $client->getExtensionObjectRepository();
         expect($repo)->toBeInstanceOf(ExtensionObjectRepository::class);
         expect($repo->has(NodeId::numeric(0, 100)))->toBeFalse();
     });
 
     it('codecs registered via getExtensionObjectRepository are used by the client', function () {
-        $client = new \Gianfriaur\OpcuaPhpClient\Client();
+        $client = new Gianfriaur\OpcuaPhpClient\Client();
         $client->getExtensionObjectRepository()->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
         expect($client->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();

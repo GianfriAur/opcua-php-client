@@ -32,14 +32,14 @@ describe('MockClient', function () {
 
     it('handles read with registered handler', function () {
         $mock = MockClient::create()
-            ->onRead('i=2259', fn() => DataValue::ofInt32(0));
+            ->onRead('i=2259', fn () => DataValue::ofInt32(0));
 
         expect($mock->read('i=2259')->getValue())->toBe(0);
     });
 
     it('handles read with NodeId object', function () {
         $mock = MockClient::create()
-            ->onRead(NodeId::numeric(2, 1001), fn() => DataValue::ofDouble(23.5));
+            ->onRead(NodeId::numeric(2, 1001), fn () => DataValue::ofDouble(23.5));
 
         expect($mock->read(NodeId::numeric(2, 1001))->getValue())->toBe(23.5);
     });
@@ -52,7 +52,7 @@ describe('MockClient', function () {
 
     it('handles write with registered handler', function () {
         $mock = MockClient::create()
-            ->onWrite('ns=2;i=1001', fn($v, $t) => $v > 100 ? StatusCode::BadTypeMismatch : StatusCode::Good);
+            ->onWrite('ns=2;i=1001', fn ($v, $t) => $v > 100 ? StatusCode::BadTypeMismatch : StatusCode::Good);
 
         expect($mock->write('ns=2;i=1001', 42, BuiltinType::Int32))->toBe(StatusCode::Good);
         expect($mock->write('ns=2;i=1001', 999, BuiltinType::Int32))->toBe(StatusCode::BadTypeMismatch);
@@ -65,7 +65,7 @@ describe('MockClient', function () {
 
     it('handles browse with registered handler', function () {
         $mock = MockClient::create()
-            ->onBrowse('i=85', fn() => ['ref1', 'ref2']);
+            ->onBrowse('i=85', fn () => ['ref1', 'ref2']);
 
         expect($mock->browse('i=85'))->toBe(['ref1', 'ref2']);
     });
@@ -77,7 +77,7 @@ describe('MockClient', function () {
 
     it('handles call with registered handler', function () {
         $mock = MockClient::create()
-            ->onCall('i=2253', 'i=11492', fn($args) => new CallResult(0, [], [new Variant(BuiltinType::Int32, 42)]));
+            ->onCall('i=2253', 'i=11492', fn ($args) => new CallResult(0, [], [new Variant(BuiltinType::Int32, 42)]));
 
         $result = $mock->call('i=2253', 'i=11492', [new Variant(BuiltinType::UInt32, 1)]);
         expect($result->statusCode)->toBe(0);
@@ -86,7 +86,7 @@ describe('MockClient', function () {
 
     it('handles resolveNodeId with registered handler', function () {
         $mock = MockClient::create()
-            ->onResolveNodeId('/Objects/Server', fn() => NodeId::numeric(0, 2253));
+            ->onResolveNodeId('/Objects/Server', fn () => NodeId::numeric(0, 2253));
 
         $nodeId = $mock->resolveNodeId('/Objects/Server');
         expect($nodeId->identifier)->toBe(2253);
@@ -124,8 +124,8 @@ describe('MockClient', function () {
 
     it('readMulti delegates to individual reads', function () {
         $mock = MockClient::create()
-            ->onRead('i=2259', fn() => DataValue::ofInt32(0))
-            ->onRead('i=2267', fn() => DataValue::ofInt32(255));
+            ->onRead('i=2259', fn () => DataValue::ofInt32(0))
+            ->onRead('i=2267', fn () => DataValue::ofInt32(255));
 
         $results = $mock->readMulti([
             ['nodeId' => 'i=2259'],
@@ -139,7 +139,7 @@ describe('MockClient', function () {
 
     it('readMulti returns builder when no args', function () {
         $mock = MockClient::create()
-            ->onRead('i=2259', fn() => DataValue::ofInt32(42));
+            ->onRead('i=2259', fn () => DataValue::ofInt32(42));
 
         $results = $mock->readMulti()
             ->node('i=2259')->value()
@@ -151,7 +151,7 @@ describe('MockClient', function () {
 
     it('writeMulti delegates to individual writes', function () {
         $mock = MockClient::create()
-            ->onWrite('ns=2;i=1001', fn() => 0);
+            ->onWrite('ns=2;i=1001', fn () => 0);
 
         $results = $mock->writeMulti([
             ['nodeId' => 'ns=2;i=1001', 'value' => 42, 'type' => BuiltinType::Int32],
@@ -163,7 +163,7 @@ describe('MockClient', function () {
     it('writeMulti returns builder when no args', function () {
         $mock = MockClient::create();
         $builder = $mock->writeMulti();
-        expect($builder)->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder::class);
+        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder::class);
     });
 
     it('createSubscription returns default result', function () {
@@ -188,19 +188,19 @@ describe('MockClient', function () {
     it('createMonitoredItems returns builder when no items', function () {
         $mock = MockClient::create();
         $builder = $mock->createMonitoredItems(1);
-        expect($builder)->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder::class);
+        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder::class);
     });
 
     it('browseAll delegates to browse', function () {
         $mock = MockClient::create()
-            ->onBrowse('i=85', fn() => ['ref']);
+            ->onBrowse('i=85', fn () => ['ref']);
 
         expect($mock->browseAll('i=85'))->toBe(['ref']);
     });
 
     it('browseWithContinuation wraps in BrowseResultSet', function () {
         $mock = MockClient::create()
-            ->onBrowse('i=85', fn() => ['ref']);
+            ->onBrowse('i=85', fn () => ['ref']);
 
         $result = $mock->browseWithContinuation('i=85');
         expect($result->references)->toBe(['ref']);
@@ -210,7 +210,7 @@ describe('MockClient', function () {
     it('translateBrowsePaths returns builder when no args', function () {
         $mock = MockClient::create();
         $builder = $mock->translateBrowsePaths();
-        expect($builder)->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder::class);
+        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder::class);
     });
 
     it('config methods are fluent and store values', function () {
@@ -320,7 +320,7 @@ describe('MockClient', function () {
 
     it('setLogger is fluent', function () {
         $mock = MockClient::create();
-        $result = $mock->setLogger(new \Psr\Log\NullLogger());
+        $result = $mock->setLogger(new Psr\Log\NullLogger());
         expect($result)->toBe($mock);
     });
 
@@ -329,7 +329,7 @@ describe('MockClient', function () {
         $results = $mock->transferSubscriptions([1, 2]);
 
         expect($results)->toHaveCount(2);
-        expect($results[0])->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Types\TransferResult::class);
+        expect($results[0])->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Types\TransferResult::class);
         expect($results[0]->statusCode)->toBe(0);
         expect($results[1]->availableSequenceNumbers)->toBe([]);
     });

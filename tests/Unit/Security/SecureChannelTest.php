@@ -57,7 +57,7 @@ describe('SecureChannel getters and basic state', function () {
 
     it('isSecurityActive returns true for Basic256Sha256 with Sign mode', function () {
         [$clientDer, $clientKey] = generateSecureChannelTestCert();
-        [$serverDer,] = generateSecureChannelTestCert();
+        [$serverDer] = generateSecureChannelTestCert();
         $sc = new SecureChannel(SecurityPolicy::Basic256Sha256, SecurityMode::Sign, $clientDer, $clientKey, $serverDer);
         expect($sc->isSecurityActive())->toBeTrue();
     });
@@ -93,14 +93,14 @@ describe('SecureChannel getters and basic state', function () {
     });
 
     it('stores and returns server cert', function () {
-        [$serverDer,] = generateSecureChannelTestCert();
+        [$serverDer] = generateSecureChannelTestCert();
         $sc = new SecureChannel(SecurityPolicy::None, SecurityMode::None, null, null, $serverDer);
         expect($sc->getServerCertDer())->toBe($serverDer);
     });
 
     it('setServerCertDer updates server cert', function () {
         $sc = new SecureChannel(SecurityPolicy::None, SecurityMode::None);
-        [$serverDer,] = generateSecureChannelTestCert();
+        [$serverDer] = generateSecureChannelTestCert();
         $sc->setServerCertDer($serverDer);
         expect($sc->getServerCertDer())->toBe($serverDer);
     });
@@ -184,7 +184,7 @@ describe('SecureChannel OPN (no security)', function () {
         $header->encode($encoder);
         $encoder->writeUInt32(0);
 
-        expect(fn() => $sc->processOpenSecureChannelResponse($encoder->getBuffer()))
+        expect(fn () => $sc->processOpenSecureChannelResponse($encoder->getBuffer()))
             ->toThrow(ProtocolException::class, 'Expected OPN response');
     });
 });
@@ -261,7 +261,7 @@ describe('SecureChannel MSG (no security)', function () {
 
     it('processMessage handles ERR messages in secure mode', function () {
         [$clientDer, $clientKey] = generateSecureChannelTestCert();
-        [$serverDer,] = generateSecureChannelTestCert();
+        [$serverDer] = generateSecureChannelTestCert();
         $sc = new SecureChannel(SecurityPolicy::Basic256Sha256, SecurityMode::SignAndEncrypt, $clientDer, $clientKey, $serverDer);
 
         // Build an ERR message (never encrypted)
@@ -284,7 +284,7 @@ describe('SecureChannel OPN with security', function () {
 
     it('creates an OPN message with Basic256Sha256', function () {
         [$clientDer, $clientKey] = generateSecureChannelTestCert();
-        [$serverDer,] = generateSecureChannelTestCert();
+        [$serverDer] = generateSecureChannelTestCert();
 
         $sc = new SecureChannel(SecurityPolicy::Basic256Sha256, SecurityMode::SignAndEncrypt, $clientDer, $clientKey, $serverDer);
         $message = $sc->createOpenSecureChannelMessage();
@@ -356,17 +356,16 @@ describe('SecureChannel MSG with Sign mode (symmetric)', function () {
  * Builds a mock encrypted OPN response that a SecureChannel can process.
  */
 function buildEncryptedOPNResponse(
-    string               $serverDer,
+    string $serverDer,
     OpenSSLAsymmetricKey $serverKey,
-    string               $clientDer,
+    string $clientDer,
     OpenSSLAsymmetricKey $clientKey,
-    string               $clientNonce,
-    string               $serverNonce,
-    int                  $channelId,
-    int                  $tokenId,
-    SecurityPolicy       $policy,
-): string
-{
+    string $clientNonce,
+    string $serverNonce,
+    int $channelId,
+    int $tokenId,
+    SecurityPolicy $policy,
+): string {
     $ms = new MessageSecurity();
 
     // Build the inner plaintext (sequence header + typeId + response header + OPN fields)
@@ -405,7 +404,7 @@ function buildEncryptedOPNResponse(
     $paddingOverhead = $policy->getAsymmetricPaddingOverhead();
     $plainTextBlockSize = $keyLengthBytes - $paddingOverhead;
     $serverKeyDetails = openssl_pkey_get_details($serverKey);
-    $signatureSize = (int)($serverKeyDetails['bits'] / 8);
+    $signatureSize = (int) ($serverKeyDetails['bits'] / 8);
 
     // Add padding
     $bodyLen = strlen($plainBody);
@@ -423,7 +422,7 @@ function buildEncryptedOPNResponse(
 
     // Calculate encrypted size
     $dataToEncryptLen = strlen($bodyWithPadding) + $signatureSize;
-    $numBlocks = (int)ceil($dataToEncryptLen / $plainTextBlockSize);
+    $numBlocks = (int) ceil($dataToEncryptLen / $plainTextBlockSize);
     $encryptedSize = $numBlocks * $keyLengthBytes;
 
     $totalSize = 12 + strlen($secHeaderBytes) + $encryptedSize;

@@ -220,7 +220,7 @@ describe('resolveNodeId', function () {
         try {
             $client = TestHelper::connectNoSecurity();
 
-            expect(fn() => $client->resolveNodeId('/Objects/NonExistentNode12345'))
+            expect(fn () => $client->resolveNodeId('/Objects/NonExistentNode12345'))
                 ->toThrow(ServiceException::class);
         } finally {
             TestHelper::safeDisconnect($client);

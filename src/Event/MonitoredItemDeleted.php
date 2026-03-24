@@ -15,9 +15,9 @@ readonly class MonitoredItemDeleted
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $monitoredItemId,
-        public int                  $statusCode,
+        public int $subscriptionId,
+        public int $monitoredItemId,
+        public int $statusCode,
     ) {
     }
 }

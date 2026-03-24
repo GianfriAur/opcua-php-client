@@ -43,7 +43,7 @@ describe('StructureDefinitionParser', function () {
 
         foreach (['x', 'y', 'z'] as $name) {
             $encoder->writeString($name);
-            $encoder->writeLocalizedText(new \Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+            $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
             $encoder->writeNodeId(NodeId::numeric(0, 11));
             $encoder->writeInt32(-1);
             $encoder->writeInt32(0);
@@ -71,7 +71,7 @@ describe('StructureDefinitionParser', function () {
         $encoder->writeInt32(2);
 
         $encoder->writeString('required');
-        $encoder->writeLocalizedText(new \Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 6));
         $encoder->writeInt32(-1);
         $encoder->writeInt32(0);
@@ -79,7 +79,7 @@ describe('StructureDefinitionParser', function () {
         $encoder->writeBoolean(false);
 
         $encoder->writeString('optional');
-        $encoder->writeLocalizedText(new \Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 12));
         $encoder->writeInt32(-1);
         $encoder->writeInt32(0);

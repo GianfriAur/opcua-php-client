@@ -15,8 +15,8 @@ readonly class SubscriptionDeleted
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $statusCode,
+        public int $subscriptionId,
+        public int $statusCode,
     ) {
     }
 }

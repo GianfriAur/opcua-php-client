@@ -17,8 +17,7 @@ readonly class BrowsePathTarget
      */
     public function __construct(
         public NodeId $targetId,
-        public int    $remainingPathIndex,
-    )
-    {
+        public int $remainingPathIndex,
+    ) {
     }
 }

@@ -14,15 +14,15 @@ final class DataTypeMapping
 {
     /** @var array<int, BuiltinType> */
     private static array $map = [
-        1  => BuiltinType::Boolean,
-        2  => BuiltinType::SByte,
-        3  => BuiltinType::Byte,
-        4  => BuiltinType::Int16,
-        5  => BuiltinType::UInt16,
-        6  => BuiltinType::Int32,
-        7  => BuiltinType::UInt32,
-        8  => BuiltinType::Int64,
-        9  => BuiltinType::UInt64,
+        1 => BuiltinType::Boolean,
+        2 => BuiltinType::SByte,
+        3 => BuiltinType::Byte,
+        4 => BuiltinType::Int16,
+        5 => BuiltinType::UInt16,
+        6 => BuiltinType::Int32,
+        7 => BuiltinType::UInt32,
+        8 => BuiltinType::Int64,
+        9 => BuiltinType::UInt64,
         10 => BuiltinType::Float,
         11 => BuiltinType::Double,
         12 => BuiltinType::String,
@@ -44,7 +44,7 @@ final class DataTypeMapping
      */
     public static function resolve(NodeId $dataType): ?BuiltinType
     {
-        if ($dataType->namespaceIndex !== 0 || !$dataType->isNumeric()) {
+        if ($dataType->namespaceIndex !== 0 || ! $dataType->isNumeric()) {
             return null;
         }
 

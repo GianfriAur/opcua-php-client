@@ -6,8 +6,8 @@ require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
 use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmAcknowledged;
+use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmConfirmed;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmDeactivated;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmEventReceived;
@@ -167,9 +167,17 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         $client = setupConnectedClient($mock);
 
         $closureCalled = false;
-        $wrappingDispatcher = new class($closureCalled) implements \Psr\EventDispatcher\EventDispatcherInterface {
-            public function __construct(private bool &$called) {}
-            public function dispatch(object $event): object { $this->called = true; return $event; }
+        $wrappingDispatcher = new class($closureCalled) implements Psr\EventDispatcher\EventDispatcherInterface {
+            public function __construct(private bool &$called)
+            {
+            }
+
+            public function dispatch(object $event): object
+            {
+                $this->called = true;
+
+                return $event;
+            }
         };
 
         $client->read('i=2259');

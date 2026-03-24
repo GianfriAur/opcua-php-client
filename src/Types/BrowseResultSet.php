@@ -16,9 +16,8 @@ readonly class BrowseResultSet
      * @param ?string $continuationPoint
      */
     public function __construct(
-        public array   $references,
+        public array $references,
         public ?string $continuationPoint,
-    )
-    {
+    ) {
     }
 }

@@ -20,9 +20,8 @@ readonly class StructureField
     public function __construct(
         public string $name,
         public NodeId $dataType,
-        public int    $valueRank = -1,
-        public bool   $isOptional = false,
-    )
-    {
+        public int $valueRank = -1,
+        public bool $isOptional = false,
+    ) {
     }
 }

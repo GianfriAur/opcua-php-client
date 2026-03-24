@@ -17,10 +17,10 @@ readonly class AlarmActivated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $clientHandle,
+        public int $subscriptionId,
+        public int $clientHandle,
         public ?string $sourceName = null,
-        public ?int    $severity = null,
+        public ?int $severity = null,
         public ?string $message = null,
     ) {
     }

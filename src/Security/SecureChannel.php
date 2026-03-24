@@ -15,26 +15,41 @@ use OpenSSLAsymmetricKey;
 class SecureChannel
 {
     private SecurityPolicy $policy;
+
     private SecurityMode $mode;
+
     private ?string $clientCertDer;
+
     private ?string $clientCertChainDer;
+
     private ?OpenSSLAsymmetricKey $clientPrivateKey;
+
     private ?string $serverCertDer = null;
+
     private string $clientNonce = '';
+
     private ?string $serverNonce = null;
+
     private int $secureChannelId = 0;
+
     private int $tokenId = 0;
+
     private int $sequenceNumber = 1;
 
     private ?string $clientSigningKey = null;
+
     private ?string $clientEncryptingKey = null;
+
     private ?string $clientIv = null;
 
     private ?string $serverSigningKey = null;
+
     private ?string $serverEncryptingKey = null;
+
     private ?string $serverIv = null;
 
     private MessageSecurity $messageSecurity;
+
     private CertificateManager $certManager;
 
     /**
@@ -46,14 +61,13 @@ class SecureChannel
      * @param ?string $clientCertChainDer
      */
     public function __construct(
-        SecurityPolicy        $policy,
-        SecurityMode          $mode,
-        ?string               $clientCertDer = null,
+        SecurityPolicy $policy,
+        SecurityMode $mode,
+        ?string $clientCertDer = null,
         ?OpenSSLAsymmetricKey $clientPrivateKey = null,
-        ?string               $serverCertDer = null,
-        ?string               $clientCertChainDer = null,
-    )
-    {
+        ?string $serverCertDer = null,
+        ?string $clientCertChainDer = null,
+    ) {
         $this->policy = $policy;
         $this->mode = $mode;
         $this->clientCertDer = $clientCertDer;
@@ -198,7 +212,7 @@ class SecureChannel
             );
 
             $dataToEncryptLen = strlen($bodyWithPadding) + $signatureSize;
-            $numBlocks = (int)ceil($dataToEncryptLen / $plainTextBlockSize);
+            $numBlocks = (int) ceil($dataToEncryptLen / $plainTextBlockSize);
             $encryptedSize = $numBlocks * $keyLengthBytes;
 
             $totalSize = 12 + strlen($securityHeaderBytes) + $encryptedSize;
@@ -279,8 +293,8 @@ class SecureChannel
             $secHeaderEncoder->writeByteString($receiverThumbprint);
             $signedContent = $headerBytes . $secHeaderEncoder->getBuffer() . $dataWithoutSig;
 
-            if (!$this->messageSecurity->asymmetricVerify($signedContent, $signature, $this->serverCertDer, $this->policy)) {
-                throw new SecurityException("OPN response signature verification failed");
+            if (! $this->messageSecurity->asymmetricVerify($signedContent, $signature, $this->serverCertDer, $this->policy)) {
+                throw new SecurityException('OPN response signature verification failed');
             }
 
             $strippedData = $this->stripAsymmetricPadding($dataWithoutSig);
@@ -320,7 +334,7 @@ class SecureChannel
         return [
             'secureChannelId' => $this->secureChannelId,
             'tokenId' => $this->tokenId,
-            'revisedLifetime' => (int)$revisedLifetime,
+            'revisedLifetime' => (int) $revisedLifetime,
             'serverNonce' => $this->serverNonce,
         ];
     }
@@ -334,7 +348,7 @@ class SecureChannel
         $sequenceNumber = $this->getNextSequenceNumber();
         $requestId = $this->extractRequestId($innerBody);
 
-        if (!$this->isSecurityActive()) {
+        if (! $this->isSecurityActive()) {
             $body = new BinaryEncoder();
             $body->writeUInt32($this->tokenId);
             $body->writeUInt32($sequenceNumber);
@@ -422,7 +436,7 @@ class SecureChannel
      */
     public function processMessage(string $rawResponse): string
     {
-        if (!$this->isSecurityActive()) {
+        if (! $this->isSecurityActive()) {
             return substr($rawResponse, MessageHeader::HEADER_SIZE + 4);
         }
 
@@ -457,8 +471,8 @@ class SecureChannel
             $dataWithoutSig = substr($decrypted, 0, -$signatureSize);
 
             $dataToVerify = $headerBytes . $tokenIdBytes . $dataWithoutSig;
-            if (!$this->messageSecurity->symmetricVerify($dataToVerify, $signature, $this->serverSigningKey, $this->policy)) {
-                throw new SecurityException("MSG response symmetric signature verification failed");
+            if (! $this->messageSecurity->symmetricVerify($dataToVerify, $signature, $this->serverSigningKey, $this->policy)) {
+                throw new SecurityException('MSG response symmetric signature verification failed');
             }
 
             $plainData = $this->stripSymmetricPadding($dataWithoutSig);
@@ -470,8 +484,8 @@ class SecureChannel
         $dataWithoutSig = substr($remaining, 0, -$signatureSize);
 
         $dataToVerify = $headerBytes . $tokenIdBytes . $dataWithoutSig;
-        if (!$this->messageSecurity->symmetricVerify($dataToVerify, $signature, $this->serverSigningKey, $this->policy)) {
-            throw new SecurityException("MSG response symmetric signature verification failed");
+        if (! $this->messageSecurity->symmetricVerify($dataToVerify, $signature, $this->serverSigningKey, $this->policy)) {
+            throw new SecurityException('MSG response symmetric signature verification failed');
         }
 
         return $tokenIdBytes . $dataWithoutSig;
@@ -533,11 +547,10 @@ class SecureChannel
      */
     private function addAsymmetricPadding(
         string $plainBody,
-        int    $signatureSize,
-        int    $plainTextBlockSize,
-        int    $keyLengthBytes,
-    ): string
-    {
+        int $signatureSize,
+        int $plainTextBlockSize,
+        int $keyLengthBytes,
+    ): string {
         $bodyLen = strlen($plainBody);
         $extraPaddingByte = ($keyLengthBytes > 256) ? 1 : 0;
 
@@ -628,10 +641,10 @@ class SecureChannel
 
         $details = openssl_pkey_get_details($this->clientPrivateKey);
         if ($details === false) {
-            throw new SecurityException("Failed to get client private key details");
+            throw new SecurityException('Failed to get client private key details');
         }
 
-        return (int)($details['bits'] / 8);
+        return (int) ($details['bits'] / 8);
     }
 
     /**

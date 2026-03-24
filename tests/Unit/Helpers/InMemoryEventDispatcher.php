@@ -19,6 +19,7 @@ class InMemoryEventDispatcher implements EventDispatcherInterface
     public function dispatch(object $event): object
     {
         $this->events[] = $event;
+
         return $event;
     }
 
@@ -37,12 +38,12 @@ class InMemoryEventDispatcher implements EventDispatcherInterface
      */
     public function getEventsOfType(string $eventClass): array
     {
-        return array_values(array_filter($this->events, fn(object $e) => $e instanceof $eventClass));
+        return array_values(array_filter($this->events, fn (object $e) => $e instanceof $eventClass));
     }
 
     public function hasEvent(string $eventClass): bool
     {
-        return !empty($this->getEventsOfType($eventClass));
+        return ! empty($this->getEventsOfType($eventClass));
     }
 
     public function reset(): void

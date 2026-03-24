@@ -64,7 +64,7 @@ describe('Auto-retry configuration', function () {
         $client = new Client();
         $client->setAutoRetry(5);
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 });

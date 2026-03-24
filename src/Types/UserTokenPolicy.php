@@ -18,12 +18,11 @@ readonly class UserTokenPolicy
      */
     public function __construct(
         public ?string $policyId,
-        public int     $tokenType,
+        public int $tokenType,
         public ?string $issuedTokenType,
         public ?string $issuerEndpointUrl,
         public ?string $securityPolicyUri,
-    )
-    {
+    ) {
     }
 
     /**

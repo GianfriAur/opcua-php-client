@@ -17,9 +17,9 @@ readonly class NodeBrowsed
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public NodeId               $nodeId,
-        public BrowseDirection      $direction,
-        public int                  $resultCount,
+        public NodeId $nodeId,
+        public BrowseDirection $direction,
+        public int $resultCount,
     ) {
     }
 }

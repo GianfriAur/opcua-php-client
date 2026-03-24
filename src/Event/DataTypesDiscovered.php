@@ -15,8 +15,8 @@ readonly class DataTypesDiscovered
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public ?int                 $namespaceIndex,
-        public int                  $count,
+        public ?int $namespaceIndex,
+        public int $count,
     ) {
     }
 }

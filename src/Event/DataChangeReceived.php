@@ -16,10 +16,10 @@ readonly class DataChangeReceived
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $sequenceNumber,
-        public int                  $clientHandle,
-        public DataValue            $dataValue,
+        public int $subscriptionId,
+        public int $sequenceNumber,
+        public int $clientHandle,
+        public DataValue $dataValue,
     ) {
     }
 }

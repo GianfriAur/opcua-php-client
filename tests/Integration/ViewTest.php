@@ -16,7 +16,7 @@ describe('View', function () {
             $refs = $client->browse(NodeId::numeric(0, 87));
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->not->toBeEmpty();
         } finally {
             TestHelper::safeDisconnect($client);

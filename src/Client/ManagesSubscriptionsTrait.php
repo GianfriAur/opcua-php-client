@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmAcknowledged;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmConfirmed;
@@ -27,8 +26,8 @@ use Gianfriaur\OpcuaPhpClient\Event\SubscriptionTransferred;
 use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
-use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
+use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 
 /**
  * Provides subscription and monitored item management for OPC UA data change and event notifications.
@@ -75,7 +74,7 @@ trait ManagesSubscriptionsTrait
 
             $result = $this->subscriptionService->decodeCreateSubscriptionResponse($decoder);
 
-            $this->dispatch(fn() => new SubscriptionCreated(
+            $this->dispatch(fn () => new SubscriptionCreated(
                 $this,
                 $result->subscriptionId,
                 $result->revisedPublishingInterval,
@@ -128,7 +127,7 @@ trait ManagesSubscriptionsTrait
 
             foreach ($results as $i => $result) {
                 $itemNodeId = $monitoredItems[$i]['nodeId'] ?? NodeId::numeric(0, 0);
-                $this->dispatch(fn() => new MonitoredItemCreated(
+                $this->dispatch(fn () => new MonitoredItemCreated(
                     $this,
                     $subscriptionId,
                     $result->monitoredItemId,
@@ -157,13 +156,13 @@ trait ManagesSubscriptionsTrait
      * @see MonitoredItemResult
      */
     public function createEventMonitoredItem(
-        int           $subscriptionId,
+        int $subscriptionId,
         NodeId|string $nodeId,
-        array         $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
-        int           $clientHandle = 1,
-    ): MonitoredItemResult
-    {
+        array $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
+        int $clientHandle = 1,
+    ): MonitoredItemResult {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($subscriptionId, $nodeId, $selectFields, $clientHandle) {
             $this->ensureConnected();
 
@@ -185,7 +184,7 @@ trait ManagesSubscriptionsTrait
             $results = $this->monitoredItemService->decodeCreateMonitoredItemsResponse($decoder);
             $result = $results[0] ?? new MonitoredItemResult(0, 0, 0.0, 0);
 
-            $this->dispatch(fn() => new MonitoredItemCreated(
+            $this->dispatch(fn () => new MonitoredItemCreated(
                 $this,
                 $subscriptionId,
                 $result->monitoredItemId,
@@ -229,7 +228,7 @@ trait ManagesSubscriptionsTrait
 
             foreach ($results as $i => $statusCode) {
                 $monItemId = $monitoredItemIds[$i] ?? 0;
-                $this->dispatch(fn() => new MonitoredItemDeleted($this, $subscriptionId, $monItemId, $statusCode));
+                $this->dispatch(fn () => new MonitoredItemDeleted($this, $subscriptionId, $monItemId, $statusCode));
             }
 
             return $results;
@@ -265,7 +264,7 @@ trait ManagesSubscriptionsTrait
             $results = $this->subscriptionService->decodeDeleteSubscriptionsResponse($decoder);
             $statusCode = $results[0] ?? 0;
 
-            $this->dispatch(fn() => new SubscriptionDeleted($this, $subscriptionId, $statusCode));
+            $this->dispatch(fn () => new SubscriptionDeleted($this, $subscriptionId, $statusCode));
 
             return $statusCode;
         });
@@ -341,7 +340,7 @@ trait ManagesSubscriptionsTrait
 
             foreach ($results as $i => $transferResult) {
                 $subId = $subscriptionIds[$i] ?? 0;
-                $this->dispatch(fn() => new SubscriptionTransferred($this, $subId, $transferResult->statusCode));
+                $this->dispatch(fn () => new SubscriptionTransferred($this, $subId, $transferResult->statusCode));
             }
 
             return $results;
@@ -353,7 +352,7 @@ trait ManagesSubscriptionsTrait
      *
      * @param int $subscriptionId
      * @param int $retransmitSequenceNumber
-     * @return array{sequenceNumber: int, publishTime: ?\DateTimeImmutable, notifications: array}
+     * @return array{sequenceNumber: int, publishTime: ?DateTimeImmutable, notifications: array}
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
@@ -388,7 +387,7 @@ trait ManagesSubscriptionsTrait
      */
     private function dispatchPublishEvents(PublishResult $result): void
     {
-        $this->dispatch(fn() => new PublishResponseReceived(
+        $this->dispatch(fn () => new PublishResponseReceived(
             $this,
             $result->subscriptionId,
             $result->sequenceNumber,
@@ -397,13 +396,14 @@ trait ManagesSubscriptionsTrait
         ));
 
         if (empty($result->notifications)) {
-            $this->dispatch(fn() => new SubscriptionKeepAlive($this, $result->subscriptionId, $result->sequenceNumber));
+            $this->dispatch(fn () => new SubscriptionKeepAlive($this, $result->subscriptionId, $result->sequenceNumber));
+
             return;
         }
 
         foreach ($result->notifications as $notification) {
             if ($notification['type'] === 'DataChange') {
-                $this->dispatch(fn() => new DataChangeReceived(
+                $this->dispatch(fn () => new DataChangeReceived(
                     $this,
                     $result->subscriptionId,
                     $result->sequenceNumber,
@@ -414,7 +414,7 @@ trait ManagesSubscriptionsTrait
                 $eventFields = $notification['eventFields'];
                 $clientHandle = $notification['clientHandle'];
 
-                $this->dispatch(fn() => new EventNotificationReceived(
+                $this->dispatch(fn () => new EventNotificationReceived(
                     $this,
                     $result->subscriptionId,
                     $result->sequenceNumber,
@@ -468,17 +468,24 @@ trait ManagesSubscriptionsTrait
         $severity = is_int($fieldValues[5] ?? null) ? $fieldValues[5] : null;
 
         $hasAlarmData = $severity !== null || $eventType !== null;
-        if (!$hasAlarmData) {
+        if (! $hasAlarmData) {
             return;
         }
 
-        $this->dispatch(fn() => new AlarmEventReceived(
-            $this, $subscriptionId, $clientHandle, $eventFields,
-            $severity, $sourceName, $message, $eventType, $time,
+        $this->dispatch(fn () => new AlarmEventReceived(
+            $this,
+            $subscriptionId,
+            $clientHandle,
+            $eventFields,
+            $severity,
+            $sourceName,
+            $message,
+            $eventType,
+            $time,
         ));
 
         if ($severity !== null) {
-            $this->dispatch(fn() => new AlarmSeverityChanged($this, $subscriptionId, $clientHandle, $sourceName, $severity));
+            $this->dispatch(fn () => new AlarmSeverityChanged($this, $subscriptionId, $clientHandle, $sourceName, $severity));
         }
 
         if ($eventType !== null && $eventType->namespaceIndex === 0) {
@@ -486,11 +493,11 @@ trait ManagesSubscriptionsTrait
 
             if (in_array($typeId, self::LIMIT_ALARM_TYPE_IDS, true)) {
                 $limitState = is_string($fieldValues[6] ?? null) ? $fieldValues[6] : null;
-                $this->dispatch(fn() => new LimitAlarmExceeded($this, $subscriptionId, $clientHandle, $sourceName, $limitState, $severity));
+                $this->dispatch(fn () => new LimitAlarmExceeded($this, $subscriptionId, $clientHandle, $sourceName, $limitState, $severity));
             }
 
             if (in_array($typeId, self::OFF_NORMAL_ALARM_TYPE_IDS, true)) {
-                $this->dispatch(fn() => new OffNormalAlarmTriggered($this, $subscriptionId, $clientHandle, $sourceName, $severity));
+                $this->dispatch(fn () => new OffNormalAlarmTriggered($this, $subscriptionId, $clientHandle, $sourceName, $severity));
             }
         }
 
@@ -511,43 +518,42 @@ trait ManagesSubscriptionsTrait
      * @return void
      */
     private function dispatchStateAlarmEvents(
-        int    $subscriptionId,
-        int    $clientHandle,
+        int $subscriptionId,
+        int $clientHandle,
         ?string $sourceName,
-        ?int   $severity,
+        ?int $severity,
         ?string $message,
-        array  $eventFields,
-    ): void
-    {
+        array $eventFields,
+    ): void {
         for ($i = 6; $i < count($eventFields); $i++) {
             $val = $eventFields[$i]->getValue();
 
             if ($val === true) {
-                $this->dispatch(fn() => new AlarmActivated($this, $subscriptionId, $clientHandle, $sourceName, $severity, $message));
+                $this->dispatch(fn () => new AlarmActivated($this, $subscriptionId, $clientHandle, $sourceName, $severity, $message));
                 break;
             } elseif ($val === false) {
-                $this->dispatch(fn() => new AlarmDeactivated($this, $subscriptionId, $clientHandle, $sourceName, $message));
+                $this->dispatch(fn () => new AlarmDeactivated($this, $subscriptionId, $clientHandle, $sourceName, $message));
                 break;
             } elseif (is_string($val)) {
                 $lower = strtolower($val);
                 if (str_contains($lower, 'acknowledged') || str_contains($lower, 'acked')) {
-                    $this->dispatch(fn() => new AlarmAcknowledged($this, $subscriptionId, $clientHandle, $sourceName));
+                    $this->dispatch(fn () => new AlarmAcknowledged($this, $subscriptionId, $clientHandle, $sourceName));
                     break;
                 }
                 if (str_contains($lower, 'confirmed')) {
-                    $this->dispatch(fn() => new AlarmConfirmed($this, $subscriptionId, $clientHandle, $sourceName));
+                    $this->dispatch(fn () => new AlarmConfirmed($this, $subscriptionId, $clientHandle, $sourceName));
                     break;
                 }
                 if (str_contains($lower, 'shelved')) {
-                    $this->dispatch(fn() => new AlarmShelved($this, $subscriptionId, $clientHandle, $sourceName));
+                    $this->dispatch(fn () => new AlarmShelved($this, $subscriptionId, $clientHandle, $sourceName));
                     break;
                 }
                 if (str_starts_with($lower, 'active')) {
-                    $this->dispatch(fn() => new AlarmActivated($this, $subscriptionId, $clientHandle, $sourceName, $severity, $message));
+                    $this->dispatch(fn () => new AlarmActivated($this, $subscriptionId, $clientHandle, $sourceName, $severity, $message));
                     break;
                 }
                 if (str_starts_with($lower, 'inactive')) {
-                    $this->dispatch(fn() => new AlarmDeactivated($this, $subscriptionId, $clientHandle, $sourceName, $message));
+                    $this->dispatch(fn () => new AlarmDeactivated($this, $subscriptionId, $clientHandle, $sourceName, $message));
                     break;
                 }
             }

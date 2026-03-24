@@ -16,6 +16,7 @@ use Psr\SimpleCache\CacheInterface;
 class FileCache implements CacheInterface
 {
     private string $directory;
+
     private int $defaultTtl;
 
     /**
@@ -27,7 +28,7 @@ class FileCache implements CacheInterface
         $this->directory = rtrim($directory, '/');
         $this->defaultTtl = $defaultTtl;
 
-        if (!is_dir($this->directory)) {
+        if (! is_dir($this->directory)) {
             mkdir($this->directory, 0775, true);
         }
     }
@@ -39,7 +40,7 @@ class FileCache implements CacheInterface
     {
         $path = $this->path($key);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return $default;
         }
 
@@ -51,11 +52,13 @@ class FileCache implements CacheInterface
         $entry = @unserialize($raw);
         if ($entry === false) {
             @unlink($path);
+
             return $default;
         }
 
         if (isset($entry['expiresAt']) && $entry['expiresAt'] < time()) {
             @unlink($path);
+
             return $default;
         }
 
@@ -76,7 +79,7 @@ class FileCache implements CacheInterface
 
         $path = $this->path($key);
         $dir = dirname($path);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
@@ -92,6 +95,7 @@ class FileCache implements CacheInterface
         if (file_exists($path)) {
             return @unlink($path);
         }
+
         return true;
     }
 
@@ -107,6 +111,7 @@ class FileCache implements CacheInterface
         foreach ($files as $file) {
             @unlink($file);
         }
+
         return true;
     }
 
@@ -119,6 +124,7 @@ class FileCache implements CacheInterface
         foreach ($keys as $key) {
             $results[$key] = $this->get($key, $default);
         }
+
         return $results;
     }
 
@@ -130,6 +136,7 @@ class FileCache implements CacheInterface
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
         return true;
     }
 
@@ -141,6 +148,7 @@ class FileCache implements CacheInterface
         foreach ($keys as $key) {
             $this->delete($key);
         }
+
         return true;
     }
 
@@ -186,7 +194,7 @@ class FileCache implements CacheInterface
         }
 
         if ($ttl instanceof \DateInterval) {
-            return (int)(new \DateTimeImmutable('@0'))->add($ttl)->getTimestamp();
+            return (int) (new \DateTimeImmutable('@0'))->add($ttl)->getTimestamp();
         }
 
         return $ttl;

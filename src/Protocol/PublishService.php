@@ -26,11 +26,10 @@ class PublishService
      * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements
      */
     public function encodePublishRequest(
-        int    $requestId,
+        int $requestId,
         NodeId $authToken,
-        array  $acknowledgements = [],
-    ): string
-    {
+        array $acknowledgements = [],
+    ): string {
         $secureChannel = $this->session->getSecureChannel();
         if ($secureChannel !== null && $secureChannel->isSecurityActive()) {
             return $this->encodePublishRequestSecure($requestId, $authToken, $acknowledgements);
@@ -176,11 +175,10 @@ class PublishService
      * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements
      */
     private function encodePublishRequestSecure(
-        int    $requestId,
+        int $requestId,
         NodeId $authToken,
-        array  $acknowledgements,
-    ): string
-    {
+        array $acknowledgements,
+    ): string {
         $body = new BinaryEncoder();
         $this->writePublishInnerBody($body, $requestId, $authToken, $acknowledgements);
 
@@ -195,11 +193,10 @@ class PublishService
      */
     private function writePublishInnerBody(
         BinaryEncoder $body,
-        int           $requestId,
-        NodeId        $authToken,
-        array         $acknowledgements,
-    ): void
-    {
+        int $requestId,
+        NodeId $authToken,
+        array $acknowledgements,
+    ): void {
         $body->writeNodeId(NodeId::numeric(0, 826));
 
         $this->writeRequestHeader($body, $requestId, $authToken);

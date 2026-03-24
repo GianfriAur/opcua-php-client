@@ -18,7 +18,9 @@ class SessionService
     private int $sequenceNumber = 2;
 
     private string $usernamePolicyId = 'username';
+
     private string $certificatePolicyId = 'certificate';
+
     private string $anonymousPolicyId = 'anonymous';
 
     /**
@@ -27,11 +29,10 @@ class SessionService
      * @param ?SecureChannel $secureChannel
      */
     public function __construct(
-        private readonly int            $secureChannelId,
-        private readonly int            $tokenId,
+        private readonly int $secureChannelId,
+        private readonly int $tokenId,
         private readonly ?SecureChannel $secureChannel = null,
-    )
-    {
+    ) {
     }
 
     /**
@@ -43,8 +44,7 @@ class SessionService
         ?string $usernamePolicyId = null,
         ?string $certificatePolicyId = null,
         ?string $anonymousPolicyId = null,
-    ): void
-    {
+    ): void {
         if ($usernamePolicyId !== null) {
             $this->usernamePolicyId = $usernamePolicyId;
         }
@@ -163,15 +163,14 @@ class SessionService
      * @param ?string $serverNonce
      */
     public function encodeActivateSessionRequest(
-        int                   $requestId,
-        NodeId                $authenticationToken,
-        ?string               $username = null,
-        ?string               $password = null,
-        ?string               $userCertDer = null,
+        int $requestId,
+        NodeId $authenticationToken,
+        ?string $username = null,
+        ?string $password = null,
+        ?string $userCertDer = null,
         ?OpenSSLAsymmetricKey $userPrivateKey = null,
-        ?string               $serverNonce = null,
-    ): string
-    {
+        ?string $serverNonce = null,
+    ): string {
         if ($this->secureChannel !== null && $this->secureChannel->isSecurityActive()) {
             return $this->encodeActivateSessionRequestSecure(
                 $requestId,
@@ -237,7 +236,7 @@ class SessionService
         $statusCode = $this->readResponseHeader($decoder);
 
         if (($statusCode & 0x80000000) !== 0) {
-            throw new ServiceException(sprintf("ActivateSession failed with status 0x%08X", $statusCode), $statusCode);
+            throw new ServiceException(sprintf('ActivateSession failed with status 0x%08X', $statusCode), $statusCode);
         }
 
         $decoder->readByteString();
@@ -408,7 +407,7 @@ class SessionService
         $innerBody->writeByte(0);
 
         $applicationUri = $this->secureChannel->getCertificateManager()->getApplicationUri(
-            $this->secureChannel->getClientCertDer()
+            $this->secureChannel->getClientCertDer(),
         ) ?? 'urn:opcua-php-client:client';
         $innerBody->writeString($applicationUri);
         $innerBody->writeString(null);
@@ -444,15 +443,14 @@ class SessionService
      * @param ?string $serverNonce
      */
     private function encodeActivateSessionRequestSecure(
-        int                   $requestId,
-        NodeId                $authenticationToken,
-        ?string               $username,
-        ?string               $password,
-        ?string               $userCertDer,
+        int $requestId,
+        NodeId $authenticationToken,
+        ?string $username,
+        ?string $password,
+        ?string $userCertDer,
         ?OpenSSLAsymmetricKey $userPrivateKey,
-        ?string               $serverNonce,
-    ): string
-    {
+        ?string $serverNonce,
+    ): string {
         $innerBody = new BinaryEncoder();
 
         $innerBody->writeNodeId(NodeId::numeric(0, 467));
@@ -505,6 +503,7 @@ class SessionService
         if ($serverCertDer === null || $serverNonce === null || $clientPrivateKey === null) {
             $encoder->writeByteString(null);
             $encoder->writeString(null);
+
             return;
         }
 
@@ -529,14 +528,13 @@ class SessionService
      * @param ?string $serverNonce
      */
     private function writeIdentityToken(
-        BinaryEncoder         $encoder,
-        ?string               $username,
-        ?string               $password,
-        ?string               $userCertDer,
+        BinaryEncoder $encoder,
+        ?string $username,
+        ?string $password,
+        ?string $userCertDer,
         ?OpenSSLAsymmetricKey $userPrivateKey,
-        ?string               $serverNonce,
-    ): void
-    {
+        ?string $serverNonce,
+    ): void {
         if ($username !== null && $password !== null) {
             $this->writeUsernameIdentityToken($encoder, $username, $password, $serverNonce);
         } elseif ($userCertDer !== null) {
@@ -569,11 +567,10 @@ class SessionService
      */
     private function writeUsernameIdentityToken(
         BinaryEncoder $encoder,
-        string        $username,
-        string        $password,
-        ?string       $serverNonce,
-    ): void
-    {
+        string $username,
+        string $password,
+        ?string $serverNonce,
+    ): void {
         $encoder->writeNodeId(NodeId::numeric(0, 324));
         $encoder->writeByte(0x01);
 
@@ -633,17 +630,17 @@ class SessionService
      * @param string $serverNonce
      */
     private function writeUserTokenSignature(
-        BinaryEncoder         $encoder,
+        BinaryEncoder $encoder,
         OpenSSLAsymmetricKey $userPrivateKey,
-        string                $serverNonce,
-    ): void
-    {
+        string $serverNonce,
+    ): void {
         $policy = $this->secureChannel?->getPolicy() ?? SecurityPolicy::None;
         $serverCertDer = $this->secureChannel?->getServerCertDer();
 
         if ($serverCertDer === null || $policy === SecurityPolicy::None) {
             $encoder->writeString(null);
             $encoder->writeByteString(null);
+
             return;
         }
 

@@ -31,7 +31,7 @@ class InMemoryCache implements CacheInterface
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        if (!isset($this->store[$key])) {
+        if (! isset($this->store[$key])) {
             return $default;
         }
 
@@ -39,6 +39,7 @@ class InMemoryCache implements CacheInterface
 
         if ($entry['expiresAt'] !== null && $entry['expiresAt'] < microtime(true)) {
             unset($this->store[$key]);
+
             return $default;
         }
 
@@ -66,6 +67,7 @@ class InMemoryCache implements CacheInterface
     public function delete(string $key): bool
     {
         unset($this->store[$key]);
+
         return true;
     }
 
@@ -75,6 +77,7 @@ class InMemoryCache implements CacheInterface
     public function clear(): bool
     {
         $this->store = [];
+
         return true;
     }
 
@@ -87,6 +90,7 @@ class InMemoryCache implements CacheInterface
         foreach ($keys as $key) {
             $results[$key] = $this->get($key, $default);
         }
+
         return $results;
     }
 
@@ -98,6 +102,7 @@ class InMemoryCache implements CacheInterface
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
         return true;
     }
 
@@ -109,6 +114,7 @@ class InMemoryCache implements CacheInterface
         foreach ($keys as $key) {
             $this->delete($key);
         }
+
         return true;
     }
 
@@ -158,7 +164,7 @@ class InMemoryCache implements CacheInterface
         }
 
         if ($ttl instanceof \DateInterval) {
-            return (int)(new \DateTimeImmutable('@0'))->add($ttl)->getTimestamp();
+            return (int) (new \DateTimeImmutable('@0'))->add($ttl)->getTimestamp();
         }
 
         return $ttl;

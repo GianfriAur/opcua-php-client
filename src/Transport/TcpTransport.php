@@ -14,6 +14,7 @@ class TcpTransport
 {
     /** @var resource|null */
     private $socket = null;
+
     private int $receiveBufferSize = 65535;
 
     public const  DEFAULT_TIMEOUT = 5.0;
@@ -42,7 +43,7 @@ class TcpTransport
             throw new ConnectionException("Failed to connect to {$host}:{$port}: [{$errno}] {$errstr}");
         }
 
-        stream_set_timeout($socket, (int)$timeout);
+        stream_set_timeout($socket, (int) $timeout);
         $this->socket = $socket;
     }
 
@@ -88,6 +89,7 @@ class TcpTransport
         $remaining = $messageSize - 8;
         if ($remaining > 0) {
             $body = $this->readExact($remaining);
+
             return $header . $body;
         }
 

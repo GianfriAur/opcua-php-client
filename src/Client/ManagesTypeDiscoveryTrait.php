@@ -6,8 +6,8 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
-use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
 use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
+use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
@@ -18,8 +18,8 @@ use Throwable;
 /**
  * Provides automatic discovery and registration of server-defined structured data types.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec
- * @see \Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser
+ * @see DynamicCodec
+ * @see StructureDefinitionParser
  */
 trait ManagesTypeDiscoveryTrait
 {
@@ -37,7 +37,7 @@ trait ManagesTypeDiscoveryTrait
         $this->ensureConnected();
         $this->logger->info('Discovering data types' . ($namespaceIndex !== null ? " for namespace {$namespaceIndex}" : ''));
 
-        $cacheKey = $this->buildSimpleCacheKey('dataTypes', (string)($namespaceIndex ?? 'all'));
+        $cacheKey = $this->buildSimpleCacheKey('dataTypes', (string) ($namespaceIndex ?? 'all'));
 
         $this->ensureCacheInitialized();
         $cached = ($useCache && $this->cache !== null) ? $this->cache->get($cacheKey) : null;
@@ -52,6 +52,7 @@ trait ManagesTypeDiscoveryTrait
                 $registered++;
             }
             $this->logger->info('Restored {count} data type(s) from cache', ['count' => $registered]);
+
             return $registered;
         }
 
@@ -67,12 +68,13 @@ trait ManagesTypeDiscoveryTrait
         $discoveredEntries = [];
         $this->discoverFromTree($tree, $namespaceIndex, $registered, $discoveredEntries);
 
-        if ($useCache && $this->cache !== null && !empty($discoveredEntries)) {
+        if ($useCache && $this->cache !== null && ! empty($discoveredEntries)) {
             $this->cache->set($cacheKey, $discoveredEntries);
         }
 
         $this->logger->info('Discovered {count} data type(s)', ['count' => $registered]);
-        $this->dispatch(fn() => new DataTypesDiscovered($this, $namespaceIndex, $registered));
+        $this->dispatch(fn () => new DataTypesDiscovered($this, $namespaceIndex, $registered));
+
         return $registered;
     }
 
@@ -127,7 +129,7 @@ trait ManagesTypeDiscoveryTrait
         }
 
         $raw = $dataValue->getValue();
-        if (!is_array($raw) || !isset($raw['body']) || !is_string($raw['body'])) {
+        if (! is_array($raw) || ! isset($raw['body']) || ! is_string($raw['body'])) {
             return null;
         }
 

@@ -14,10 +14,9 @@ readonly class QualifiedName
      * @param string $name
      */
     public function __construct(
-        public int    $namespaceIndex,
+        public int $namespaceIndex,
         public string $name,
-    )
-    {
+    ) {
     }
 
     /**

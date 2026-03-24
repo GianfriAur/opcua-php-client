@@ -39,6 +39,7 @@ trait ManagesEventDispatcherTrait
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self
     {
         $this->eventDispatcher = $eventDispatcher;
+
         return $this;
     }
 

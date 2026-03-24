@@ -20,8 +20,7 @@ class SecureChannelResponse
         private readonly int $secureChannelId,
         private readonly int $tokenId,
         private readonly int $revisedLifetime,
-    )
-    {
+    ) {
     }
 
     /**
@@ -53,7 +52,7 @@ class SecureChannelResponse
         $revisedLifetime = $decoder->readUInt32();
         $decoder->readByteString();
 
-        return new self($secureChannelId, $tokenId, (int)$revisedLifetime);
+        return new self($secureChannelId, $tokenId, (int) $revisedLifetime);
     }
 
     public function getSecureChannelId(): int

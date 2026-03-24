@@ -66,6 +66,7 @@ src/
 ├── Encoding/                   # Binary serialization
 ├── Security/                   # Secure channel, crypto, certificates
 ├── Cache/                      # PSR-16 cache drivers (InMemoryCache, FileCache)
+├── Event/                      # PSR-14 events (38 event classes + NullEventDispatcher)
 ├── Builder/                    # Fluent builders for multi-operations
 ├── Repository/                 # Per-client codec registry
 ├── Testing/                    # MockClient for consumer testing
@@ -82,7 +83,7 @@ tests/
 
 ### Zero Runtime Dependencies
 
-This library depends only on `ext-openssl` and PSR interface packages (`psr/log`, `psr/simple-cache`). PSR packages contain interfaces only — no runtime code, no transitive dependencies.
+This library depends only on `ext-openssl` and PSR interface packages (`psr/log`, `psr/simple-cache`, `psr/event-dispatcher`). PSR packages contain interfaces only — no runtime code, no transitive dependencies.
 
 **Do not add Composer dependencies that ship runtime code.** If a feature requires an external library (Redis driver, HTTP client, etc.), it belongs in a separate package or should accept a PSR interface that the consumer provides. This is a deliberate architectural choice — see the [Won't Do](ROADMAP.md#wont-do-by-design) section in the roadmap for examples.
 
@@ -102,11 +103,34 @@ The `Client` does not use static state. Each client instance has its own codec r
 
 ### Code Style
 
-- Follow the existing code style and conventions
-- Use strict types (`declare(strict_types=1)`)
-- Use type declarations for parameters, return types, and properties
-- Keep methods focused and concise
-- Use `public readonly` properties for DTOs — no getters
+The project enforces a Laravel-style coding standard (PSR-12 + opinionated rules) via [php-cs-fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer). Configuration lives in `.php-cs-fixer.php`.
+
+```bash
+# Format all files
+composer format
+
+# Check without modifying (CI mode)
+composer format:check
+```
+
+**You must run `composer format` before committing.** Pull requests with unformatted code will fail the CI check. Make it a habit: write code, run `composer format`, then commit.
+
+**Key rules:**
+
+- `declare(strict_types=1)` required
+- Single quotes for strings
+- Trailing commas in multiline arrays, arguments, and parameters
+- `not_operator_with_successor_space` (space after `!`)
+- Ordered imports (alphabetical)
+- No unused imports
+- No blank lines after class opening brace
+- Type declarations for parameters, return types, and properties
+- `public readonly` properties for DTOs — no getters
+
+**IDE integration:**
+
+- **PhpStorm**: Settings > PHP > Quality Tools > PHP CS Fixer — point to `vendor/bin/php-cs-fixer` and `.php-cs-fixer.php`. Enable "On Save" for automatic formatting.
+- **VSCode**: Install the `junstyle.php-cs-fixer` extension. It reads `.php-cs-fixer.php` automatically.
 
 ### Documentation & Comments
 
@@ -146,9 +170,10 @@ The `Client` does not use static state. Each client instance has its own codec r
 
 1. Fork the repository and create a feature branch
 2. Write your code and tests
-3. Ensure all tests pass and coverage is >= 99.5%
-4. Update documentation, changelog, and llms files
-5. Submit a pull request using the provided template
+3. Run `composer format` to format your code
+4. Ensure all tests pass and coverage is >= 99.5%
+5. Update documentation, changelog, and llms files
+6. Submit a pull request using the provided template
 6. Wait for review — a maintainer will review your PR, may request changes or ask questions
 7. Once approved, your PR will be merged
 

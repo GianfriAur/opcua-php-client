@@ -17,8 +17,7 @@ class BrowseNode
      */
     public function __construct(
         public readonly ReferenceDescription $reference,
-    )
-    {
+    ) {
     }
 
     /**
@@ -87,7 +86,7 @@ class BrowseNode
      * @param BrowseNode $child
      * @return void
      */
-    public function addChild(BrowseNode $child): void
+    public function addChild(self $child): void
     {
         $this->children[] = $child;
     }

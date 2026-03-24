@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpIllegalPsrClassPathInspection */
+<?php
+
+/** @noinspection PhpIllegalPsrClassPathInspection */
 
 declare(strict_types=1);
 
@@ -153,7 +155,7 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
             $extId = $client->resolveNodeId('/Objects/1:TestServer/1:ExtensionObjects');
             $refs = $client->browse($extId);
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('PointValue');
             expect($names)->toContain('RangeValue');
         } finally {
@@ -198,7 +200,7 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
 
     it('reads PointValue decoded with TestPointXYZCodec', function () {
         $repo = new ExtensionObjectRepository();
-        $repo->register(NodeId::numeric(3, 3010), new class implements ExtensionObjectCodec {
+        $repo->register(NodeId::numeric(3, 3010), new class() implements ExtensionObjectCodec {
             public function decode(BinaryDecoder $decoder): array
             {
                 return [
@@ -238,7 +240,7 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
 
     it('reads RangeValue decoded with codec', function () {
         $repo = new ExtensionObjectRepository();
-        $repo->register(NodeId::numeric(3, 3011), new class implements ExtensionObjectCodec {
+        $repo->register(NodeId::numeric(3, 3011), new class() implements ExtensionObjectCodec {
             public function decode(BinaryDecoder $decoder): array
             {
                 return [

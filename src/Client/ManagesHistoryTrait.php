@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -29,14 +28,14 @@ trait ManagesHistoryTrait
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadRaw(
-        NodeId|string      $nodeId,
+        NodeId|string $nodeId,
         ?DateTimeImmutable $startTime = null,
         ?DateTimeImmutable $endTime = null,
-        int                $numValuesPerNode = 0,
-        bool               $returnBounds = false,
-    ): array
-    {
+        int $numValuesPerNode = 0,
+        bool $returnBounds = false,
+    ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($nodeId, $startTime, $endTime, $numValuesPerNode, $returnBounds) {
             $this->ensureConnected();
 
@@ -75,14 +74,14 @@ trait ManagesHistoryTrait
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadProcessed(
-        NodeId|string     $nodeId,
+        NodeId|string $nodeId,
         DateTimeImmutable $startTime,
         DateTimeImmutable $endTime,
-        float             $processingInterval,
-        NodeId            $aggregateType,
-    ): array
-    {
+        float $processingInterval,
+        NodeId $aggregateType,
+    ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($nodeId, $startTime, $endTime, $processingInterval, $aggregateType) {
             $this->ensureConnected();
 
@@ -119,10 +118,10 @@ trait ManagesHistoryTrait
      */
     public function historyReadAtTime(
         NodeId|string $nodeId,
-        array         $timestamps,
-    ): array
-    {
+        array $timestamps,
+    ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($nodeId, $timestamps) {
             $this->ensureConnected();
 

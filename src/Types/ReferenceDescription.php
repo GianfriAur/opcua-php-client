@@ -19,15 +19,14 @@ readonly class ReferenceDescription
      * @param ?NodeId $typeDefinition
      */
     public function __construct(
-        public NodeId        $referenceTypeId,
-        public bool          $isForward,
-        public NodeId        $nodeId,
+        public NodeId $referenceTypeId,
+        public bool $isForward,
+        public NodeId $nodeId,
         public QualifiedName $browseName,
         public LocalizedText $displayName,
-        public NodeClass     $nodeClass,
-        public ?NodeId       $typeDefinition = null,
-    )
-    {
+        public NodeClass $nodeClass,
+        public ?NodeId $typeDefinition = null,
+    ) {
     }
 
     /**

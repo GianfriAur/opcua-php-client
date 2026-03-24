@@ -12,8 +12,11 @@ use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 readonly class NodeId
 {
     public const TYPE_NUMERIC = 'numeric';
+
     public const TYPE_STRING = 'string';
+
     public const TYPE_GUID = 'guid';
+
     public const TYPE_OPAQUE = 'opaque';
 
     /**
@@ -22,11 +25,10 @@ readonly class NodeId
      * @param string $type
      */
     public function __construct(
-        public int        $namespaceIndex,
+        public int $namespaceIndex,
         public int|string $identifier,
-        public string     $type = self::TYPE_NUMERIC,
-    )
-    {
+        public string $type = self::TYPE_NUMERIC,
+    ) {
     }
 
     /**
@@ -164,7 +166,7 @@ readonly class NodeId
             if ($semiPos === false) {
                 throw new InvalidNodeIdException("Invalid NodeId format: {$nodeIdString}");
             }
-            $namespace = (int)substr($remaining, 3, $semiPos - 3);
+            $namespace = (int) substr($remaining, 3, $semiPos - 3);
             $remaining = substr($remaining, $semiPos + 1);
         }
 
@@ -177,7 +179,7 @@ readonly class NodeId
         $value = substr($remaining, $eqPos + 1);
 
         return match ($typeChar) {
-            'i' => self::numeric($namespace, (int)$value),
+            'i' => self::numeric($namespace, (int) $value),
             's' => self::string($namespace, $value),
             'g' => self::guid($namespace, $value),
             'b' => self::opaque($namespace, $value),
@@ -230,6 +232,7 @@ readonly class NodeId
                 && $this->identifier >= 0 && $this->identifier <= 65535) {
                 return 0x01;
             }
+
             return 0x02;
         }
 

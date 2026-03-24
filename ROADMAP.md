@@ -109,6 +109,9 @@ The session manager ([`gianfriaur/opcua-php-client-session-manager`](https://git
 
 The session manager is fully functional as a standalone package. See the [Ecosystem](#ecosystem) section for all related packages.
 
+### PSR-20 Clock
+I don't see a valid use case for it in this library.
+
 ### RedisDriver / MemcachedDriver cache drivers
 These would require `ext-redis` or `ext-memcached` (or `predis/predis`), breaking the zero-dependency philosophy. The cache system uses PSR-16 `CacheInterface`, so any Redis or Memcached adapter that implements PSR-16 works out of the box — including `illuminate/cache` (Laravel), `symfony/cache`, and `cache/redis-adapter`. There is no reason to bundle drivers that would force all users to install extensions they may not need.
 

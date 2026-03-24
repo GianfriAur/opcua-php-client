@@ -174,7 +174,7 @@ describe('StructureDefinitionParser with arrayDimensions', function () {
         $encoder->writeInt32(1);
 
         $encoder->writeString('matrix');
-        $encoder->writeLocalizedText(new \Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 11));
         $encoder->writeInt32(2);
         $encoder->writeInt32(2);
@@ -184,7 +184,7 @@ describe('StructureDefinitionParser with arrayDimensions', function () {
         $encoder->writeBoolean(false);
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
-        $def = \Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser::parse($decoder);
+        $def = Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser::parse($decoder);
 
         expect($def->fields)->toHaveCount(1);
         expect($def->fields[0]->name)->toBe('matrix');

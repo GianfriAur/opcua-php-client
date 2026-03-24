@@ -15,7 +15,7 @@ readonly class ClientDisconnecting
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public ?string              $endpointUrl = null,
+        public ?string $endpointUrl = null,
     ) {
     }
 }

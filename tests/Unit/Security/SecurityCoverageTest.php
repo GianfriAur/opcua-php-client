@@ -34,6 +34,7 @@ function generateCert(int $bits = 2048): array
 function getPrivateProperty(object $obj, string $name): mixed
 {
     $ref = new ReflectionProperty($obj, $name);
+
     return $ref->getValue($obj);
 }
 
@@ -49,6 +50,7 @@ function buildInnerBody(int $requestHandle = 1): string
     $inner->writeUInt32(10000);
     $inner->writeNodeId(NodeId::numeric(0, 0));
     $inner->writeByte(0);
+
     return $inner->getBuffer();
 }
 
@@ -117,6 +119,7 @@ function buildFakeServerMsg(SecureChannel $channel, string $innerBody, SecurityM
         $enc->writeRawBytes($headerBytes);
         $enc->writeRawBytes($tokenIdBytes);
         $enc->writeRawBytes($encrypted);
+
         return $enc->getBuffer();
     }
 
@@ -137,6 +140,7 @@ function buildFakeServerMsg(SecureChannel $channel, string $innerBody, SecurityM
     $enc->writeRawBytes($tokenIdBytes);
     $enc->writeRawBytes($plaintextBytes);
     $enc->writeRawBytes($signature);
+
     return $enc->getBuffer();
 }
 
@@ -192,7 +196,7 @@ describe('SecureChannel processMessage rejects bad signature', function () {
         $tampered = $serverMsg;
         $tampered[strlen($tampered) - 1] = chr(ord($tampered[strlen($tampered) - 1]) ^ 0xFF);
 
-        expect(fn() => $channel->processMessage($tampered))
+        expect(fn () => $channel->processMessage($tampered))
             ->toThrow(SecurityException::class, 'symmetric signature verification failed');
     });
 
@@ -204,7 +208,7 @@ describe('SecureChannel processMessage rejects bad signature', function () {
         $pos = 20;
         $tampered[$pos] = chr(ord($tampered[$pos]) ^ 0xFF);
 
-        expect(fn() => $channel->processMessage($tampered))
+        expect(fn () => $channel->processMessage($tampered))
             ->toThrow(SecurityException::class);
     });
 });
@@ -390,7 +394,7 @@ describe('CertificateManager loadPrivateKeyPem', function () {
         file_put_contents($tmp, 'not-a-key');
 
         $cm = new CertificateManager();
-        expect(fn() => $cm->loadPrivateKeyPem($tmp))
+        expect(fn () => $cm->loadPrivateKeyPem($tmp))
             ->toThrow(SecurityException::class, 'Failed to parse private key');
 
         unlink($tmp);

@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
@@ -29,10 +28,9 @@ class BinaryDecoder
      * @param ?ExtensionObjectRepository $extensionObjectRepository
      */
     public function __construct(
-        private readonly string                     $buffer,
+        private readonly string $buffer,
         private readonly ?ExtensionObjectRepository $extensionObjectRepository = null,
-    )
-    {
+    ) {
     }
 
     /**
@@ -183,7 +181,7 @@ class BinaryDecoder
         }
 
         $epochOffset = 11644473600;
-        $unixMicroseconds = (int)($ticks / 10) - ($epochOffset * 1_000_000);
+        $unixMicroseconds = (int) ($ticks / 10) - ($epochOffset * 1_000_000);
         $seconds = intdiv($unixMicroseconds, 1_000_000);
         $microseconds = $unixMicroseconds % 1_000_000;
         if ($microseconds < 0) {
@@ -364,6 +362,7 @@ class BinaryDecoder
                 if ($consumed < $bodyLength) {
                     $this->skip($bodyLength - $consumed);
                 }
+
                 return $decoded;
             }
 

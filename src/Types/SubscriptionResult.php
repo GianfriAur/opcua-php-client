@@ -18,11 +18,10 @@ readonly class SubscriptionResult
      * @param int $revisedMaxKeepAliveCount
      */
     public function __construct(
-        public int   $subscriptionId,
+        public int $subscriptionId,
         public float $revisedPublishingInterval,
-        public int   $revisedLifetimeCount,
-        public int   $revisedMaxKeepAliveCount,
-    )
-    {
+        public int $revisedLifetimeCount,
+        public int $revisedMaxKeepAliveCount,
+    ) {
     }
 }

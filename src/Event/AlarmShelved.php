@@ -15,8 +15,8 @@ readonly class AlarmShelved
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $clientHandle,
+        public int $subscriptionId,
+        public int $clientHandle,
         public ?string $sourceName = null,
     ) {
     }

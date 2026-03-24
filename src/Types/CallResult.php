@@ -17,10 +17,9 @@ readonly class CallResult
      * @param Variant[] $outputArguments
      */
     public function __construct(
-        public int   $statusCode,
+        public int $statusCode,
         public array $inputArgumentResults,
         public array $outputArguments,
-    )
-    {
+    ) {
     }
 }

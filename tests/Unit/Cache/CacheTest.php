@@ -10,16 +10,15 @@ use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
 use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
 use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
 use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Psr\SimpleCache\CacheInterface;
 
 class CacheMockTransport extends TcpTransport
 {
     private array $responses = [];
+
     private int $index = 0;
+
     public array $sent = [];
 
     public function addResponse(string $data): void
@@ -27,7 +26,9 @@ class CacheMockTransport extends TcpTransport
         $this->responses[] = $data;
     }
 
-    public function connect(string $host, int $port, null|float $timeout = null): void {}
+    public function connect(string $host, int $port, null|float $timeout = null): void
+    {
+    }
 
     public function send(string $data): void
     {
@@ -37,13 +38,20 @@ class CacheMockTransport extends TcpTransport
     public function receive(): string
     {
         if ($this->index >= count($this->responses)) {
-            throw new \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException('No more mock responses');
+            throw new Gianfriaur\OpcuaPhpClient\Exception\ConnectionException('No more mock responses');
         }
+
         return $this->responses[$this->index++];
     }
 
-    public function close(): void {}
-    public function isConnected(): bool { return true; }
+    public function close(): void
+    {
+    }
+
+    public function isConnected(): bool
+    {
+        return true;
+    }
 }
 
 function setCacheClientProperty(Client $client, string $name, mixed $value): void
@@ -55,6 +63,7 @@ function setCacheClientProperty(Client $client, string $name, mixed $value): voi
 function callCacheClientMethod(Client $client, string $name, array $args = []): mixed
 {
     $ref = new ReflectionMethod($client, $name);
+
     return $ref->invokeArgs($client, $args);
 }
 
@@ -105,6 +114,7 @@ function cacheBrowseResponseMsg(): string
     $e->writeExpandedNodeId(NodeId::numeric(0, 2004));
     $e->writeInt32(0);
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -131,6 +141,7 @@ function cacheResolveResponseMsg(): string
     $e->writeUInt32(0xFFFFFFFF);
     $e->writeInt32(0);
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -501,11 +512,11 @@ describe('ManagesCacheTrait / Client integration', function () {
 describe('discoverDataTypes caching', function () {
 
     it('replays discovered types from cache on second call', function () {
-        $definition = new \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
-            \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
+        $definition = new Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
+            Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
             [
-                new \Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false),
-                new \Gianfriaur\OpcuaPhpClient\Types\StructureField('Y', NodeId::numeric(0, 11), -1, false),
+                new Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false),
+                new Gianfriaur\OpcuaPhpClient\Types\StructureField('Y', NodeId::numeric(0, 11), -1, false),
             ],
             NodeId::numeric(2, 5001),
         );
@@ -527,9 +538,9 @@ describe('discoverDataTypes caching', function () {
     });
 
     it('skips already registered codecs from cache replay', function () {
-        $definition = new \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
-            \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
-            [new \Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false)],
+        $definition = new Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
+            Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
+            [new Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false)],
             NodeId::numeric(2, 5002),
         );
 
@@ -541,7 +552,7 @@ describe('discoverDataTypes caching', function () {
 
         $client->getExtensionObjectRepository()->register(
             $encodingId,
-            new \Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec($definition),
+            new Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec($definition),
         );
 
         $cache = $client->getCache();
@@ -576,6 +587,7 @@ describe('getEndpoints caching', function () {
             $e->writeByte(0);
             $e->writeInt32(0);
             $d = $e->getBuffer();
+
             return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
         };
 
@@ -609,6 +621,7 @@ describe('getEndpoints caching', function () {
             $e->writeByte(0);
             $e->writeInt32(0);
             $d = $e->getBuffer();
+
             return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
         };
 
@@ -656,11 +669,11 @@ describe('MockClient cache', function () {
 
     it('getLogger returns NullLogger by default', function () {
         $mock = MockClient::create();
-        expect($mock->getLogger())->toBeInstanceOf(\Psr\Log\NullLogger::class);
+        expect($mock->getLogger())->toBeInstanceOf(Psr\Log\NullLogger::class);
     });
 
     it('getExtensionObjectRepository returns repository', function () {
         $mock = MockClient::create();
-        expect($mock->getExtensionObjectRepository())->toBeInstanceOf(\Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository::class);
+        expect($mock->getExtensionObjectRepository())->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository::class);
     });
 });

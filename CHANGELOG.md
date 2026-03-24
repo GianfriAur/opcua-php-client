@@ -23,6 +23,7 @@
 - `MockClient` updated with `setEventDispatcher()` / `getEventDispatcher()` support.
 - Unit tests for the event system: NullEventDispatcher, custom dispatcher, event properties, alarm event classes.
 - Documentation: [Events](doc/14-events.md) chapter with full event reference, Laravel integration, and practical examples.
+- **Code style enforcement.** Added `friendsofphp/php-cs-fixer` with Laravel-style rules (PSR-12 + opinionated). Run `composer format` before committing. `.editorconfig` included for IDE support.
 
 ## [3.0.0] - 2026-03-22
 

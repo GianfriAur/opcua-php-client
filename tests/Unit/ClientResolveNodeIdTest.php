@@ -67,13 +67,13 @@ describe('resolveNodeId interface', function () {
 
     it('throws when not connected', function () {
         $client = new Client();
-        expect(fn() => $client->resolveNodeId('/Objects/Server'))
+        expect(fn () => $client->resolveNodeId('/Objects/Server'))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws translateBrowsePaths when not connected', function () {
         $client = new Client();
-        expect(fn() => $client->translateBrowsePaths([]))
+        expect(fn () => $client->translateBrowsePaths([]))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 });

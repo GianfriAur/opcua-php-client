@@ -16,9 +16,8 @@ readonly class TransferResult
      * @param int[] $availableSequenceNumbers
      */
     public function __construct(
-        public int   $statusCode,
+        public int $statusCode,
         public array $availableSequenceNumbers,
-    )
-    {
+    ) {
     }
 }

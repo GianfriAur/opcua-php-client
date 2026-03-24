@@ -23,10 +23,10 @@ readonly class EventNotificationReceived
      */
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $sequenceNumber,
-        public int                  $clientHandle,
-        public array                $eventFields,
+        public int $subscriptionId,
+        public int $sequenceNumber,
+        public int $clientHandle,
+        public array $eventFields,
     ) {
     }
 }

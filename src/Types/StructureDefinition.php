@@ -12,7 +12,9 @@ namespace Gianfriaur\OpcuaPhpClient\Types;
 readonly class StructureDefinition
 {
     public const STRUCTURE = 0;
+
     public const WITH_OPTIONAL_FIELDS = 1;
+
     public const UNION = 2;
 
     /**
@@ -21,10 +23,9 @@ readonly class StructureDefinition
      * @param NodeId $defaultEncodingId The binary encoding NodeId for this type.
      */
     public function __construct(
-        public int    $structureType,
-        public array  $fields,
+        public int $structureType,
+        public array $fields,
         public NodeId $defaultEncodingId,
-    )
-    {
+    ) {
     }
 }

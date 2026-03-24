@@ -16,7 +16,7 @@ describe('Alarm', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('AlarmSourceValue');
         } finally {
             TestHelper::safeDisconnect($client);
@@ -60,7 +60,7 @@ describe('Alarm', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             // Alarm nodes typically have children like ActiveState, EnabledState, etc.
             expect($names)->not->toBeEmpty();
         } finally {

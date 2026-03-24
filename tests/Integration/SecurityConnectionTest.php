@@ -29,7 +29,7 @@ describe('Security Connection', function () {
                 $refs = $client->browse(NodeId::numeric(0, 85));
                 expect($refs)->toBeArray()->not->toBeEmpty();
 
-                $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+                $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
                 expect($names)->toContain('Server');
             } finally {
                 TestHelper::safeDisconnect($client);
@@ -146,7 +146,7 @@ describe('Security Connection', function () {
                 $refs = $client->browse(NodeId::numeric(0, 85));
                 expect($refs)->toBeArray()->not->toBeEmpty();
 
-                $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+                $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
                 expect($names)->toContain('Server');
             } finally {
                 TestHelper::safeDisconnect($client);

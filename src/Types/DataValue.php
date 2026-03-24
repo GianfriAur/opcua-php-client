@@ -18,12 +18,11 @@ readonly class DataValue
      * @param ?DateTimeImmutable $serverTimestamp
      */
     public function __construct(
-        private ?Variant           $value = null,
-        public int                $statusCode = 0,
+        private ?Variant $value = null,
+        public int $statusCode = 0,
         public ?DateTimeImmutable $sourceTimestamp = null,
         public ?DateTimeImmutable $serverTimestamp = null,
-    )
-    {
+    ) {
     }
 
     /**
@@ -94,84 +93,120 @@ readonly class DataValue
      *
      * @return self
      */
-    public static function ofBoolean(bool $value): self { return self::of($value, BuiltinType::Boolean); }
+    public static function ofBoolean(bool $value): self
+    {
+        return self::of($value, BuiltinType::Boolean);
+    }
 
     /**
      * Creates a DataValue holding an Int32.
      *
      * @return self
      */
-    public static function ofInt32(int $value): self { return self::of($value, BuiltinType::Int32); }
+    public static function ofInt32(int $value): self
+    {
+        return self::of($value, BuiltinType::Int32);
+    }
 
     /**
      * Creates a DataValue holding a UInt32.
      *
      * @return self
      */
-    public static function ofUInt32(int $value): self { return self::of($value, BuiltinType::UInt32); }
+    public static function ofUInt32(int $value): self
+    {
+        return self::of($value, BuiltinType::UInt32);
+    }
 
     /**
      * Creates a DataValue holding an Int16.
      *
      * @return self
      */
-    public static function ofInt16(int $value): self { return self::of($value, BuiltinType::Int16); }
+    public static function ofInt16(int $value): self
+    {
+        return self::of($value, BuiltinType::Int16);
+    }
 
     /**
      * Creates a DataValue holding a UInt16.
      *
      * @return self
      */
-    public static function ofUInt16(int $value): self { return self::of($value, BuiltinType::UInt16); }
+    public static function ofUInt16(int $value): self
+    {
+        return self::of($value, BuiltinType::UInt16);
+    }
 
     /**
      * Creates a DataValue holding an Int64.
      *
      * @return self
      */
-    public static function ofInt64(int $value): self { return self::of($value, BuiltinType::Int64); }
+    public static function ofInt64(int $value): self
+    {
+        return self::of($value, BuiltinType::Int64);
+    }
 
     /**
      * Creates a DataValue holding a UInt64.
      *
      * @return self
      */
-    public static function ofUInt64(int $value): self { return self::of($value, BuiltinType::UInt64); }
+    public static function ofUInt64(int $value): self
+    {
+        return self::of($value, BuiltinType::UInt64);
+    }
 
     /**
      * Creates a DataValue holding a Float.
      *
      * @return self
      */
-    public static function ofFloat(float $value): self { return self::of($value, BuiltinType::Float); }
+    public static function ofFloat(float $value): self
+    {
+        return self::of($value, BuiltinType::Float);
+    }
 
     /**
      * Creates a DataValue holding a Double.
      *
      * @return self
      */
-    public static function ofDouble(float $value): self { return self::of($value, BuiltinType::Double); }
+    public static function ofDouble(float $value): self
+    {
+        return self::of($value, BuiltinType::Double);
+    }
 
     /**
      * Creates a DataValue holding a String.
      *
      * @return self
      */
-    public static function ofString(string $value): self { return self::of($value, BuiltinType::String); }
+    public static function ofString(string $value): self
+    {
+        return self::of($value, BuiltinType::String);
+    }
 
     /**
      * Creates a DataValue holding a DateTime.
      *
      * @return self
      */
-    public static function ofDateTime(\DateTimeImmutable $value): self { return self::of($value, BuiltinType::DateTime); }
+    public static function ofDateTime(DateTimeImmutable $value): self
+    {
+        return self::of($value, BuiltinType::DateTime);
+    }
 
     /**
      * Creates a DataValue with no value and a bad status code.
      *
      * @return self
      */
-    public static function bad(int $statusCode): self { return new self(statusCode: $statusCode); }
+    public static function bad(int $statusCode): self
+    {
+        return new self(statusCode: $statusCode);
+    }
 
     /**
      * Returns the binary encoding mask indicating which optional fields are present.

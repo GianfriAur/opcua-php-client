@@ -40,7 +40,7 @@ class MessageSecurity
 
         self::ensureNotFalse(
             openssl_sign($data, $signature, $privateKey, $algorithm),
-            "Asymmetric signing failed",
+            'Asymmetric signing failed',
         );
 
         return $signature;
@@ -64,7 +64,7 @@ class MessageSecurity
         $algorithm = $policy->getAsymmetricSignatureAlgorithm();
 
         $result = openssl_verify($data, $signature, $pubKey, $algorithm);
-        self::ensureNotFalse($result !== -1 ? $result : false, "Asymmetric verification failed");
+        self::ensureNotFalse($result !== -1 ? $result : false, 'Asymmetric verification failed');
 
         return $result === 1;
     }
@@ -99,7 +99,7 @@ class MessageSecurity
 
             self::ensureNotFalse(
                 openssl_public_encrypt($block, $encryptedBlock, $pubKey, $padding),
-                "Asymmetric encryption failed",
+                'Asymmetric encryption failed',
             );
 
             $encrypted .= $encryptedBlock;
@@ -122,8 +122,8 @@ class MessageSecurity
             return $data;
         }
 
-        $details = self::ensureNotFalse(openssl_pkey_get_details($privateKey), "Failed to get private key details");
-        $keyLengthBytes = (int)($details['bits'] / 8);
+        $details = self::ensureNotFalse(openssl_pkey_get_details($privateKey), 'Failed to get private key details');
+        $keyLengthBytes = (int) ($details['bits'] / 8);
         $padding = $policy->getAsymmetricEncryptionPadding();
 
         $decrypted = '';
@@ -136,7 +136,7 @@ class MessageSecurity
 
             self::ensureNotFalse(
                 openssl_private_decrypt($block, $decryptedBlock, $privateKey, $padding),
-                "Asymmetric decryption failed",
+                'Asymmetric decryption failed',
             );
 
             $decrypted .= $decryptedBlock;
@@ -199,7 +199,7 @@ class MessageSecurity
 
         return self::ensureNotFalse(
             openssl_encrypt($data, $cipher, $encryptingKey, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv),
-            "Symmetric encryption failed",
+            'Symmetric encryption failed',
         );
     }
 
@@ -221,7 +221,7 @@ class MessageSecurity
 
         return self::ensureNotFalse(
             openssl_decrypt($data, $cipher, $encryptingKey, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv),
-            "Symmetric decryption failed",
+            'Symmetric decryption failed',
         );
     }
 

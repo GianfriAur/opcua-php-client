@@ -17,9 +17,9 @@ readonly class SecureChannelOpened
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $channelId,
-        public SecurityPolicy       $securityPolicy,
-        public SecurityMode         $securityMode,
+        public int $channelId,
+        public SecurityPolicy $securityPolicy,
+        public SecurityMode $securityMode,
     ) {
     }
 }

@@ -16,8 +16,8 @@ readonly class SessionCreated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public string               $endpointUrl,
-        public NodeId               $authenticationToken,
+        public string $endpointUrl,
+        public NodeId $authenticationToken,
     ) {
     }
 }

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Event\NodeValueRead;
 use Gianfriaur\OpcuaPhpClient\Event\NodeValueWriteFailed;
 use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
@@ -37,6 +36,7 @@ trait ManagesReadWriteTrait
     public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue
     {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($nodeId, $attributeId) {
             $this->ensureConnected();
 
@@ -50,7 +50,7 @@ trait ManagesReadWriteTrait
 
             $dataValue = $this->readService->decodeReadResponse($decoder);
 
-            $this->dispatch(fn() => new NodeValueRead($this, $nodeId, $attributeId, $dataValue));
+            $this->dispatch(fn () => new NodeValueRead($this, $nodeId, $attributeId, $dataValue));
 
             return $dataValue;
         });
@@ -112,7 +112,7 @@ trait ManagesReadWriteTrait
      */
     private function readMultiBatched(array $items, int $batchSize): array
     {
-        $batches = (int)ceil(count($items) / $batchSize);
+        $batches = (int) ceil(count($items) / $batchSize);
         $this->logger->info('Splitting readMulti into {batches} batches of {size}', ['batches' => $batches, 'size' => $batchSize, 'total' => count($items)]);
         $results = [];
         foreach (array_chunk($items, $batchSize) as $batch) {
@@ -138,6 +138,7 @@ trait ManagesReadWriteTrait
     public function write(NodeId|string $nodeId, mixed $value, BuiltinType $type): int
     {
         $nodeId = $this->resolveNodeIdParam($nodeId);
+
         return $this->executeWithRetry(function () use ($nodeId, $value, $type) {
             $this->ensureConnected();
 
@@ -156,9 +157,9 @@ trait ManagesReadWriteTrait
             $statusCode = $results[0] ?? 0;
 
             if (StatusCode::isGood($statusCode)) {
-                $this->dispatch(fn() => new NodeValueWritten($this, $nodeId, $value, $type, $statusCode));
+                $this->dispatch(fn () => new NodeValueWritten($this, $nodeId, $value, $type, $statusCode));
             } else {
-                $this->dispatch(fn() => new NodeValueWriteFailed($this, $nodeId, $statusCode));
+                $this->dispatch(fn () => new NodeValueWriteFailed($this, $nodeId, $statusCode));
             }
 
             return $statusCode;
@@ -274,6 +275,7 @@ trait ManagesReadWriteTrait
     {
         $objectId = $this->resolveNodeIdParam($objectId);
         $methodId = $this->resolveNodeIdParam($methodId);
+
         return $this->executeWithRetry(function () use ($objectId, $methodId, $inputArguments) {
             $this->ensureConnected();
 

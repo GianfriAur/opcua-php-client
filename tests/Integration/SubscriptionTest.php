@@ -69,7 +69,7 @@ describe('Subscription', function () {
             $receivedNotification = false;
             for ($i = 0; $i < 5; $i++) {
                 $pub = $client->publish();
-                if (!empty($pub->notifications)) {
+                if (! empty($pub->notifications)) {
                     $receivedNotification = true;
                     break;
                 }
@@ -148,7 +148,7 @@ describe('Subscription', function () {
             }
 
             // Cleanup
-            $monIds = array_map(fn($r) => $r->monitoredItemId, $monResults);
+            $monIds = array_map(fn ($r) => $r->monitoredItemId, $monResults);
             $client->deleteMonitoredItems($subId, $monIds);
             $client->deleteSubscription($subId);
         } finally {

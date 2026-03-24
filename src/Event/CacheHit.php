@@ -15,7 +15,7 @@ readonly class CacheHit
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public string               $key,
+        public string $key,
     ) {
     }
 }

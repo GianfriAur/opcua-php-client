@@ -17,10 +17,10 @@ readonly class MonitoredItemCreated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $monitoredItemId,
-        public NodeId               $nodeId,
-        public int                  $statusCode,
+        public int $subscriptionId,
+        public int $monitoredItemId,
+        public NodeId $nodeId,
+        public int $statusCode,
     ) {
     }
 }

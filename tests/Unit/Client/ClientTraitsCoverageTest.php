@@ -13,12 +13,13 @@ use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 class MockTransport extends TcpTransport
 {
     private array $responses = [];
+
     private int $index = 0;
+
     public array $sent = [];
 
     public function addResponse(string $data): void
@@ -26,7 +27,9 @@ class MockTransport extends TcpTransport
         $this->responses[] = $data;
     }
 
-    public function connect(string $host, int $port, null|float $timeout = null): void {}
+    public function connect(string $host, int $port, null|float $timeout = null): void
+    {
+    }
 
     public function send(string $data): void
     {
@@ -38,11 +41,18 @@ class MockTransport extends TcpTransport
         if ($this->index >= count($this->responses)) {
             throw new ConnectionException('No more mock responses');
         }
+
         return $this->responses[$this->index++];
     }
 
-    public function close(): void {}
-    public function isConnected(): bool { return true; }
+    public function close(): void
+    {
+    }
+
+    public function isConnected(): bool
+    {
+        return true;
+    }
 }
 
 function setClientProperty(Client $client, string $name, mixed $value): void
@@ -54,6 +64,7 @@ function setClientProperty(Client $client, string $name, mixed $value): void
 function callClientMethod(Client $client, string $name, array $args = []): mixed
 {
     $ref = new ReflectionMethod($client, $name);
+
     return $ref->invokeArgs($client, $args);
 }
 
@@ -75,6 +86,7 @@ function buildMsgResponse(int $typeId, Closure $writeBody): string
     $e->writeByte(0);
     $writeBody($e);
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -85,6 +97,7 @@ function buildErrMsg(int $code = 0x80010000, string $reason = 'Server error'): s
     $e->writeUInt32($code);
     $e->writeString($reason);
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -183,7 +196,7 @@ describe('Client unwrapResponse ERR handling', function () {
 
         $client = setupConnectedClient($mock);
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ServiceException::class, 'Bad unexpected');
     });
 
@@ -427,7 +440,7 @@ describe('ManagesTranslateBrowsePathTrait operations', function () {
 
         $client = setupConnectedClient($mock);
 
-        expect(fn() => $client->resolveNodeId('/Objects/NonExistent'))
+        expect(fn () => $client->resolveNodeId('/Objects/NonExistent'))
             ->toThrow(ServiceException::class, 'no results');
     });
 
@@ -442,7 +455,7 @@ describe('ManagesTranslateBrowsePathTrait operations', function () {
 
         $client = setupConnectedClient($mock);
 
-        expect(fn() => $client->resolveNodeId('/Objects/Bad'))
+        expect(fn () => $client->resolveNodeId('/Objects/Bad'))
             ->toThrow(ServiceException::class, 'Failed to resolve');
     });
 
@@ -457,7 +470,7 @@ describe('ManagesTranslateBrowsePathTrait operations', function () {
 
         $client = setupConnectedClient($mock);
 
-        expect(fn() => $client->resolveNodeId('/Objects/Empty'))
+        expect(fn () => $client->resolveNodeId('/Objects/Empty'))
             ->toThrow(ServiceException::class, 'No targets');
     });
 });
@@ -469,7 +482,7 @@ describe('ManagesConnectionTrait retry and disconnect', function () {
         $client = setupConnectedClient($mock);
         $client->setAutoRetry(0);
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class);
 
         expect($client->getConnectionState())->toBe(ConnectionState::Broken);

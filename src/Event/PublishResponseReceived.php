@@ -15,10 +15,10 @@ readonly class PublishResponseReceived
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $sequenceNumber,
-        public int                  $notificationCount,
-        public bool                 $moreNotifications,
+        public int $subscriptionId,
+        public int $sequenceNumber,
+        public int $notificationCount,
+        public bool $moreNotifications,
     ) {
     }
 }

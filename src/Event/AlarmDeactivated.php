@@ -17,8 +17,8 @@ readonly class AlarmDeactivated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $clientHandle,
+        public int $subscriptionId,
+        public int $clientHandle,
         public ?string $sourceName = null,
         public ?string $message = null,
     ) {

@@ -51,7 +51,7 @@ describe('ConnectionState transitions', function () {
         $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
         $client->disconnect();
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     })->group('integration');
 
@@ -64,7 +64,7 @@ describe('ConnectionState transitions', function () {
         } catch (ConnectionException) {
         }
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Connection lost: call reconnect() or connect() to re-establish');
     })->group('integration');
 

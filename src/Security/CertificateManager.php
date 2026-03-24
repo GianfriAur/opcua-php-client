@@ -58,7 +58,7 @@ class CertificateManager
 
         $key = openssl_pkey_get_private($pem);
 
-        return self::ensureNotFalse($key, "Failed to parse private key");
+        return self::ensureNotFalse($key, 'Failed to parse private key');
     }
 
     /**
@@ -78,11 +78,11 @@ class CertificateManager
     public function getPublicKeyLength(string $derCert): int
     {
         $pem = $this->derToPem($derCert);
-        $cert = self::ensureNotFalse(openssl_x509_read($pem), "Failed to read certificate");
-        $pubKey = self::ensureNotFalse(openssl_pkey_get_public($cert), "Failed to get public key from certificate");
-        $details = self::ensureNotFalse(openssl_pkey_get_details($pubKey), "Failed to get key details");
+        $cert = self::ensureNotFalse(openssl_x509_read($pem), 'Failed to read certificate');
+        $pubKey = self::ensureNotFalse(openssl_pkey_get_public($cert), 'Failed to get public key from certificate');
+        $details = self::ensureNotFalse(openssl_pkey_get_details($pubKey), 'Failed to get key details');
 
-        return (int)($details['bits'] / 8);
+        return (int) ($details['bits'] / 8);
     }
 
     /**
@@ -93,9 +93,9 @@ class CertificateManager
     public function getPublicKeyFromCert(string $derCert): OpenSSLAsymmetricKey
     {
         $pem = $this->derToPem($derCert);
-        $cert = self::ensureNotFalse(openssl_x509_read($pem), "Failed to read certificate");
+        $cert = self::ensureNotFalse(openssl_x509_read($pem), 'Failed to read certificate');
 
-        return self::ensureNotFalse(openssl_pkey_get_public($cert), "Failed to get public key from certificate");
+        return self::ensureNotFalse(openssl_pkey_get_public($cert), 'Failed to get public key from certificate');
     }
 
     /**
@@ -111,7 +111,7 @@ class CertificateManager
         }
 
         $parsed = openssl_x509_parse($cert);
-        if ($parsed === false || !isset($parsed['extensions']['subjectAltName'])) {
+        if ($parsed === false || ! isset($parsed['extensions']['subjectAltName'])) {
             return null;
         }
 
@@ -136,11 +136,11 @@ class CertificateManager
     {
         $pem = preg_replace('/-----BEGIN [^-]+-----/', '', $pem);
         $pem = preg_replace('/-----END [^-]+-----/', '', $pem);
-        $pem = str_replace(["\r", "\n", " "], '', $pem);
+        $pem = str_replace(["\r", "\n", ' '], '', $pem);
 
         $der = base64_decode($pem, true);
         if ($der === false) {
-            throw new SecurityException("Failed to decode PEM certificate");
+            throw new SecurityException('Failed to decode PEM certificate');
         }
 
         return $der;
@@ -167,7 +167,7 @@ class CertificateManager
             . "extendedKeyUsage = clientAuth\n"
             . "subjectAltName = URI:{$applicationUri}, DNS:{$hostname}\n";
 
-        $tmpHandle = self::ensureNotFalse(tmpfile(), "Failed to create temporary OpenSSL config");
+        $tmpHandle = self::ensureNotFalse(tmpfile(), 'Failed to create temporary OpenSSL config');
 
         try {
             fwrite($tmpHandle, $configContent);
@@ -181,24 +181,24 @@ class CertificateManager
                 'config' => $configPath,
             ];
 
-            $privateKey = self::ensureNotFalse(openssl_pkey_new($keyConfig), "Failed to generate private key");
+            $privateKey = self::ensureNotFalse(openssl_pkey_new($keyConfig), 'Failed to generate private key');
 
             $dn = ['CN' => 'OPC UA PHP Client', 'O' => 'OPC UA PHP Client'];
 
             $csr = self::ensureNotFalse(
                 openssl_csr_new($dn, $privateKey, ['digest_alg' => 'sha256', 'config' => $configPath]),
-                "Failed to generate CSR",
+                'Failed to generate CSR',
             );
 
             $cert = self::ensureNotFalse(
                 openssl_csr_sign($csr, null, $privateKey, 365, ['digest_alg' => 'sha256', 'config' => $configPath, 'x509_extensions' => 'v3_req']),
-                "Failed to generate self-signed certificate",
+                'Failed to generate self-signed certificate',
             );
 
             $certPem = '';
             self::ensureNotFalse(
                 openssl_x509_export($cert, $certPem) ?: false,
-                "Failed to export certificate",
+                'Failed to export certificate',
             );
 
             return [

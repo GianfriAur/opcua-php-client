@@ -26,8 +26,7 @@ class BrowsePathsBuilder
      */
     public function __construct(
         private readonly OpcUaClientInterface $client,
-    )
-    {
+    ) {
     }
 
     /**
@@ -39,6 +38,7 @@ class BrowsePathsBuilder
     public function from(NodeId|string $startingNodeId): self
     {
         $this->paths[] = ['startingNodeId' => $startingNodeId, 'relativePath' => []];
+
         return $this;
     }
 
@@ -58,6 +58,7 @@ class BrowsePathsBuilder
         foreach ($segments as $segment) {
             $this->paths[$idx]['relativePath'][] = ['targetName' => self::parseSegment($segment)];
         }
+
         return $this;
     }
 
@@ -75,6 +76,7 @@ class BrowsePathsBuilder
 
         $idx = array_key_last($this->paths);
         $this->paths[$idx]['relativePath'][] = ['targetName' => $name];
+
         return $this;
     }
 
@@ -99,9 +101,10 @@ class BrowsePathsBuilder
         if (str_contains($segment, ':')) {
             $parts = explode(':', $segment, 2);
             if (ctype_digit($parts[0])) {
-                return new QualifiedName((int)$parts[0], $parts[1]);
+                return new QualifiedName((int) $parts[0], $parts[1]);
             }
         }
+
         return new QualifiedName(0, $segment);
     }
 }

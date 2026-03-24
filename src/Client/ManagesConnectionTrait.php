@@ -40,7 +40,7 @@ trait ManagesConnectionTrait
     public function connect(string $endpointUrl): void
     {
         $parsed = parse_url($endpointUrl);
-        if ($parsed === false || !isset($parsed['host'])) {
+        if ($parsed === false || ! isset($parsed['host'])) {
             throw new ConfigurationException("Invalid endpoint URL: {$endpointUrl}");
         }
 
@@ -54,7 +54,7 @@ trait ManagesConnectionTrait
             $this->discoverServerCertificate($host, $port, $endpointUrl);
         }
 
-        $this->dispatch(fn() => new ClientConnecting($this, $endpointUrl));
+        $this->dispatch(fn () => new ClientConnecting($this, $endpointUrl));
         $this->logger->info('Connecting to {endpoint}', ['endpoint' => $endpointUrl]);
 
         try {
@@ -72,7 +72,7 @@ trait ManagesConnectionTrait
         } catch (ConnectionException $e) {
             $this->connectionState = ConnectionState::Broken;
             $this->lastEndpointUrl = $endpointUrl;
-            $this->dispatch(fn() => new ConnectionFailed($this, $endpointUrl, $e));
+            $this->dispatch(fn () => new ConnectionFailed($this, $endpointUrl, $e));
             $this->logger->error('Connection failed: {message}', ['message' => $e->getMessage(), 'endpoint' => $endpointUrl]);
             throw $e;
         }
@@ -82,7 +82,7 @@ trait ManagesConnectionTrait
 
         $this->discoverServerOperationLimits();
         $this->logger->info('Connected to {endpoint}', ['endpoint' => $endpointUrl]);
-        $this->dispatch(fn() => new ClientConnected($this, $endpointUrl));
+        $this->dispatch(fn () => new ClientConnected($this, $endpointUrl));
     }
 
     /**
@@ -101,7 +101,7 @@ trait ManagesConnectionTrait
             throw new ConfigurationException('Cannot reconnect: no previous connection endpoint. Call connect() first.');
         }
 
-        $this->dispatch(fn() => new ClientReconnecting($this, $this->lastEndpointUrl));
+        $this->dispatch(fn () => new ClientReconnecting($this, $this->lastEndpointUrl));
         $this->logger->info('Reconnecting to {endpoint}', ['endpoint' => $this->lastEndpointUrl]);
         $this->transport->close();
         $this->resetConnectionState();
@@ -116,7 +116,7 @@ trait ManagesConnectionTrait
      */
     public function disconnect(): void
     {
-        $this->dispatch(fn() => new ClientDisconnecting($this, $this->lastEndpointUrl));
+        $this->dispatch(fn () => new ClientDisconnecting($this, $this->lastEndpointUrl));
         $this->logger->info('Disconnecting');
         if ($this->session !== null && $this->authenticationToken !== null) {
             try {
@@ -137,7 +137,7 @@ trait ManagesConnectionTrait
         $this->resetConnectionState();
         $this->lastEndpointUrl = null;
         $this->connectionState = ConnectionState::Disconnected;
-        $this->dispatch(fn() => new ClientDisconnected($this));
+        $this->dispatch(fn () => new ClientDisconnected($this));
     }
 
     /**
@@ -194,7 +194,7 @@ trait ManagesConnectionTrait
                 $this->connectionState = ConnectionState::Broken;
 
                 if ($attempt >= $maxRetries || $this->lastEndpointUrl === null) {
-                    $this->dispatch(fn() => new RetryExhausted($this, $attempt + 1, $e));
+                    $this->dispatch(fn () => new RetryExhausted($this, $attempt + 1, $e));
                     $this->logger->error('Operation failed after {attempts} attempt(s): {message}', [
                         'attempts' => $attempt + 1,
                         'message' => $e->getMessage(),
@@ -202,7 +202,7 @@ trait ManagesConnectionTrait
                     throw $e;
                 }
 
-                $this->dispatch(fn() => new RetryAttempt($this, $attempt + 1, $maxRetries, $e));
+                $this->dispatch(fn () => new RetryAttempt($this, $attempt + 1, $maxRetries, $e));
                 $this->logger->warning('Connection lost, retrying ({attempt}/{max})', [
                     'attempt' => $attempt + 1,
                     'max' => $maxRetries,

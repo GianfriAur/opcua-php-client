@@ -8,10 +8,10 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Event\NodeBrowsed;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
+use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 
 /**
@@ -34,7 +34,7 @@ trait ManagesBrowseTrait
 
         return $this->cachedFetch(
             $cacheKey,
-            fn() => $this->executeWithRetry(function () use ($endpointUrl) {
+            fn () => $this->executeWithRetry(function () use ($endpointUrl) {
                 $this->ensureConnected();
 
                 $requestId = $this->nextRequestId();
@@ -74,14 +74,15 @@ trait ManagesBrowseTrait
 
         $results = $this->cachedFetch(
             $this->buildCacheKey('browse', $nodeId, $paramsSuffix),
-            fn() => $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
+            fn () => $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
                 $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
+
                 return $this->browseService->decodeBrowseResponse($decoder);
             }),
             $useCache,
         );
 
-        $this->dispatch(fn() => new NodeBrowsed($this, $nodeId, $direction, count($results)));
+        $this->dispatch(fn () => new NodeBrowsed($this, $nodeId, $direction, count($results)));
 
         return $results;
     }
@@ -104,6 +105,7 @@ trait ManagesBrowseTrait
     {
         $nodeId = $this->resolveNodeIdParam($nodeId);
         $nodeClassMask = self::nodeClassesToMask($nodeClasses);
+
         return $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
             $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
 
@@ -152,14 +154,13 @@ trait ManagesBrowseTrait
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function browseAll(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
-        bool            $useCache = true,
-    ): array
-    {
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
+        bool $useCache = true,
+    ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
         $nodeClassMask = self::nodeClassesToMask($nodeClasses);
         $paramsSuffix = sprintf('%d:%d:%d', $direction->value, $includeSubtypes ? 1 : 0, $nodeClassMask);
@@ -199,14 +200,13 @@ trait ManagesBrowseTrait
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
      */
     public function browseRecursive(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?int            $maxDepth = null,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
-    ): array
-    {
+        ?int $maxDepth = null,
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
+    ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
         $resolvedDepth = $maxDepth ?? $this->getDefaultBrowseMaxDepth();
         $effectiveMaxDepth = $resolvedDepth === -1
@@ -230,16 +230,15 @@ trait ManagesBrowseTrait
      * @return BrowseNode[]
      */
     private function browseRecursiveInternal(
-        NodeId          $nodeId,
-        int             $maxDepth,
-        int             $currentDepth,
+        NodeId $nodeId,
+        int $maxDepth,
+        int $currentDepth,
         BrowseDirection $direction,
-        ?NodeId         $referenceTypeId,
-        bool            $includeSubtypes,
-        array           $nodeClasses,
-        array           &$visited,
-    ): array
-    {
+        ?NodeId $referenceTypeId,
+        bool $includeSubtypes,
+        array $nodeClasses,
+        array &$visited,
+    ): array {
         $references = $this->browseAll($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses);
         $nodes = [];
 
@@ -304,6 +303,7 @@ trait ManagesBrowseTrait
 
         $response = $this->transport->receive();
         $responseBody = $this->unwrapResponse($response);
+
         return $this->createDecoder($responseBody);
     }
 
@@ -319,6 +319,7 @@ trait ManagesBrowseTrait
         foreach ($nodeClasses as $nc) {
             $mask |= $nc->value;
         }
+
         return $mask;
     }
 }

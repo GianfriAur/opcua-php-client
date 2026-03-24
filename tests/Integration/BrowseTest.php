@@ -17,7 +17,7 @@ describe('Browse', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             // Standard OPC UA server always has a "Server" object
             expect($names)->toContain('Server');
         } finally {
@@ -34,7 +34,7 @@ describe('Browse', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('DataTypes');
             expect($names)->toContain('Methods');
             expect($names)->toContain('Dynamic');
@@ -52,7 +52,7 @@ describe('Browse', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('Scalar');
         } finally {
             TestHelper::safeDisconnect($client);
@@ -68,7 +68,7 @@ describe('Browse', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('Add');
             expect($names)->toContain('Multiply');
         } finally {
@@ -85,7 +85,7 @@ describe('Browse', function () {
 
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('Counter');
             expect($names)->toContain('Random');
         } finally {
@@ -100,7 +100,7 @@ describe('Browse', function () {
             $testServerNodeId = TestHelper::browseToNode($client, ['TestServer']);
             $refs = $client->browse($testServerNodeId);
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
 
             // Verify main folders exist
             expect($names)->toContain('DataTypes');

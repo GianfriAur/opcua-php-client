@@ -15,8 +15,8 @@ readonly class SubscriptionKeepAlive
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $sequenceNumber,
+        public int $subscriptionId,
+        public int $sequenceNumber,
     ) {
     }
 }

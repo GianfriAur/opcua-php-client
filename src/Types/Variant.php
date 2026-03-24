@@ -16,10 +16,9 @@ readonly class Variant
      */
     public function __construct(
         public BuiltinType $type,
-        public mixed       $value,
-        public ?array      $dimensions = null,
-    )
-    {
+        public mixed $value,
+        public ?array $dimensions = null,
+    ) {
     }
 
     /**

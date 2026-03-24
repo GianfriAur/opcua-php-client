@@ -17,9 +17,9 @@ readonly class NodeValueRead
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public NodeId               $nodeId,
-        public int                  $attributeId,
-        public DataValue            $dataValue,
+        public NodeId $nodeId,
+        public int $attributeId,
+        public DataValue $dataValue,
     ) {
     }
 }

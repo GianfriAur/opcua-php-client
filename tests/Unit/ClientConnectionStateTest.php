@@ -13,7 +13,7 @@ describe('ConnectionState enum', function () {
     it('has three cases', function () {
         $cases = ConnectionState::cases();
         expect($cases)->toHaveCount(3);
-        expect(array_map(fn($c) => $c->name, $cases))
+        expect(array_map(fn ($c) => $c->name, $cases))
             ->toContain('Disconnected', 'Connected', 'Broken');
     });
 });
@@ -40,13 +40,13 @@ describe('Client connection state', function () {
 
     it('throws specific message for Disconnected state', function () {
         $client = new Client();
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws ConfigurationException on reconnect without prior connect', function () {
         $client = new Client();
-        expect(fn() => $client->reconnect())
+        expect(fn () => $client->reconnect())
             ->toThrow(ConfigurationException::class, 'Cannot reconnect: no previous connection endpoint');
     });
 

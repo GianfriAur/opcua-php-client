@@ -17,7 +17,7 @@ describe('browseAll', function () {
             $refs = $client->browseAll(NodeId::numeric(0, 85));
             expect($refs)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+            $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
             expect($names)->toContain('Server');
         } finally {
             TestHelper::safeDisconnect($client);
@@ -133,7 +133,7 @@ describe('browseRecursive', function () {
             $tree = $client->browseRecursive($methodsNodeId, maxDepth: 1);
             expect($tree)->toBeArray()->not->toBeEmpty();
 
-            $names = array_map(fn(BrowseNode $n) => $n->getBrowseName()->getName(), $tree);
+            $names = array_map(fn (BrowseNode $n) => $n->getBrowseName()->getName(), $tree);
             expect($names)->toContain('Add');
         } finally {
             TestHelper::safeDisconnect($client);

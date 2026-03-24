@@ -10,7 +10,7 @@ describe('TcpTransport additional coverage', function () {
 
     it('uses default timeout when null is passed', function () {
         $transport = new TcpTransport();
-        expect(fn() => $transport->connect('127.0.0.1', 1, null))
+        expect(fn () => $transport->connect('127.0.0.1', 1, null))
             ->toThrow(ConnectionException::class);
     });
 
@@ -24,13 +24,13 @@ describe('TcpTransport additional coverage', function () {
         [$host, $port] = explode(':', $addr);
 
         $transport = new TcpTransport();
-        $transport->connect($host, (int)$port, 2.0);
+        $transport->connect($host, (int) $port, 2.0);
 
         $client = stream_socket_accept($server, 2);
         fwrite($client, "MSG\x46" . pack('V', 0));
 
         try {
-            expect(fn() => $transport->receive())
+            expect(fn () => $transport->receive())
                 ->toThrow(ProtocolException::class, 'Invalid message size');
         } finally {
             $transport->close();
@@ -49,7 +49,7 @@ describe('TcpTransport additional coverage', function () {
         [$host, $port] = explode(':', $addr);
 
         $transport = new TcpTransport();
-        $transport->connect($host, (int)$port, 2.0);
+        $transport->connect($host, (int) $port, 2.0);
 
         $client = stream_socket_accept($server, 2);
         fwrite($client, "MSG\x46" . pack('V', 8));
@@ -75,14 +75,14 @@ describe('TcpTransport additional coverage', function () {
         [$host, $port] = explode(':', $addr);
 
         $transport = new TcpTransport();
-        $transport->connect($host, (int)$port, 2.0);
+        $transport->connect($host, (int) $port, 2.0);
 
         $client = stream_socket_accept($server, 2);
         fwrite($client, "MSG\x46" . pack('V', 108));
         fclose($client);
 
         try {
-            expect(fn() => $transport->receive())
+            expect(fn () => $transport->receive())
                 ->toThrow(ConnectionException::class);
         } finally {
             $transport->close();
@@ -100,14 +100,14 @@ describe('TcpTransport additional coverage', function () {
         [$host, $port] = explode(':', $addr);
 
         $transport = new TcpTransport();
-        $transport->connect($host, (int)$port, 1.0);
+        $transport->connect($host, (int) $port, 1.0);
 
         $client = stream_socket_accept($server, 2);
 
         fwrite($client, "MSG\x46" . pack('V', 108));
 
         try {
-            expect(fn() => $transport->receive())
+            expect(fn () => $transport->receive())
                 ->toThrow(ConnectionException::class, 'Read timeout');
         } finally {
             $transport->close();
@@ -126,7 +126,7 @@ describe('TcpTransport additional coverage', function () {
         [$host, $port] = explode(':', $addr);
 
         $transport = new TcpTransport();
-        $transport->connect($host, (int)$port, 2.0);
+        $transport->connect($host, (int) $port, 2.0);
 
         $client = stream_socket_accept($server, 2);
         fclose($client);
@@ -134,7 +134,7 @@ describe('TcpTransport additional coverage', function () {
 
         usleep(50000);
 
-        expect(fn() => $transport->send(str_repeat('X', 1024 * 1024)))
+        expect(fn () => $transport->send(str_repeat('X', 1024 * 1024)))
             ->toThrow(ConnectionException::class);
 
         $transport->close();

@@ -9,7 +9,7 @@ use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-if (!function_exists('generateTestCertKeyPair')) {
+if (! function_exists('generateTestCertKeyPair')) {
 
     function generateTestCertKeyPair(int $bits = 2048): array
     {
@@ -28,17 +28,16 @@ if (!function_exists('generateTestCertKeyPair')) {
     }
 
     function buildTestOPNResponse(
-        string               $serverDer,
+        string $serverDer,
         OpenSSLAsymmetricKey $serverKey,
-        string               $clientDer,
+        string $clientDer,
         OpenSSLAsymmetricKey $clientKey,
-        string               $clientNonce,
-        string               $serverNonce,
-        int                  $channelId,
-        int                  $tokenId,
-        SecurityPolicy       $policy,
-    ): string
-    {
+        string $clientNonce,
+        string $serverNonce,
+        int $channelId,
+        int $tokenId,
+        SecurityPolicy $policy,
+    ): string {
         $ms = new MessageSecurity();
 
         $inner = new BinaryEncoder();
@@ -72,7 +71,7 @@ if (!function_exists('generateTestCertKeyPair')) {
         $paddingOverhead = $policy->getAsymmetricPaddingOverhead();
         $plainTextBlockSize = $keyLengthBytes - $paddingOverhead;
         $serverKeyDetails = openssl_pkey_get_details($serverKey);
-        $signatureSize = (int)($serverKeyDetails['bits'] / 8);
+        $signatureSize = (int) ($serverKeyDetails['bits'] / 8);
 
         $bodyLen = strlen($plainBody);
         $extraPaddingByte = ($keyLengthBytes > 256) ? 1 : 0;
@@ -88,7 +87,7 @@ if (!function_exists('generateTestCertKeyPair')) {
         $bodyWithPadding = $plainBody . $padding;
 
         $dataToEncryptLen = strlen($bodyWithPadding) + $signatureSize;
-        $numBlocks = (int)ceil($dataToEncryptLen / $plainTextBlockSize);
+        $numBlocks = (int) ceil($dataToEncryptLen / $plainTextBlockSize);
         $encryptedSize = $numBlocks * $keyLengthBytes;
 
         $totalSize = 12 + strlen($secHeaderBytes) + $encryptedSize;

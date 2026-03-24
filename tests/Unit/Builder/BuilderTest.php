@@ -184,7 +184,7 @@ describe('BrowsePathsBuilder', function () {
         $builder = new BrowsePathsBuilder($mockClient);
 
         $builder->from('i=85')
-            ->segment(new \Gianfriaur\OpcuaPhpClient\Types\QualifiedName(2, 'Custom'))
+            ->segment(new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(2, 'Custom'))
             ->execute();
 
         expect($mockClient->callCount('translateBrowsePaths'))->toBe(1);
@@ -194,7 +194,7 @@ describe('BrowsePathsBuilder', function () {
 describe('MonitoredItemsBuilder', function () {
 
     it('returns builder when createMonitoredItems is called without items', function () {
-        $client = new \Gianfriaur\OpcuaPhpClient\Client();
+        $client = new Gianfriaur\OpcuaPhpClient\Client();
         $builder = $client->createMonitoredItems(1);
 
         expect($builder)->toBeInstanceOf(MonitoredItemsBuilder::class);
@@ -242,7 +242,7 @@ describe('MonitoredItemsBuilder', function () {
         $client = setupConnectedClient($mock);
         $results = $client->translateBrowsePaths()
             ->from('i=85')
-            ->segment(new \Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server'))
+            ->segment(new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server'))
             ->execute();
 
         expect($results)->toHaveCount(1);

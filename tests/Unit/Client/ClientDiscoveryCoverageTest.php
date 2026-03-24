@@ -17,19 +17,31 @@ function discReadMsg($socket): string
     $deadline = microtime(true) + 5.0;
     while (strlen($header) < 8 && microtime(true) < $deadline) {
         $chunk = @fread($socket, 8 - strlen($header));
-        if ($chunk !== false && $chunk !== '') $header .= $chunk;
-        else usleep(1000);
+        if ($chunk !== false && $chunk !== '') {
+            $header .= $chunk;
+        } else {
+            usleep(1000);
+        }
     }
-    if (strlen($header) < 8) return '';
+    if (strlen($header) < 8) {
+        return '';
+    }
     $size = unpack('V', $header, 4)[1];
-    if ($size <= 8) return $header;
+    if ($size <= 8) {
+        return $header;
+    }
     $body = '';
     $rem = $size - 8;
     while ($rem > 0 && microtime(true) < $deadline) {
         $chunk = @fread($socket, $rem);
-        if ($chunk !== false && $chunk !== '') { $body .= $chunk; $rem -= strlen($chunk); }
-        else usleep(1000);
+        if ($chunk !== false && $chunk !== '') {
+            $body .= $chunk;
+            $rem -= strlen($chunk);
+        } else {
+            usleep(1000);
+        }
     }
+
     return $header . $body;
 }
 
@@ -42,6 +54,7 @@ function discAck(): string
     $e->writeUInt32(65535);
     $e->writeUInt32(4096);
     $e->writeUInt32(0);
+
     return $e->getBuffer();
 }
 
@@ -70,6 +83,7 @@ function discOpnResponse(): string
     $e->writeUInt32(3600000);
     $e->writeByteString(null);
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -118,6 +132,7 @@ function discEndpointsResponse(array $endpoints): string
     }
 
     $d = $e->getBuffer();
+
     return substr($d, 0, 4) . pack('V', strlen($d)) . substr($d, 8);
 }
 
@@ -126,13 +141,16 @@ function discMsgInstead(string $type = 'MSG'): string
     $e = new BinaryEncoder();
     (new MessageHeader($type, 'F', 12))->encode($e);
     $e->writeUInt32(0);
+
     return $e->getBuffer();
 }
 
 function discRunServer(array $responses): array
 {
     $server = @stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
-    if ($server === false) throw new RuntimeException("Cannot create server");
+    if ($server === false) {
+        throw new RuntimeException('Cannot create server');
+    }
 
     $addr = stream_socket_get_name($server, false);
     [$host, $port] = explode(':', $addr);
@@ -140,7 +158,9 @@ function discRunServer(array $responses): array
     $pid = pcntl_fork();
     if ($pid === 0) {
         $conn = stream_socket_accept($server, 5);
-        if ($conn === false) exit(1);
+        if ($conn === false) {
+            exit(1);
+        }
         stream_set_blocking($conn, true);
         stream_set_timeout($conn, 5);
 
@@ -157,7 +177,8 @@ function discRunServer(array $responses): array
 
     fclose($server);
     usleep(50000);
-    return [$host, (int)$port, $pid];
+
+    return [$host, (int) $port, $pid];
 }
 
 function discClient(): Client
@@ -167,6 +188,7 @@ function discClient(): Client
     $client->setAutoRetry(0);
     $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
     $client->setSecurityMode(SecurityMode::SignAndEncrypt);
+
     return $client;
 }
 
@@ -177,7 +199,7 @@ describe('discoverServerCertificate error paths', function () {
 
         $client = discClient();
         try {
-            expect(fn() => $client->connect("opc.tcp://$host:$port"))
+            expect(fn () => $client->connect("opc.tcp://$host:$port"))
                 ->toThrow(ProtocolException::class, 'Discovery: Expected ACK');
         } finally {
             pcntl_waitpid($pid, $status);
@@ -189,7 +211,7 @@ describe('discoverServerCertificate error paths', function () {
 
         $client = discClient();
         try {
-            expect(fn() => $client->connect("opc.tcp://$host:$port"))
+            expect(fn () => $client->connect("opc.tcp://$host:$port"))
                 ->toThrow(ProtocolException::class, 'Discovery: Expected OPN');
         } finally {
             pcntl_waitpid($pid, $status);
@@ -207,7 +229,7 @@ describe('discoverServerCertificate error paths', function () {
 
         $client = discClient();
         try {
-            expect(fn() => $client->connect("opc.tcp://$host:$port"))
+            expect(fn () => $client->connect("opc.tcp://$host:$port"))
                 ->toThrow(SecurityException::class, 'Could not obtain server certificate');
         } finally {
             pcntl_waitpid($pid, $status);

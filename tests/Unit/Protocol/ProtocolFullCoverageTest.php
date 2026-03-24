@@ -513,7 +513,7 @@ describe('Protocol services secure encoding', function () {
 
     it('WriteService encodes secure request', function () {
         $service = new WriteService($this->session);
-        $dv = new \Gianfriaur\OpcuaPhpClient\Types\DataValue(new \Gianfriaur\OpcuaPhpClient\Types\Variant(BuiltinType::Int32, 42));
+        $dv = new Gianfriaur\OpcuaPhpClient\Types\DataValue(new Gianfriaur\OpcuaPhpClient\Types\Variant(BuiltinType::Int32, 42));
         $bytes = $service->encodeWriteRequest(1, NodeId::numeric(2, 1001), $dv, NodeId::numeric(0, 0));
         expect(substr($bytes, 0, 3))->toBe('MSG');
     });

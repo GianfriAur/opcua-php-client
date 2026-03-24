@@ -5,7 +5,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
 use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -37,7 +36,7 @@ describe('String NodeId parameter support', function () {
         $ref = new ReflectionProperty($client, 'connectionState');
         $ref->setValue($client, ConnectionState::Connected);
 
-        expect(fn() => $client->read('invalid!!!'))
+        expect(fn () => $client->read('invalid!!!'))
             ->toThrow(InvalidNodeIdException::class);
     });
 
@@ -53,7 +52,7 @@ describe('String NodeId parameter support', function () {
 
     it('call accepts string NodeIds for both parameters', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(715, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(715, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeUInt32(0);
             $e->writeInt32(0);
@@ -70,7 +69,7 @@ describe('String NodeId parameter support', function () {
 
     it('historyReadRaw accepts string NodeId', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(667, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(667, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(0);
             $e->writeInt32(0);
         }));
@@ -120,19 +119,19 @@ describe('String NodeId parameter support', function () {
         $client = new Client();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
 
-        expect(fn() => $ref->invoke($client, 'garbage'))
+        expect(fn () => $ref->invoke($client, 'garbage'))
             ->toThrow(InvalidNodeIdException::class);
     });
 
     it('readMulti resolves string NodeIds in items', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(634, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(634, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(2);
             $e->writeByte(0x01);
-            $e->writeByte(\Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
+            $e->writeByte(Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
             $e->writeInt32(10);
             $e->writeByte(0x01);
-            $e->writeByte(\Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
+            $e->writeByte(Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
             $e->writeInt32(20);
             $e->writeInt32(0);
         }));
@@ -150,7 +149,7 @@ describe('String NodeId parameter support', function () {
 
     it('writeMulti resolves string NodeIds in items', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(676, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(676, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeUInt32(0);
             $e->writeInt32(0);
@@ -158,7 +157,7 @@ describe('String NodeId parameter support', function () {
 
         $client = setupConnectedClient($mock);
         $results = $client->writeMulti([
-            ['nodeId' => 'ns=2;i=1001', 'value' => 42, 'type' => \Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32],
+            ['nodeId' => 'ns=2;i=1001', 'value' => 42, 'type' => Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32],
         ]);
 
         expect($results)->toBe([0]);
@@ -166,14 +165,14 @@ describe('String NodeId parameter support', function () {
 
     it('write accepts string NodeId', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(676, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(676, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeUInt32(0);
             $e->writeInt32(0);
         }));
 
         $client = setupConnectedClient($mock);
-        $status = $client->write('ns=2;i=1001', 42, \Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32);
+        $status = $client->write('ns=2;i=1001', 42, Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32);
 
         expect($status)->toBe(0);
     });
@@ -190,7 +189,7 @@ describe('String NodeId parameter support', function () {
 
     it('translateBrowsePaths resolves string startingNodeId in items', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(557, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(557, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeUInt32(0);
             $e->writeInt32(1);
@@ -203,7 +202,7 @@ describe('String NodeId parameter support', function () {
         $results = $client->translateBrowsePaths([
             [
                 'startingNodeId' => 'i=85',
-                'relativePath' => [['targetName' => new \Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server')]],
+                'relativePath' => [['targetName' => new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server')]],
             ],
         ]);
 
@@ -213,7 +212,7 @@ describe('String NodeId parameter support', function () {
 
     it('resolveNodeId accepts string startingNodeId', function () {
         $mock = new MockTransport();
-        $mock->addResponse(buildMsgResponse(557, function (\Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(557, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeUInt32(0);
             $e->writeInt32(1);

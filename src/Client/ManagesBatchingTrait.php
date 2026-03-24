@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Throwable;
@@ -15,7 +14,9 @@ use Throwable;
 trait ManagesBatchingTrait
 {
     private ?int $batchSize = null;
+
     private ?int $serverMaxNodesPerRead = null;
+
     private ?int $serverMaxNodesPerWrite = null;
 
     /**

@@ -16,8 +16,8 @@ readonly class NodeValueWriteFailed
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public NodeId               $nodeId,
-        public int                  $statusCode,
+        public NodeId $nodeId,
+        public int $statusCode,
     ) {
     }
 }

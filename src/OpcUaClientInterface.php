@@ -5,29 +5,29 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient;
 
 use DateTimeImmutable;
+use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
+use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
+use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
+use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
 use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
+use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -55,14 +55,14 @@ interface OpcUaClientInterface
      *
      * When set, the client dispatches granular events at key points: connection,
      * session, subscription, data change, alarms, read/write, browse, cache, and retry.
-     * A {@see \Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher} is used by default,
+     * A {@see Event\NullEventDispatcher} is used by default,
      * ensuring zero overhead when no custom dispatcher is configured.
      *
      * @param EventDispatcherInterface $eventDispatcher The event dispatcher to use.
      * @return self
      *
      * @see EventDispatcherInterface
-     * @see \Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher
+     * @see Event\NullEventDispatcher
      */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self;
 
@@ -231,7 +231,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost.
      * @throws ServiceException If the server returns an error.
      *
-     * @see \Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec
+     * @see Encoding\DynamicCodec
      */
     public function discoverDataTypes(?int $namespaceIndex = null, bool $useCache = true): int;
 
@@ -265,12 +265,12 @@ interface OpcUaClientInterface
      * @throws ServiceException If the server returns an error response.
      */
     public function browse(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
-        bool            $useCache = true,
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
+        bool $useCache = true,
     ): array;
 
     /**
@@ -290,11 +290,11 @@ interface OpcUaClientInterface
      * @see BrowseResultSet
      */
     public function browseWithContinuation(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
     ): BrowseResultSet;
 
     /**
@@ -326,12 +326,12 @@ interface OpcUaClientInterface
      * @throws ServiceException If the server returns an error response.
      */
     public function browseAll(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
-        bool            $useCache = true,
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
+        bool $useCache = true,
     ): array;
 
     /**
@@ -367,12 +367,12 @@ interface OpcUaClientInterface
      * @see BrowseNode
      */
     public function browseRecursive(
-        NodeId|string   $nodeId,
+        NodeId|string $nodeId,
         BrowseDirection $direction = BrowseDirection::Forward,
-        ?int            $maxDepth = null,
-        ?NodeId         $referenceTypeId = null,
-        bool            $includeSubtypes = true,
-        array           $nodeClasses = [],
+        ?int $maxDepth = null,
+        ?NodeId $referenceTypeId = null,
+        bool $includeSubtypes = true,
+        array $nodeClasses = [],
     ): array;
 
     /**
@@ -387,7 +387,7 @@ interface OpcUaClientInterface
      *
      * @see BrowsePathResult
      */
-    public function translateBrowsePaths(?array $browsePaths = null): array|\Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder;
+    public function translateBrowsePaths(?array $browsePaths = null): array|Builder\BrowsePathsBuilder;
 
     /**
      * Resolve a slash-separated browse path string to a NodeId.
@@ -428,7 +428,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function readMulti(?array $readItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder;
+    public function readMulti(?array $readItems = null): array|Builder\ReadMultiBuilder;
 
     /**
      * Write a value to a node attribute.
@@ -454,7 +454,7 @@ interface OpcUaClientInterface
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      */
-    public function writeMulti(?array $writeItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder;
+    public function writeMulti(?array $writeItems = null): array|Builder\WriteMultiBuilder;
 
     /**
      * Call a method on an object node.
@@ -490,11 +490,11 @@ interface OpcUaClientInterface
      */
     public function createSubscription(
         float $publishingInterval = 500.0,
-        int   $lifetimeCount = 2400,
-        int   $maxKeepAliveCount = 10,
-        int   $maxNotificationsPerPublish = 0,
-        bool  $publishingEnabled = true,
-        int   $priority = 0,
+        int $lifetimeCount = 2400,
+        int $maxKeepAliveCount = 10,
+        int $maxNotificationsPerPublish = 0,
+        bool $publishingEnabled = true,
+        int $priority = 0,
     ): SubscriptionResult;
 
     /**
@@ -511,9 +511,9 @@ interface OpcUaClientInterface
      * @see MonitoredItemResult
      */
     public function createMonitoredItems(
-        int   $subscriptionId,
+        int $subscriptionId,
         ?array $items = null,
-    ): array|\Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder;
+    ): array|Builder\MonitoredItemsBuilder;
 
     /**
      * Create a single event-based monitored item within an existing subscription.
@@ -531,10 +531,10 @@ interface OpcUaClientInterface
      * @see MonitoredItemResult
      */
     public function createEventMonitoredItem(
-        int           $subscriptionId,
+        int $subscriptionId,
         NodeId|string $nodeId,
-        array         $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
-        int           $clientHandle = 1,
+        array $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'],
+        int $clientHandle = 1,
     ): MonitoredItemResult;
 
     /**
@@ -576,7 +576,7 @@ interface OpcUaClientInterface
     /**
      * @param int[] $subscriptionIds
      * @param bool $sendInitialValues
-     * @return \Gianfriaur\OpcuaPhpClient\Types\TransferResult[]
+     * @return Types\TransferResult[]
      *
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
@@ -586,7 +586,7 @@ interface OpcUaClientInterface
     /**
      * @param int $subscriptionId
      * @param int $retransmitSequenceNumber
-     * @return array{sequenceNumber: int, publishTime: ?\DateTimeImmutable, notifications: array}
+     * @return array{sequenceNumber: int, publishTime: ?DateTimeImmutable, notifications: array}
      *
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
@@ -608,11 +608,11 @@ interface OpcUaClientInterface
      * @throws ServiceException If the server returns an error response.
      */
     public function historyReadRaw(
-        NodeId|string      $nodeId,
+        NodeId|string $nodeId,
         ?DateTimeImmutable $startTime = null,
         ?DateTimeImmutable $endTime = null,
-        int                $numValuesPerNode = 0,
-        bool               $returnBounds = false,
+        int $numValuesPerNode = 0,
+        bool $returnBounds = false,
     ): array;
 
     /**
@@ -630,11 +630,11 @@ interface OpcUaClientInterface
      * @throws ServiceException If the server returns an error response.
      */
     public function historyReadProcessed(
-        NodeId|string      $nodeId,
+        NodeId|string $nodeId,
         DateTimeImmutable $startTime,
         DateTimeImmutable $endTime,
-        float              $processingInterval,
-        NodeId             $aggregateType,
+        float $processingInterval,
+        NodeId $aggregateType,
     ): array;
 
     /**
@@ -650,6 +650,6 @@ interface OpcUaClientInterface
      */
     public function historyReadAtTime(
         NodeId|string $nodeId,
-        array         $timestamps,
+        array $timestamps,
     ): array;
 }

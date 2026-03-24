@@ -6,9 +6,9 @@ namespace Gianfriaur\OpcuaPhpClient;
 
 use Gianfriaur\OpcuaPhpClient\Client\ManagesAutoRetryTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBatchingTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesCacheTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseDepthTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesCacheTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesHandshakeTrait;
@@ -17,11 +17,11 @@ use Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSecureChannelTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTimeoutTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTranslateBrowsePathTrait;
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
 use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
@@ -72,43 +72,71 @@ class Client implements OpcUaClientInterface
     use ManagesTranslateBrowsePathTrait;
 
     private TcpTransport $transport;
+
     private ?SessionService $session = null;
+
     private ?BrowseService $browseService = null;
+
     private ?ReadService $readService = null;
+
     private ?WriteService $writeService = null;
+
     private ?CallService $callService = null;
+
     private ?GetEndpointsService $getEndpointsService = null;
+
     private ?SubscriptionService $subscriptionService = null;
+
     private ?MonitoredItemService $monitoredItemService = null;
+
     private ?PublishService $publishService = null;
+
     private ?HistoryReadService $historyReadService = null;
+
     private ?TranslateBrowsePathService $translateBrowsePathService = null;
+
     private ?NodeId $authenticationToken = null;
+
     private int $secureChannelId = 0;
+
     private int $requestId = 10;
 
     private SecurityPolicy $securityPolicy = SecurityPolicy::None;
+
     private SecurityMode $securityMode = SecurityMode::None;
+
     private ?string $username = null;
+
     private ?string $password = null;
+
     private ?string $clientCertPath = null;
+
     private ?string $clientKeyPath = null;
+
     private ?string $serverCertDer = null;
+
     private ?SecureChannel $secureChannel = null;
+
     private ?string $serverNonce = null;
 
     private ?string $caCertPath = null;
 
     private ?string $userCertPath = null;
+
     private ?string $userKeyPath = null;
 
     private ?string $usernamePolicyId = null;
+
     private ?string $certificatePolicyId = null;
+
     private ?string $anonymousPolicyId = null;
 
     private ?string $lastEndpointUrl = null;
+
     private ConnectionState $connectionState = ConnectionState::Disconnected;
+
     private ExtensionObjectRepository $extensionObjectRepository;
+
     private LoggerInterface $logger;
 
     /**
@@ -131,6 +159,7 @@ class Client implements OpcUaClientInterface
     public function setLogger(LoggerInterface $logger): self
     {
         $this->logger = $logger;
+
         return $this;
     }
 
@@ -246,7 +275,7 @@ class Client implements OpcUaClientInterface
             MessageHeader::decode($decoder);
             $errorCode = $decoder->readUInt32();
             $reason = $decoder->readString() ?? 'Unknown error';
-            throw new ServiceException(sprintf("Server error 0x%08X: %s", $errorCode, $reason), $errorCode);
+            throw new ServiceException(sprintf('Server error 0x%08X: %s', $errorCode, $reason), $errorCode);
         }
 
         if ($this->secureChannel !== null && $this->secureChannel->isSecurityActive()) {
@@ -283,7 +312,7 @@ class Client implements OpcUaClientInterface
      * @param NodeId|string $nodeId The node identifier as a NodeId object or OPC UA string format (e.g. 'i=2259', 'ns=2;s=MyNode').
      * @return NodeId
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      */
     private function resolveNodeIdParam(NodeId|string $nodeId): NodeId
     {

@@ -10,19 +10,19 @@ describe('CertificateManager', function () {
 
     it('throws ConfigurationException for non-existent certificate file', function () {
         $cm = new CertificateManager();
-        expect(fn() => $cm->loadCertificatePem('/nonexistent/cert.pem'))
+        expect(fn () => $cm->loadCertificatePem('/nonexistent/cert.pem'))
             ->toThrow(ConfigurationException::class);
     });
 
     it('throws ConfigurationException for non-existent DER certificate file', function () {
         $cm = new CertificateManager();
-        expect(fn() => $cm->loadCertificateDer('/nonexistent/cert.der'))
+        expect(fn () => $cm->loadCertificateDer('/nonexistent/cert.der'))
             ->toThrow(ConfigurationException::class);
     });
 
     it('throws ConfigurationException for non-existent private key file', function () {
         $cm = new CertificateManager();
-        expect(fn() => $cm->loadPrivateKeyPem('/nonexistent/key.pem'))
+        expect(fn () => $cm->loadPrivateKeyPem('/nonexistent/key.pem'))
             ->toThrow(ConfigurationException::class);
     });
 
@@ -77,7 +77,7 @@ describe('CertificateManager', function () {
 
         try {
             $cm = new CertificateManager();
-            expect(fn() => $cm->loadPrivateKeyPem($tmpFile))
+            expect(fn () => $cm->loadPrivateKeyPem($tmpFile))
                 ->toThrow(SecurityException::class);
         } finally {
             unlink($tmpFile);
@@ -125,13 +125,13 @@ describe('CertificateManager', function () {
 
     it('throws SecurityException for invalid DER in getPublicKeyLength', function () {
         $cm = new CertificateManager();
-        expect(fn() => $cm->getPublicKeyLength('invalid-der'))
+        expect(fn () => $cm->getPublicKeyLength('invalid-der'))
             ->toThrow(SecurityException::class);
     });
 
     it('throws SecurityException for invalid DER in getPublicKeyFromCert', function () {
         $cm = new CertificateManager();
-        expect(fn() => $cm->getPublicKeyFromCert('invalid-der'))
+        expect(fn () => $cm->getPublicKeyFromCert('invalid-der'))
             ->toThrow(SecurityException::class);
     });
 
@@ -243,7 +243,7 @@ describe('CertificateManager', function () {
 
         try {
             $cm = new CertificateManager();
-            expect(fn() => $cm->loadCertificatePem($tmpFile))
+            expect(fn () => $cm->loadCertificatePem($tmpFile))
                 ->toThrow(SecurityException::class);
         } finally {
             unlink($tmpFile);

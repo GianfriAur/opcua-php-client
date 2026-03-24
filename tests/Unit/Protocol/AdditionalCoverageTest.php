@@ -310,7 +310,8 @@ describe('SessionService activate with identity tokens', function () {
         $bytes = $session->encodeActivateSessionRequest(
             1,
             NodeId::numeric(0, 0),
-            null, null,
+            null,
+            null,
             $userCertDer,
             $privKey,
             'server-nonce',
@@ -338,7 +339,8 @@ describe('SessionService activate with identity tokens', function () {
             NodeId::numeric(0, 0),
             'admin',
             'password123',
-            null, null,
+            null,
+            null,
             'server-nonce-bytes',
         );
 
@@ -363,7 +365,8 @@ describe('SessionService activate with identity tokens', function () {
         $bytes = $session->encodeActivateSessionRequest(
             1,
             NodeId::numeric(0, 0),
-            null, null,
+            null,
+            null,
             $userCertDer,
             $privKey,
             'server-nonce',
@@ -532,8 +535,15 @@ describe('SecureChannel processMessage SignAndEncrypt', function () {
 
         // Process OPN response to derive keys
         $response = buildEncryptedOPNResponse(
-            $certDer, $privKey, $certDer, $privKey,
-            $clientNonce, $serverNonce, 100, 200, $policy,
+            $certDer,
+            $privKey,
+            $certDer,
+            $privKey,
+            $clientNonce,
+            $serverNonce,
+            100,
+            200,
+            $policy,
         );
         $clientChannel->processOpenSecureChannelResponse($response);
 

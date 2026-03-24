@@ -15,7 +15,7 @@ readonly class SessionActivated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public string               $endpointUrl,
+        public string $endpointUrl,
     ) {
     }
 }

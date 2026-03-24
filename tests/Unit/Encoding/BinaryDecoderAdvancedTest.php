@@ -26,7 +26,7 @@ describe('BinaryDecoder skip()', function () {
 
     it('throws on skip beyond buffer', function () {
         $decoder = new BinaryDecoder("\x01\x02");
-        expect(fn() => $decoder->skip(10))
+        expect(fn () => $decoder->skip(10))
             ->toThrow(EncodingException::class);
     });
 });
@@ -210,7 +210,7 @@ describe('DateTime edge cases', function () {
         $result = $decoder->readDateTime();
         expect($result)->toBeInstanceOf(DateTimeImmutable::class);
         // Should be very close to Unix epoch
-        $ts = (int)$result->format('U');
+        $ts = (int) $result->format('U');
         expect($ts)->toBeLessThanOrEqual(0);
     });
 });
@@ -244,7 +244,7 @@ describe('ReferenceDescription round-trip', function () {
         expect($ref->isForward())->toBeTrue();
         expect($ref->getNodeId()->getIdentifier())->toBe(1000);
         expect($ref->getBrowseName()->getName())->toBe('TestVar');
-        expect((string)$ref->getDisplayName())->toBe('Test Variable');
+        expect((string) $ref->getDisplayName())->toBe('Test Variable');
         expect($ref->getNodeClass())->toBe(NodeClass::Variable);
         expect($ref->getTypeDefinition()->getIdentifier())->toBe(62);
     });
@@ -323,9 +323,9 @@ describe('DataValue with picoseconds', function () {
         $encoder->writeInt32(42);
         // Source timestamp
         $dt = new DateTimeImmutable('2024-06-15 12:00:00');
-        $unixTimestamp = (float)$dt->format('U.u');
+        $unixTimestamp = (float) $dt->format('U.u');
         $epochOffset = 11644473600;
-        $ticks = (int)(($unixTimestamp + $epochOffset) * 10_000_000);
+        $ticks = (int) (($unixTimestamp + $epochOffset) * 10_000_000);
         $encoder->writeInt64($ticks);
         // Source picoseconds
         $encoder->writeUInt16(500);

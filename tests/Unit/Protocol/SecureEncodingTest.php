@@ -53,11 +53,14 @@ function createSecureSession(): SessionService
     // Build and process an OPN response to derive symmetric keys
     $serverNonce = random_bytes(32);
     $response = buildEncryptedOPNResponse(
-        $clientDer, $privKey,   // server cert/key (same as client for test)
-        $clientDer, $privKey,   // client cert/key
+        $clientDer,
+        $privKey,   // server cert/key (same as client for test)
+        $clientDer,
+        $privKey,   // client cert/key
         $sc->getClientNonce(),
         $serverNonce,
-        500, 600,
+        500,
+        600,
         SecurityPolicy::Basic256Sha256,
     );
     $sc->processOpenSecureChannelResponse($response);
@@ -158,7 +161,9 @@ describe('Secure encoding: MonitoredItemService', function () {
         $service = new MonitoredItemService($session);
 
         $bytes = $service->encodeCreateMonitoredItemsRequest(
-            1, NodeId::numeric(0, 0), 42,
+            1,
+            NodeId::numeric(0, 0),
+            42,
             [['nodeId' => NodeId::numeric(1, 100)]],
         );
         expect(substr($bytes, 0, 3))->toBe('MSG');
@@ -169,7 +174,9 @@ describe('Secure encoding: MonitoredItemService', function () {
         $service = new MonitoredItemService($session);
 
         $bytes = $service->encodeCreateEventMonitoredItemRequest(
-            1, NodeId::numeric(0, 0), 42,
+            1,
+            NodeId::numeric(0, 0),
+            42,
             NodeId::numeric(0, 2253),
             ['EventId', 'EventType'],
             5,
@@ -193,11 +200,13 @@ describe('Secure encoding: HistoryReadService', function () {
         $service = new HistoryReadService($session);
 
         $bytes = $service->encodeHistoryReadRawRequest(
-            1, NodeId::numeric(0, 0),
+            1,
+            NodeId::numeric(0, 0),
             NodeId::numeric(1, 100),
             new DateTimeImmutable('2024-01-01'),
             new DateTimeImmutable('2024-01-02'),
-            100, true,
+            100,
+            true,
         );
         expect(substr($bytes, 0, 3))->toBe('MSG');
     });
@@ -207,7 +216,8 @@ describe('Secure encoding: HistoryReadService', function () {
         $service = new HistoryReadService($session);
 
         $bytes = $service->encodeHistoryReadProcessedRequest(
-            1, NodeId::numeric(0, 0),
+            1,
+            NodeId::numeric(0, 0),
             NodeId::numeric(1, 100),
             new DateTimeImmutable('2024-01-01'),
             new DateTimeImmutable('2024-01-02'),
@@ -222,7 +232,8 @@ describe('Secure encoding: HistoryReadService', function () {
         $service = new HistoryReadService($session);
 
         $bytes = $service->encodeHistoryReadAtTimeRequest(
-            1, NodeId::numeric(0, 0),
+            1,
+            NodeId::numeric(0, 0),
             NodeId::numeric(1, 100),
             [new DateTimeImmutable('2024-01-01 12:00:00')],
         );

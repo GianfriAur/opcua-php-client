@@ -16,6 +16,7 @@ use Psr\SimpleCache\CacheInterface;
 trait ManagesCacheTrait
 {
     private ?CacheInterface $cache = null;
+
     private bool $cacheInitialized = false;
 
     /**
@@ -28,6 +29,7 @@ trait ManagesCacheTrait
     {
         $this->cache = $cache;
         $this->cacheInitialized = true;
+
         return $this;
     }
 
@@ -39,6 +41,7 @@ trait ManagesCacheTrait
     public function getCache(): ?CacheInterface
     {
         $this->ensureCacheInitialized();
+
         return $this->cache;
     }
 
@@ -60,6 +63,7 @@ trait ManagesCacheTrait
 
         if ($this->cache instanceof InMemoryCache) {
             $this->invalidateByPrefix($prefix);
+
             return;
         }
 
@@ -94,6 +98,7 @@ trait ManagesCacheTrait
         if ($paramsSuffix !== '') {
             $key .= ':' . $paramsSuffix;
         }
+
         return $key;
     }
 
@@ -104,6 +109,7 @@ trait ManagesCacheTrait
     private function buildCacheKeyPrefix(NodeId $nodeId): string
     {
         $endpointHash = md5($this->lastEndpointUrl ?? 'unknown');
+
         return sprintf('opcua:%s:%s', $endpointHash, $nodeId->__toString());
     }
 
@@ -119,6 +125,7 @@ trait ManagesCacheTrait
         if ($paramsSuffix !== '') {
             $key .= ':' . $paramsSuffix;
         }
+
         return $key;
     }
 
@@ -135,10 +142,11 @@ trait ManagesCacheTrait
         if ($useCache && $this->cache !== null) {
             $cached = $this->cache->get($key);
             if ($cached !== null) {
-                $this->dispatch(fn() => new CacheHit($this, $key));
+                $this->dispatch(fn () => new CacheHit($this, $key));
+
                 return $cached;
             }
-            $this->dispatch(fn() => new CacheMiss($this, $key));
+            $this->dispatch(fn () => new CacheMiss($this, $key));
         }
 
         $result = $fetcher();
@@ -157,7 +165,7 @@ trait ManagesCacheTrait
      */
     private function ensureCacheInitialized(): void
     {
-        if (!$this->cacheInitialized) {
+        if (! $this->cacheInitialized) {
             $this->cache = new InMemoryCache(300);
             $this->cacheInitialized = true;
         }

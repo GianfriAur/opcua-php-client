@@ -27,13 +27,12 @@ class CallService
      * @param NodeId $authToken
      */
     public function encodeCallRequest(
-        int    $requestId,
+        int $requestId,
         NodeId $objectId,
         NodeId $methodId,
-        array  $inputArguments,
+        array $inputArguments,
         NodeId $authToken,
-    ): string
-    {
+    ): string {
         $secureChannel = $this->session->getSecureChannel();
         if ($secureChannel !== null && $secureChannel->isSecurityActive()) {
             return $this->encodeCallRequestSecure($requestId, $objectId, $methodId, $inputArguments, $authToken);
@@ -105,13 +104,12 @@ class CallService
      * @param NodeId $authToken
      */
     private function encodeCallRequestSecure(
-        int    $requestId,
+        int $requestId,
         NodeId $objectId,
         NodeId $methodId,
-        array  $inputArguments,
+        array $inputArguments,
         NodeId $authToken,
-    ): string
-    {
+    ): string {
         $body = new BinaryEncoder();
         $this->writeCallInnerBody($body, $requestId, $objectId, $methodId, $inputArguments, $authToken);
 
@@ -128,13 +126,12 @@ class CallService
      */
     private function writeCallInnerBody(
         BinaryEncoder $body,
-        int           $requestId,
-        NodeId        $objectId,
-        NodeId        $methodId,
-        array         $inputArguments,
-        NodeId        $authToken,
-    ): void
-    {
+        int $requestId,
+        NodeId $objectId,
+        NodeId $methodId,
+        array $inputArguments,
+        NodeId $authToken,
+    ): void {
         $body->writeNodeId(NodeId::numeric(0, 712));
 
         $body->writeNodeId($authToken);

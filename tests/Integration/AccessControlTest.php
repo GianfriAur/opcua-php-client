@@ -21,7 +21,7 @@ describe('Access Control', function () {
 
                 expect($refs)->toBeArray()->not->toBeEmpty();
 
-                $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+                $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
                 expect($names)->toContain('AccessLevels');
             } finally {
                 TestHelper::safeDisconnect($client);
@@ -63,7 +63,7 @@ describe('Access Control', function () {
                 $refs = $client->browse($viewerNodeId);
                 expect($refs)->toBeArray()->not->toBeEmpty();
 
-                $names = array_map(fn($r) => $r->getBrowseName()->getName(), $refs);
+                $names = array_map(fn ($r) => $r->getBrowseName()->getName(), $refs);
 
                 // Read available ViewerLevel variables
                 foreach ($refs as $ref) {

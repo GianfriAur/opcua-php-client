@@ -71,38 +71,38 @@ describe('Exception thrown in correct context', function () {
 
     it('throws ConnectionException when calling browse without connecting', function () {
         $client = new Client();
-        expect(fn() => $client->browse(NodeId::numeric(0, 85)))
+        expect(fn () => $client->browse(NodeId::numeric(0, 85)))
             ->toThrow(ConnectionException::class);
     });
 
     it('throws ConfigurationException for invalid endpoint URL', function () {
         $client = new Client();
-        expect(fn() => $client->connect('not-a-valid-url'))
+        expect(fn () => $client->connect('not-a-valid-url'))
             ->toThrow(ConfigurationException::class);
     });
 
     it('throws ConnectionException for unreachable host', function () {
         $client = new Client();
-        expect(fn() => $client->connect('opc.tcp://192.0.2.1:4840/UA/TestServer'))
+        expect(fn () => $client->connect('opc.tcp://192.0.2.1:4840/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     });
 
     it('throws EncodingException on buffer underflow', function () {
         $decoder = new BinaryDecoder("\x01\x02");
-        expect(fn() => $decoder->readUInt32())
+        expect(fn () => $decoder->readUInt32())
             ->toThrow(EncodingException::class);
     });
 
     it('throws EncodingException on invalid GUID format', function () {
         $encoder = new BinaryEncoder();
-        expect(fn() => $encoder->writeGuid('not-a-guid'))
+        expect(fn () => $encoder->writeGuid('not-a-guid'))
             ->toThrow(EncodingException::class);
     });
 
     it('throws EncodingException on unknown NodeId encoding', function () {
         // Build a buffer with an invalid NodeId encoding byte (0xFF)
         $decoder = new BinaryDecoder("\xFF");
-        expect(fn() => $decoder->readNodeId())
+        expect(fn () => $decoder->readNodeId())
             ->toThrow(EncodingException::class);
     });
 });

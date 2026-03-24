@@ -481,7 +481,7 @@ describe('SessionService decoding', function () {
         writeResponseHeader($encoder, 0x80070000); // BadIdentityTokenRejected
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
-        expect(fn() => $session->decodeActivateSessionResponse($decoder))
+        expect(fn () => $session->decodeActivateSessionResponse($decoder))
             ->toThrow(ServiceException::class);
     });
 });

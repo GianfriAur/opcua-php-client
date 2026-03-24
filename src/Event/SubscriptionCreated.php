@@ -15,10 +15,10 @@ readonly class SubscriptionCreated
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public float                $revisedPublishingInterval,
-        public int                  $revisedLifetimeCount,
-        public int                  $revisedMaxKeepAliveCount,
+        public int $subscriptionId,
+        public float $revisedPublishingInterval,
+        public int $revisedLifetimeCount,
+        public int $revisedMaxKeepAliveCount,
     ) {
     }
 }

@@ -15,10 +15,10 @@ readonly class AlarmSeverityChanged
 {
     public function __construct(
         public OpcUaClientInterface $client,
-        public int                  $subscriptionId,
-        public int                  $clientHandle,
+        public int $subscriptionId,
+        public int $clientHandle,
         public ?string $sourceName = null,
-        public int     $severity = 0,
+        public int $severity = 0,
     ) {
     }
 }

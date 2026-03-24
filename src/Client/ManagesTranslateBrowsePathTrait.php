@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -119,7 +118,7 @@ trait ManagesTranslateBrowsePathTrait
         if (str_contains($segment, ':')) {
             $parts = explode(':', $segment, 2);
             if (ctype_digit($parts[0])) {
-                return new QualifiedName((int)$parts[0], $parts[1]);
+                return new QualifiedName((int) $parts[0], $parts[1]);
             }
         }
 

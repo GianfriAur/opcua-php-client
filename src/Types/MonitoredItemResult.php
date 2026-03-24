@@ -18,11 +18,10 @@ readonly class MonitoredItemResult
      * @param int $revisedQueueSize
      */
     public function __construct(
-        public int   $statusCode,
-        public int   $monitoredItemId,
+        public int $statusCode,
+        public int $monitoredItemId,
         public float $revisedSamplingInterval,
-        public int   $revisedQueueSize,
-    )
-    {
+        public int $revisedQueueSize,
+    ) {
     }
 }

@@ -124,7 +124,7 @@ describe('Auto-retry state transitions', function () {
         $client = new Client();
         $client->setAutoRetry(5);
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     })->group('integration');
 
@@ -134,7 +134,7 @@ describe('Auto-retry state transitions', function () {
         $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
         $client->disconnect();
 
-        expect(fn() => $client->read(NodeId::numeric(0, 2259)))
+        expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     })->group('integration');
 
