@@ -32,6 +32,8 @@ use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
 use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
 use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -76,11 +78,13 @@ class MockClient implements OpcUaClientInterface
     private ?CacheInterface $cache = null;
     private bool $cacheInitialized = false;
     private LoggerInterface $logger;
+    private EventDispatcherInterface $eventDispatcher;
     private ExtensionObjectRepository $repository;
 
     public function __construct()
     {
         $this->logger = new NullLogger();
+        $this->eventDispatcher = new NullEventDispatcher();
         $this->repository = new ExtensionObjectRepository();
     }
 
@@ -203,6 +207,8 @@ class MockClient implements OpcUaClientInterface
     public function getConnectionState(): ConnectionState { return $this->state; }
     public function setLogger(LoggerInterface $logger): self { $this->logger = $logger; return $this; }
     public function getLogger(): LoggerInterface { return $this->logger; }
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self { $this->eventDispatcher = $eventDispatcher; return $this; }
+    public function getEventDispatcher(): EventDispatcherInterface { return $this->eventDispatcher; }
     public function getExtensionObjectRepository(): ExtensionObjectRepository { return $this->repository; }
     public function setTimeout(float $timeout): self { $this->timeout = $timeout; return $this; }
     public function getTimeout(): float { return $this->timeout; }

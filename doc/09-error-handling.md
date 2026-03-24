@@ -63,6 +63,8 @@ try {
 
 > **Tip:** With auto-retry enabled (default: 1 retry after first connect), the client attempts reconnection before throwing. You only need manual recovery if auto-retry is exhausted or disabled.
 
+> **Events:** Connection failures dispatch `ConnectionFailed`. Each retry dispatches `RetryAttempt`, and when all retries are exhausted `RetryExhausted` is dispatched. Use these events for monitoring and alerting. See [Events](14-events.md).
+
 ## Exception Types
 
 ### OpcUaException

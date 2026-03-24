@@ -20,6 +20,7 @@ src/
 │   ├── ManagesSessionTrait.php          # Session create / activate
 │   ├── ManagesSubscriptionsTrait.php    # Subscriptions and monitored items
 │   ├── ManagesCacheTrait.php             # PSR-16 cache management
+│   ├── ManagesEventDispatcherTrait.php  # PSR-14 event dispatching
 │   ├── ManagesTimeoutTrait.php          # Timeout configuration
 │   ├── ManagesTranslateBrowsePathTrait.php # Browse path translation
 │   └── ManagesTypeDiscoveryTrait.php     # Automatic DataType discovery
@@ -92,6 +93,24 @@ src/
 │   ├── MonitoredItemsBuilder.php      # Builder for createMonitoredItems()
 │   └── TranslateBrowsePathsBuilder.php # Builder for translateBrowsePaths()
 │
+├── Event/
+│   ├── NullEventDispatcher.php        # No-op PSR-14 dispatcher (default)
+│   ├── Client*.php                    # Connection lifecycle events (6)
+│   ├── Session*.php                   # Session events (3)
+│   ├── Subscription*.php              # Subscription events (4)
+│   ├── MonitoredItem*.php             # Monitored item events (2)
+│   ├── DataChangeReceived.php         # Data change notification event
+│   ├── EventNotificationReceived.php  # Event notification event
+│   ├── PublishResponseReceived.php    # Publish response event
+│   ├── SubscriptionKeepAlive.php      # Keep-alive event
+│   ├── Alarm*.php                     # Alarm events (8)
+│   ├── NodeValue*.php                 # Read/Write events (3)
+│   ├── NodeBrowsed.php                # Browse event
+│   ├── SecureChannel*.php             # Secure channel events (2)
+│   ├── DataTypesDiscovered.php        # Type discovery event
+│   ├── Cache*.php                     # Cache hit/miss events (2)
+│   └── Retry*.php                     # Retry events (2)
+│
 ├── Cache/
 │   ├── InMemoryCache.php              # PSR-16 in-memory cache
 │   └── FileCache.php                  # PSR-16 file-based cache
@@ -137,10 +156,11 @@ Each layer only talks to the one directly below it. The `Client` is the sole pub
 
 ## Dependencies
 
-The library has two Composer dependencies (both interface-only, zero runtime code):
+The library has three Composer dependencies (all interface-only, zero runtime code):
 
 - **`psr/log`** — PSR-3 logger interface. The client accepts any `Psr\Log\LoggerInterface` implementation (Monolog, Laravel, etc.) and defaults to `NullLogger` when none is provided.
 - **`psr/simple-cache`** — PSR-16 cache interface. The client uses `CacheInterface` for browse result caching. Ships with `InMemoryCache` (default) and `FileCache`. Any PSR-16 compatible driver (Laravel Cache, Symfony Cache, etc.) can be plugged in.
+- **`psr/event-dispatcher`** — PSR-14 event dispatcher interface. The client dispatches 38 granular events at lifecycle points. Defaults to `NullEventDispatcher` (zero overhead). Any PSR-14 compatible dispatcher (Laravel, Symfony, etc.) can be injected.
 
 The only PHP extension required is `ext-openssl`.
 

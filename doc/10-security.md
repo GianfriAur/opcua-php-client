@@ -143,3 +143,5 @@ Client                          Server
 **Phase 3 -- Symmetric (Messages).** All `MSG` and `CLO` messages use the derived symmetric keys. Messages are signed with HMAC and encrypted with AES-CBC. Padding follows OPC UA spec (PKCS#7 style).
 
 The `SecureChannel` class manages this entire lifecycle: asymmetric key exchange, symmetric key derivation, message signing/encryption/padding, sequence number tracking, and token/channel ID management.
+
+> **Events:** `SecureChannelOpened` is dispatched after the secure channel is established (with channelId, securityPolicy, and securityMode). `SecureChannelClosed` is dispatched before the channel is closed. See [Events](14-events.md).

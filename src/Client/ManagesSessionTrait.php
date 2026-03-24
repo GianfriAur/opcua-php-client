@@ -6,6 +6,9 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use Gianfriaur\OpcuaPhpClient\Event\SessionActivated;
+use Gianfriaur\OpcuaPhpClient\Event\SessionClosed;
+use Gianfriaur\OpcuaPhpClient\Event\SessionCreated;
 use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
 use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
@@ -27,6 +30,7 @@ trait ManagesSessionTrait
         $decoder = $this->createDecoder($responseBody);
         $sessionResult = $this->session->decodeCreateSessionResponse($decoder);
         $this->authenticationToken = $sessionResult['authenticationToken'];
+        $this->dispatch(fn() => new SessionCreated($this, $endpointUrl, $this->authenticationToken));
 
         if (isset($sessionResult['serverNonce'])) {
             $this->serverNonce = $sessionResult['serverNonce'];
@@ -69,10 +73,13 @@ trait ManagesSessionTrait
         $responseBody = $this->unwrapResponse($response);
         $decoder = $this->createDecoder($responseBody);
         $this->session->decodeActivateSessionResponse($decoder);
+        $this->dispatch(fn() => new SessionActivated($this, $endpointUrl));
     }
 
     private function closeSession(): void
     {
+        $this->dispatch(fn() => new SessionClosed($this));
+
         if ($this->secureChannel !== null && $this->secureChannel->isSecurityActive()) {
             $this->closeSessionSecure();
             return;

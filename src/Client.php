@@ -10,6 +10,7 @@ use Gianfriaur\OpcuaPhpClient\Client\ManagesCacheTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseDepthTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesHandshakeTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesHistoryTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait;
@@ -19,6 +20,7 @@ use Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTimeoutTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTranslateBrowsePathTrait;
+use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
@@ -57,6 +59,7 @@ class Client implements OpcUaClientInterface
     use ManagesBatchingTrait;
     use ManagesCacheTrait;
     use ManagesBrowseDepthTrait;
+    use ManagesEventDispatcherTrait;
     use ManagesConnectionTrait;
     use ManagesHandshakeTrait;
     use ManagesSecureChannelTrait;
@@ -117,6 +120,7 @@ class Client implements OpcUaClientInterface
         $this->transport = new TcpTransport();
         $this->extensionObjectRepository = $extensionObjectRepository ?? new ExtensionObjectRepository();
         $this->logger = $logger ?? new NullLogger();
+        $this->eventDispatcher = new NullEventDispatcher();
         $this->initTimeout();
     }
 

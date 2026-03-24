@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use Gianfriaur\OpcuaPhpClient\Event\NodeValueRead;
+use Gianfriaur\OpcuaPhpClient\Event\NodeValueWriteFailed;
+use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
+use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
 
 /**
@@ -44,7 +48,11 @@ trait ManagesReadWriteTrait
             $responseBody = $this->unwrapResponse($response);
             $decoder = $this->createDecoder($responseBody);
 
-            return $this->readService->decodeReadResponse($decoder);
+            $dataValue = $this->readService->decodeReadResponse($decoder);
+
+            $this->dispatch(fn() => new NodeValueRead($this, $nodeId, $attributeId, $dataValue));
+
+            return $dataValue;
         });
     }
 
@@ -145,8 +153,15 @@ trait ManagesReadWriteTrait
             $decoder = $this->createDecoder($responseBody);
 
             $results = $this->writeService->decodeWriteResponse($decoder);
+            $statusCode = $results[0] ?? 0;
 
-            return $results[0] ?? 0;
+            if (StatusCode::isGood($statusCode)) {
+                $this->dispatch(fn() => new NodeValueWritten($this, $nodeId, $value, $type, $statusCode));
+            } else {
+                $this->dispatch(fn() => new NodeValueWriteFailed($this, $nodeId, $statusCode));
+            }
+
+            return $statusCode;
         });
     }
 

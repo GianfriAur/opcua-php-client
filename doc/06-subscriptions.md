@@ -27,6 +27,8 @@ echo 'Revised interval: ' . $sub->revisedPublishingInterval . " ms\n";
 
 Returns a [`SubscriptionResult`](08-types.md#subscriptionresult). The server may revise your requested intervals -- always check the `revised*` properties.
 
+> **Events:** Dispatches `SubscriptionCreated` after creation. See [Events](14-events.md).
+
 ## Monitoring Data Changes
 
 Add nodes to watch for value changes:
@@ -64,6 +66,8 @@ $results = $client->createMonitoredItems(
 ```
 
 > **Tip:** The builder's `->add()` starts a new monitored item. Chain `->samplingInterval()`, `->queueSize()`, and `->clientHandle()` to configure it. Unset options use server defaults.
+
+> **Events:** Dispatches `MonitoredItemCreated` for each item created. See [Events](14-events.md).
 
 ### Monitored Item Parameters
 
@@ -119,6 +123,8 @@ foreach ($response->notifications as $notif) {
 ```
 
 `publish()` returns a [`PublishResult`](08-types.md#publishresult).
+
+> **Events:** Each `publish()` dispatches `PublishResponseReceived`. Per-notification events are also fired: `DataChangeReceived` for data changes, `EventNotificationReceived` for events, plus alarm-specific events (`AlarmActivated`, `AlarmDeactivated`, `AlarmSeverityChanged`, etc.) when alarm fields are present. When no notifications are returned, `SubscriptionKeepAlive` is dispatched instead. See [Events](14-events.md) for the full list and alarm deduction logic.
 
 ### Acknowledging Notifications
 
@@ -179,6 +185,8 @@ $status = $client->deleteSubscription($subscriptionId);
 ```
 
 > **Tip:** Subscriptions are automatically cleaned up when you call `$client->disconnect()`.
+
+> **Events:** `deleteMonitoredItems()` dispatches `MonitoredItemDeleted` per item. `deleteSubscription()` dispatches `SubscriptionDeleted`. See [Events](14-events.md).
 
 ## Transfer & Recovery
 

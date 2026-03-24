@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
+use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
 use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
@@ -71,6 +72,7 @@ trait ManagesTypeDiscoveryTrait
         }
 
         $this->logger->info('Discovered {count} data type(s)', ['count' => $registered]);
+        $this->dispatch(fn() => new DataTypesDiscovered($this, $namespaceIndex, $registered));
         return $registered;
     }
 

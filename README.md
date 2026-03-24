@@ -235,6 +235,46 @@ $client->connect('opc.tcp://localhost:4840');
 
 Any [PSR-3](https://www.php-fig.org/psr/psr-3/) logger works — Monolog, Laravel's logger, or your own. Without one, logging is silently disabled (`NullLogger`).
 
+### React to events (PSR-14)
+
+```php
+use Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived;
+use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
+
+// Set any PSR-14 event dispatcher
+$client->setEventDispatcher($yourDispatcher);
+
+// In your listener:
+class HandleDataChange {
+    public function __invoke(DataChangeReceived $event): void {
+        echo "Node changed on subscription {$event->subscriptionId}: "
+            . $event->dataValue->getValue() . "\n";
+    }
+}
+```
+
+38 granular events covering connection, session, subscription, data change, alarms, read/write, browse, cache, and retry. Zero overhead with the default `NullEventDispatcher`. See [Events documentation](doc/14-events.md) for the full list.
+
+### Monitor alarms in real time
+
+```php
+use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
+use Gianfriaur\OpcuaPhpClient\Event\AlarmSeverityChanged;
+
+// Listen for alarm activation
+class AlarmHandler {
+    public function handleActivated(AlarmActivated $event): void {
+        Log::critical("Alarm active: {$event->sourceName} (severity: {$event->severity})");
+    }
+
+    public function handleSeverity(AlarmSeverityChanged $event): void {
+        if ($event->severity >= 800) {
+            Notification::send($operators, new HighSeverityAlarm($event));
+        }
+    }
+}
+```
+
 ### Auto-discover custom types
 
 ```php
@@ -248,7 +288,7 @@ $point = $client->read($pointNodeId)->getValue();
 
 ## Why This Library?
 
-- **Zero runtime dependencies** — only `ext-openssl`. Optional PSR-3 logging via any compatible logger (Monolog, Laravel, etc.).
+- **Zero runtime dependencies** — only `ext-openssl`. Optional PSR-3 logging, PSR-16 caching, and PSR-14 events via any compatible implementation.
 - **PHP 8.2+** — runs on any modern PHP.
 - **Native binary protocol** — speaks OPC UA directly over TCP. No HTTP gateway, no REST bridge, no sidecar.
 - **Full security stack** — 6 policies up to Aes256Sha256RsaPss, 3 auth modes, auto-generated certs.
@@ -281,6 +321,7 @@ $point = $client->read($pointNodeId)->getValue();
 | **MockClient** | In-memory test double — register handlers, assert calls, no TCP connection needed |
 | **Logging** | Optional structured logging via any PSR-3 logger — connect, retry, errors, protocol details |
 | **Cache** | Browse and resolve results cached by default (InMemoryCache, 300s TTL). Plug in any PSR-16 driver (FileCache, Laravel, Redis) |
+| **Events** | 38 granular PSR-14 events — connection, session, subscription, data change, alarms, read/write, browse, cache, retry. Zero overhead when unused |
 
 ## Documentation
 
@@ -299,6 +340,7 @@ $point = $client->read($pointNodeId)->getValue();
 | 11 | [Architecture](doc/11-architecture.md) | Project structure, layers, protocol flow |
 | 12 | [ExtensionObject Codecs](doc/12-extension-object-codecs.md) | Custom type decoding, codec interface, repository API |
 | 13 | [Testing](doc/13-testing.md) | MockClient, DataValue factories, call tracking, test examples |
+| 14 | [Events](doc/14-events.md) | PSR-14 event system, 38 events, alarm deduction, Laravel integration, examples |
 
 ## Testing
 

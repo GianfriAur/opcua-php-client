@@ -35,6 +35,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Automatic DataType Discovery: discoverDataTypes() auto-detects and decodes custom structures without manual codecs (OPC UA 1.04+)
 - PSR-3 Logging: optional structured logging via any PSR-3 logger (Monolog, Laravel, etc.); NullLogger by default
 - PSR-16 Cache: browse/browseAll/resolveNodeId/getEndpoints/discoverDataTypes results cached by default (InMemoryCache, 300s TTL). Any PSR-16 driver works (FileCache, Laravel Cache, Redis, etc.). Per-call bypass with useCache: false. Invalidate per-node or flush all. discoverDataTypes replays cached type definitions without server round-trips.
+- PSR-14 Events: 38 granular events dispatched at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default (zero overhead). Alarm-specific events auto-deduced from notification fields. All events carry a $client reference.
 - Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
 - MockClient: in-memory test double implementing OpcUaClientInterface — register handlers, assert calls, no TCP connection
 - Typed everywhere: all service responses return public readonly DTOs, not arrays
@@ -46,7 +47,7 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 
 ## Architecture
 
-- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 13 traits
+- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 14 traits
 - Transport (src/Transport/): TCP socket communication
 - Protocol (src/Protocol/): OPC UA service encoding/decoding
 - Encoding (src/Encoding/): binary serialization (BinaryEncoder, BinaryDecoder)
@@ -54,6 +55,7 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 - Types (src/Types/): OPC UA data types, enums, and result DTOs
 - Repository (src/Repository/): per-client ExtensionObject codec registry
 - Cache (src/Cache/): PSR-16 cache drivers (InMemoryCache, FileCache)
+- Event (src/Event/): 38 PSR-14 event classes + NullEventDispatcher
 - Testing (src/Testing/): MockClient — in-memory test double
 - Exception (src/Exception/): exception hierarchy
 
@@ -155,6 +157,8 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 - Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level, not static)
 - Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache — PSR-16 in-memory cache with configurable TTL
 - Gianfriaur\OpcuaPhpClient\Cache\FileCache — PSR-16 file-based cache with configurable TTL
+- Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default, zero overhead)
+- Gianfriaur\OpcuaPhpClient\Event\* — 38 readonly event classes (connection, session, subscription, alarms, read/write, browse, cache, retry)
 
 ## Related packages
 
@@ -172,7 +176,7 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 
 ### Why this library over alternatives
 
-- Only ext-openssl required (Composer deps are interface-only: psr/log, psr/simple-cache)
+- Only ext-openssl required (Composer deps are interface-only: psr/log, psr/simple-cache, psr/event-dispatcher)
 - PHP 8.2+ (wider compatibility than techdock which requires 8.4+)
 - 6 security policies, history read, auto-batching
 - Typed returns (public readonly DTOs, not arrays)

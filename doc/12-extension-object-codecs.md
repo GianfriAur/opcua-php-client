@@ -210,6 +210,8 @@ If you registered a codec manually before calling `discoverDataTypes()`, the man
 
 > **Tip:** Call `discoverDataTypes()` once after `connect()`. It adds a round-trip to the server but saves you from writing and maintaining codec classes for every custom type.
 
+> **Events:** `DataTypesDiscovered` is dispatched after discovery completes, carrying the namespace index and the number of types found. See [Events](14-events.md).
+
 ## Limitations
 
 - **Binary only.** Codecs work for binary-encoded ExtensionObjects (encoding `0x01`). XML-encoded ones (encoding `0x02`) come back as raw XML strings.

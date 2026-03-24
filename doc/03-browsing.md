@@ -12,6 +12,7 @@ $references = $client->browse('i=85'); // Objects folder
 
 // Or with a NodeId object
 $references = $client->browse(NodeId::numeric(0, 85));
+// Events: dispatches NodeBrowsed after each browse() call, CacheHit/CacheMiss when cache is active
 
 foreach ($references as $ref) {
     echo sprintf(

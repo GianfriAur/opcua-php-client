@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **PSR-14 Event Dispatcher.** The client now dispatches 38 granular events at every key lifecycle point. Inject any PSR-14 `EventDispatcherInterface` via `$client->setEventDispatcher($dispatcher)`. Events cover:
+  - **Connection** (6): `ClientConnecting`, `ClientConnected`, `ConnectionFailed`, `ClientReconnecting`, `ClientDisconnecting`, `ClientDisconnected`
+  - **Session** (3): `SessionCreated`, `SessionActivated`, `SessionClosed`
+  - **Secure Channel** (2): `SecureChannelOpened`, `SecureChannelClosed`
+  - **Subscription** (9): `SubscriptionCreated`, `SubscriptionDeleted`, `SubscriptionTransferred`, `MonitoredItemCreated`, `MonitoredItemDeleted`, `DataChangeReceived`, `EventNotificationReceived`, `PublishResponseReceived`, `SubscriptionKeepAlive`
+  - **Alarms — generic** (1): `AlarmEventReceived`
+  - **Alarms — specific** (8): `AlarmActivated`, `AlarmDeactivated`, `AlarmAcknowledged`, `AlarmConfirmed`, `AlarmShelved`, `AlarmSeverityChanged`, `LimitAlarmExceeded`, `OffNormalAlarmTriggered`
+  - **Read/Write/Browse** (4): `NodeValueRead`, `NodeValueWritten`, `NodeValueWriteFailed`, `NodeBrowsed`
+  - **Type Discovery** (1): `DataTypesDiscovered`
+  - **Cache** (2): `CacheHit`, `CacheMiss`
+  - **Retry** (2): `RetryAttempt`, `RetryExhausted`
+- `NullEventDispatcher` — no-op PSR-14 dispatcher used by default. Zero overhead: event objects are lazily instantiated via closures and never allocated when no real dispatcher is set.
+- `ManagesEventDispatcherTrait` — trait providing `setEventDispatcher()`, `getEventDispatcher()`, and the internal `dispatch()` helper with lazy closure support.
+- `psr/event-dispatcher` ^1.0 added as dependency (interface-only package, zero runtime code).
+- All event classes carry an `$client` property referencing the `OpcUaClientInterface` instance that emitted them.
+- Alarm-specific events are automatically deduced from event notification fields (ActiveState, AckedState, ConfirmedState, ShelvingState, Severity, EventType). Known LimitAlarm and OffNormalAlarm type NodeIds are recognized.
+- `MockClient` updated with `setEventDispatcher()` / `getEventDispatcher()` support.
+- Unit tests for the event system: NullEventDispatcher, custom dispatcher, event properties, alarm event classes.
+- Documentation: [Events](doc/14-events.md) chapter with full event reference, Laravel integration, and practical examples.
+
 ## [3.0.0] - 2026-03-22
 
 ### Changed

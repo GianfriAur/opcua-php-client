@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use Gianfriaur\OpcuaPhpClient\Event\NodeBrowsed;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
 use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
@@ -71,7 +72,7 @@ trait ManagesBrowseTrait
         $nodeClassMask = self::nodeClassesToMask($nodeClasses);
         $paramsSuffix = sprintf('%d:%d:%d', $direction->value, $includeSubtypes ? 1 : 0, $nodeClassMask);
 
-        return $this->cachedFetch(
+        $results = $this->cachedFetch(
             $this->buildCacheKey('browse', $nodeId, $paramsSuffix),
             fn() => $this->executeWithRetry(function () use ($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask) {
                 $decoder = $this->getBinaryDecoder($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClassMask);
@@ -79,6 +80,10 @@ trait ManagesBrowseTrait
             }),
             $useCache,
         );
+
+        $this->dispatch(fn() => new NodeBrowsed($this, $nodeId, $direction, count($results)));
+
+        return $results;
     }
 
     /**

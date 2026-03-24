@@ -5,6 +5,7 @@
 ## v4.0.0
 
 ### Features
+- [x] PSR-14 Event Dispatcher — 38 granular events (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default, zero overhead. Alarm deduction from event fields (ActiveState, AckedState, ConfirmedState, ShelvingState, LimitAlarm, OffNormalAlarm).
 - [ ] Cache for metadata `read()` (DisplayName, BrowseName, DataType, NodeClass, Description), **`not Value`**
 - [ ] CLI Tool
 - [ ] xml Code Generator

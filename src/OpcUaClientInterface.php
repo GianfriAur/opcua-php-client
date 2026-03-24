@@ -28,6 +28,7 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
@@ -48,6 +49,29 @@ interface OpcUaClientInterface
      * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface;
+
+    /**
+     * Set the PSR-14 event dispatcher for client lifecycle and operation events.
+     *
+     * When set, the client dispatches granular events at key points: connection,
+     * session, subscription, data change, alarms, read/write, browse, cache, and retry.
+     * A {@see \Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher} is used by default,
+     * ensuring zero overhead when no custom dispatcher is configured.
+     *
+     * @param EventDispatcherInterface $eventDispatcher The event dispatcher to use.
+     * @return self
+     *
+     * @see EventDispatcherInterface
+     * @see \Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self;
+
+    /**
+     * Get the current PSR-14 event dispatcher.
+     *
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface;
 
     /**
      * Return the extension object repository used for custom type decoding.

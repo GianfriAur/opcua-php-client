@@ -7,7 +7,7 @@ Repository: https://github.com/GianfriAur/opcua-php-client
 Packagist: https://packagist.org/packages/gianfriaur/opcua-php-client
 License: MIT
 PHP: >= 8.2
-Dependencies: ext-openssl, psr/log ^3.0, psr/simple-cache ^3.0 (both interface-only, zero runtime code)
+Dependencies: ext-openssl, psr/log ^3.0, psr/simple-cache ^3.0, psr/event-dispatcher ^1.0 (all interface-only, zero runtime code)
 
 ---
 
@@ -35,6 +35,7 @@ composer require gianfriaur/opcua-php-client
 - Authentication — anonymous, username/password, X.509 certificate
 - PSR-3 Logging — optional structured logging via any PSR-3 logger; NullLogger by default
 - PSR-16 Cache — browse/browseAll/resolveNodeId/getEndpoints/discoverDataTypes results cached by default (InMemoryCache, 300s TTL). Any PSR-16 driver works (FileCache, Laravel, Redis). Per-call bypass with useCache: false. discoverDataTypes replays cached type definitions without server round-trips.
+- PSR-14 Events — 38 granular events at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default (zero overhead). Alarm events auto-deduced from notification fields. All events carry a $client reference.
 - Auto-Retry — automatic reconnect on failure
 - Fluent Builder API — readMulti(), writeMulti(), createMonitoredItems(), and translateBrowsePaths() support a chainable builder when called without arguments
 - Auto-Batching — transparent batching for readMulti/writeMulti
@@ -56,7 +57,7 @@ Old getter methods are deprecated but still work.
 ### Architecture
 
 ```
-Client (main entry point, 13 traits)
+Client (main entry point, 14 traits)
   +-- Transport/TcpTransport        (TCP socket communication)
   +-- Protocol/*Service              (OPC UA service encoding/decoding)
   +-- Encoding/BinaryEncoder         (binary serialization)
@@ -172,6 +173,18 @@ Laravel integration:
 ```php
 $client = new Client(logger: app('log'));
 ```
+
+### Events (PSR-14)
+
+```php
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+$client->setEventDispatcher($yourDispatcher);
+// or in Laravel:
+$client->setEventDispatcher(app(EventDispatcherInterface::class));
+```
+
+NullEventDispatcher by default (zero overhead). 38 events covering connection, session, subscription, data change, alarms, read/write, browse, cache, retry. See section 14 for the full list.
 
 Log levels: DEBUG (handshake, secure channel, session), INFO (connect/disconnect, batch splits), WARNING (retries, server limits), ERROR (connection failures).
 
@@ -609,6 +622,8 @@ src/
 ├── Security/*.php                # SecureChannel, MessageSecurity, CertificateManager, enums
 ├── Types/*.php                   # 22 type/enum/DTO classes (all public readonly)
 ├── Builder/*.php                 # Fluent builders for multi-operations
+├── Event/NullEventDispatcher.php   # No-op PSR-14 dispatcher
+├── Event/*.php                    # 38 event classes
 ├── Cache/InMemoryCache.php        # PSR-16 in-memory cache
 ├── Cache/FileCache.php            # PSR-16 file-based cache
 ├── Repository/ExtensionObjectRepository.php  # Per-client codec registry
@@ -750,6 +765,50 @@ $results = $client->readMulti()
 
 ---
 
+## 14. Events (PSR-14)
+
+The client dispatches 38 granular PSR-14 events. Inject any EventDispatcherInterface via $client->setEventDispatcher($dispatcher). NullEventDispatcher is used by default (zero overhead — event objects lazily instantiated via closures).
+
+### Configuration
+
+```php
+$client->setEventDispatcher($yourDispatcher);
+$client->getEventDispatcher(); // returns current dispatcher
+```
+
+### Event Categories
+
+Connection (6): ClientConnecting, ClientConnected, ConnectionFailed, ClientReconnecting, ClientDisconnecting, ClientDisconnected
+Session (3): SessionCreated, SessionActivated, SessionClosed
+Secure Channel (2): SecureChannelOpened, SecureChannelClosed
+Subscription (9): SubscriptionCreated, SubscriptionDeleted, SubscriptionTransferred, MonitoredItemCreated, MonitoredItemDeleted, DataChangeReceived, EventNotificationReceived, PublishResponseReceived, SubscriptionKeepAlive
+Alarms — generic (1): AlarmEventReceived (subscriptionId, clientHandle, eventFields, severity, sourceName, message, eventType, time)
+Alarms — specific (8): AlarmActivated, AlarmDeactivated, AlarmAcknowledged, AlarmConfirmed, AlarmShelved, AlarmSeverityChanged, LimitAlarmExceeded, OffNormalAlarmTriggered
+Read/Write/Browse (4): NodeValueRead, NodeValueWritten, NodeValueWriteFailed, NodeBrowsed
+Type Discovery (1): DataTypesDiscovered
+Cache (2): CacheHit, CacheMiss
+Retry (2): RetryAttempt, RetryExhausted
+
+All events are readonly classes in Gianfriaur\OpcuaPhpClient\Event\. All carry a $client property (OpcUaClientInterface).
+
+### Alarm Deduction
+
+Alarm-specific events are deduced from event notification fields:
+- Default 6 fields (EventId, EventType, SourceName, Time, Message, Severity) trigger AlarmEventReceived and AlarmSeverityChanged
+- ActiveState field → AlarmActivated / AlarmDeactivated
+- AckedState field → AlarmAcknowledged
+- ConfirmedState field → AlarmConfirmed
+- ShelvingState field → AlarmShelved
+- EventType matching known LimitAlarm NodeIds → LimitAlarmExceeded
+- EventType matching known OffNormalAlarm NodeIds → OffNormalAlarmTriggered
+
+### Key Classes
+
+- Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default)
+- Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait — trait with setEventDispatcher(), getEventDispatcher(), dispatch()
+
+---
+
 ## Main Classes
 
 - Gianfriaur\OpcuaPhpClient\Client — main client, accepts optional ExtensionObjectRepository
@@ -766,6 +825,8 @@ $results = $client->readMulti()
 - Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
 - Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex
+- Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default, zero overhead)
+- Gianfriaur\OpcuaPhpClient\Event\* — 38 readonly event classes with $client property (ClientConnecting, ClientConnected, ConnectionFailed, SessionCreated, SessionActivated, SubscriptionCreated, DataChangeReceived, EventNotificationReceived, AlarmEventReceived, AlarmActivated, AlarmDeactivated, NodeValueRead, NodeValueWritten, NodeBrowsed, CacheHit, CacheMiss, RetryAttempt, etc.)
 - Gianfriaur\OpcuaPhpClient\Testing\MockClient — in-memory test double (static create(), onRead/onWrite/onBrowse/onCall/onResolveNodeId, getCalls/getCallsFor/callCount/resetCalls)
 - Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level)
 - Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec — auto-generated codec from StructureDefinition

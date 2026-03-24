@@ -22,6 +22,8 @@ use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
 use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
 use Gianfriaur\OpcuaPhpClient\Protocol\TranslateBrowsePathService;
 use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
+use Gianfriaur\OpcuaPhpClient\Event\SecureChannelClosed;
+use Gianfriaur\OpcuaPhpClient\Event\SecureChannelOpened;
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
 use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
@@ -40,6 +42,8 @@ trait ManagesSecureChannelTrait
         } else {
             $this->openSecureChannelNoSecurity();
         }
+
+        $this->dispatch(fn() => new SecureChannelOpened($this, $this->secureChannelId, $this->securityPolicy, $this->securityMode));
     }
 
     private function openSecureChannelNoSecurity(): void
@@ -146,6 +150,8 @@ trait ManagesSecureChannelTrait
 
     private function closeSecureChannel(): void
     {
+        $this->dispatch(fn() => new SecureChannelClosed($this, $this->secureChannelId));
+
         if ($this->secureChannel !== null && $this->secureChannel->isSecurityActive()) {
             $this->closeSecureChannelSecure();
             return;

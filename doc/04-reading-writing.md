@@ -17,6 +17,8 @@ if (StatusCode::isGood($dataValue->statusCode)) {
 }
 ```
 
+> **Events:** Every `read()` dispatches a `NodeValueRead` event. See [Events](14-events.md).
+
 ### Reading a Specific Attribute
 
 By default, `read()` targets the Value attribute (id 13). You can read any attribute:
@@ -93,6 +95,7 @@ if (StatusCode::isGood($statusCode)) {
 } else {
     echo "Write failed: " . StatusCode::getName($statusCode) . "\n";
 }
+// Events: dispatches NodeValueWritten on success, NodeValueWriteFailed otherwise
 ```
 
 ### Writing Multiple Values

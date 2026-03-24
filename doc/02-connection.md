@@ -280,6 +280,42 @@ use Psr\Log\NullLogger;
 $client->setLogger(new NullLogger());
 ```
 
+## Events (PSR-14)
+
+The client dispatches [PSR-14](https://www.php-fig.org/psr/psr-14/) events at every lifecycle point. Inject any compatible dispatcher to react to connections, disconnections, retries, and more.
+
+```php
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+// Via setter
+$client->setEventDispatcher($yourDispatcher);
+
+// Laravel
+$client->setEventDispatcher(app(EventDispatcherInterface::class));
+```
+
+A `NullEventDispatcher` is used by default — zero overhead when no dispatcher is configured. Event objects are lazily instantiated.
+
+**Connection events dispatched:**
+
+| Event | When |
+|-------|------|
+| `ClientConnecting` | Before `connect()` starts |
+| `ClientConnected` | After successful connection |
+| `ConnectionFailed` | When connection attempt fails |
+| `ClientReconnecting` | Before `reconnect()` starts |
+| `ClientDisconnecting` | Before `disconnect()` starts |
+| `ClientDisconnected` | After full disconnect |
+| `SecureChannelOpened` | After secure channel is established |
+| `SecureChannelClosed` | Before secure channel is closed |
+| `SessionCreated` | After CreateSession succeeds |
+| `SessionActivated` | After ActivateSession succeeds |
+| `SessionClosed` | Before session close request |
+| `RetryAttempt` | Before each automatic retry |
+| `RetryExhausted` | When all retries are exhausted |
+
+> **Tip:** See [Events](14-events.md) for the full list of 38 events and practical examples.
+
 ## Disconnecting
 
 Always call `disconnect()` when you are done. It sends CloseSession and CloseSecureChannel, closes the TCP socket, and clears all internal state.

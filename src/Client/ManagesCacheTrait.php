@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Client;
 
 use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
+use Gianfriaur\OpcuaPhpClient\Event\CacheHit;
+use Gianfriaur\OpcuaPhpClient\Event\CacheMiss;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Psr\SimpleCache\CacheInterface;
 
@@ -133,8 +135,10 @@ trait ManagesCacheTrait
         if ($useCache && $this->cache !== null) {
             $cached = $this->cache->get($key);
             if ($cached !== null) {
+                $this->dispatch(fn() => new CacheHit($this, $key));
                 return $cached;
             }
+            $this->dispatch(fn() => new CacheMiss($this, $key));
         }
 
         $result = $fetcher();

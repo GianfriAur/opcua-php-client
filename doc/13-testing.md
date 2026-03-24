@@ -203,6 +203,20 @@ $mock->getBatchSize();            // 50
 $mock->getDefaultBrowseMaxDepth();// 20
 ```
 
+### Event Dispatcher
+
+The mock supports `setEventDispatcher()` / `getEventDispatcher()`. Use `NullEventDispatcher` (default) or inject a test dispatcher to verify event behavior:
+
+```php
+use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+
+$mock = MockClient::create();
+$mock->getEventDispatcher(); // NullEventDispatcher
+
+// Inject a custom dispatcher for assertions
+$mock->setEventDispatcher($testDispatcher);
+```
+
 ## Default Behaviors
 
 Operations without registered handlers return sensible defaults:
