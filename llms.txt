@@ -49,7 +49,7 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 
 - Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 14 traits
 - Transport (src/Transport/): TCP socket communication
-- Protocol (src/Protocol/): OPC UA service encoding/decoding
+- Protocol (src/Protocol/): OPC UA service encoding/decoding, AbstractProtocolService base class, ServiceTypeId constants
 - Encoding (src/Encoding/): binary serialization (BinaryEncoder, BinaryDecoder)
 - Security (src/Security/): secure channel, crypto operations, certificate management
 - Types (src/Types/): OPC UA data types, enums, and result DTOs
@@ -155,6 +155,9 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 - Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec — interface for custom type codecs
 - Gianfriaur\OpcuaPhpClient\Testing\MockClient — in-memory test double (no TCP); static create(), handler registration, call tracking
 - Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level, not static)
+- Gianfriaur\OpcuaPhpClient\Types\ExtensionObject — typed DTO for OPC UA ExtensionObject (public readonly: typeId, encoding, body, value; methods: isDecoded(), isRaw())
+- Gianfriaur\OpcuaPhpClient\Protocol\AbstractProtocolService — shared base class for protocol services (encodeRequestAuto, writeRequestHeader, readResponseMetadata, wrapInMessage)
+- Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId — named constants for OPC UA service NodeIds, well-known nodes, identity tokens
 - Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache — PSR-16 in-memory cache with configurable TTL
 - Gianfriaur\OpcuaPhpClient\Cache\FileCache — PSR-16 file-based cache with configurable TTL
 - Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default, zero overhead)

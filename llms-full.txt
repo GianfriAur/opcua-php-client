@@ -572,6 +572,7 @@ SubscriptionResult: subscriptionId (int), revisedPublishingInterval (float), rev
 MonitoredItemResult: statusCode (int), monitoredItemId (int), revisedSamplingInterval (float), revisedQueueSize (int)
 PublishResult: subscriptionId (int), sequenceNumber (int), moreNotifications (bool), notifications (array), availableSequenceNumbers (int[])
 TransferResult: statusCode (int), availableSequenceNumbers (int[])
+ExtensionObject: typeId (NodeId), encoding (int), body (?string), value (mixed); methods: isDecoded(), isRaw(). DataValue::getValue() auto-extracts decoded value when codec is registered.
 
 ---
 
@@ -618,9 +619,11 @@ src/
 ├── Encoding/BinaryEncoder.php    # Serialization
 ├── Encoding/BinaryDecoder.php    # Deserialization (accepts optional ExtensionObjectRepository)
 ├── Encoding/ExtensionObjectCodec.php  # Codec interface
-├── Protocol/*Service.php         # 15 OPC UA service classes
+├── Protocol/AbstractProtocolService.php  # Shared encode/decode base class
+├── Protocol/ServiceTypeId.php   # Named constants for all OPC UA service NodeIds
+├── Protocol/*Service.php         # 15 OPC UA service classes (extend AbstractProtocolService)
 ├── Security/*.php                # SecureChannel, MessageSecurity, CertificateManager, enums
-├── Types/*.php                   # 22 type/enum/DTO classes (all public readonly)
+├── Types/*.php                   # 23 type/enum/DTO classes (all public readonly, includes ExtensionObject)
 ├── Builder/*.php                 # Fluent builders for multi-operations
 ├── Event/NullEventDispatcher.php   # No-op PSR-14 dispatcher
 ├── Event/*.php                    # 38 event classes
@@ -834,6 +837,9 @@ Alarm-specific events are deduced from event notification fields:
 - Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser — parses DataTypeDefinition attributes
 - Gianfriaur\OpcuaPhpClient\Types\StructureField — public readonly: name, dataType, valueRank, builtinType, isOptional
 - Gianfriaur\OpcuaPhpClient\Types\StructureDefinition — public readonly: defaultEncodingId, baseDataType, structureType, fields
+- Gianfriaur\OpcuaPhpClient\Types\ExtensionObject — typed DTO for OPC UA ExtensionObject (public readonly: typeId, encoding, body, value; methods: isDecoded(), isRaw()). DataValue::getValue() auto-extracts decoded value.
+- Gianfriaur\OpcuaPhpClient\Protocol\AbstractProtocolService — shared base class for protocol services (encodeRequestAuto, writeRequestHeader, readResponseMetadata, wrapInMessage)
+- Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId — final class with named constants for all OPC UA service NodeIds (35 constants)
 
 ## Related Packages
 

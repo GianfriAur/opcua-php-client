@@ -6,6 +6,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
 class PartialConsumeCodec implements ExtensionObjectCodec
@@ -45,7 +46,9 @@ describe('ExtensionObject codec partial body consumption', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer(), $repo);
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBe(['x' => 1.5]);
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->isDecoded())->toBeTrue();
+        expect($result->value)->toBe(['x' => 1.5]);
 
         $sentinel = $decoder->readInt32();
         expect($sentinel)->toBe(12345);

@@ -10,6 +10,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
@@ -59,11 +60,11 @@ describe('ExtensionObject codec with real server', function () {
             expect(StatusCode::isGood($dv->getStatusCode()))->toBeTrue();
 
             $value = $dv->getValue();
-            expect($value)->toBeArray();
-            expect($value)->toHaveKeys(['typeId', 'encoding', 'body']);
-            expect($value['encoding'])->toBe(1);
-            expect($value['typeId']->getIdentifier())->toBe(864);
-            expect($value['body'])->toBeString()->not->toBeEmpty();
+            expect($value)->toBeInstanceOf(ExtensionObject::class);
+            expect($value->isRaw())->toBeTrue();
+            expect($value->encoding)->toBe(1);
+            expect($value->typeId->getIdentifier())->toBe(864);
+            expect($value->body)->toBeString()->not->toBeEmpty();
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -136,8 +137,8 @@ describe('ExtensionObject codec with real server', function () {
             $dv = $client->read(NodeId::numeric(0, 2256));
             $value = $dv->getValue();
 
-            expect($value)->toBeArray();
-            expect($value)->toHaveKeys(['typeId', 'encoding', 'body']);
+            expect($value)->toBeInstanceOf(ExtensionObject::class);
+            expect($value->isRaw())->toBeTrue();
         } finally {
             TestHelper::safeDisconnect($client);
         }
@@ -187,12 +188,12 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
             expect($dv->getVariant()->getType()->name)->toBe('ExtensionObject');
 
             $value = $dv->getValue();
-            expect($value)->toBeArray();
-            expect($value)->toHaveKeys(['typeId', 'encoding', 'body']);
-            expect($value['encoding'])->toBe(1);
-            expect($value['typeId']->getIdentifier())->toBe(3010);
-            expect($value['body'])->toBeString();
-            expect(strlen($value['body']))->toBe(24);
+            expect($value)->toBeInstanceOf(ExtensionObject::class);
+            expect($value->isRaw())->toBeTrue();
+            expect($value->encoding)->toBe(1);
+            expect($value->typeId->getIdentifier())->toBe(3010);
+            expect($value->body)->toBeString();
+            expect(strlen($value->body))->toBe(24);
         } finally {
             TestHelper::safeDisconnect($client);
         }

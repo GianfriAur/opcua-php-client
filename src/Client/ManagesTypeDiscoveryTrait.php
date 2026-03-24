@@ -11,6 +11,7 @@ use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
 use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
@@ -130,17 +131,15 @@ trait ManagesTypeDiscoveryTrait
         }
 
         $raw = $dataValue->getValue();
-        if (! is_array($raw) || ! isset($raw['body']) || ! is_string($raw['body'])) {
+        if (! $raw instanceof ExtensionObject || $raw->body === null) {
             return null;
         }
 
-        if (isset($raw['typeId']) && $raw['typeId'] instanceof NodeId) {
-            if ($raw['typeId']->namespaceIndex === 0 && $raw['typeId']->identifier === 123) {
-                return null;
-            }
+        if ($raw->typeId->namespaceIndex === 0 && $raw->typeId->identifier === 123) {
+            return null;
         }
 
-        $bodyDecoder = new BinaryDecoder($raw['body']);
+        $bodyDecoder = new BinaryDecoder($raw->body);
         $definition = StructureDefinitionParser::parse($bodyDecoder);
 
         $this->extensionObjectRepository->register($encodingId, new DynamicCodec($definition));

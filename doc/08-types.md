@@ -598,14 +598,53 @@ use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
 
 ---
 
-## ExtensionObject Codecs
+## ExtensionObject
 
-OPC UA `ExtensionObject` is a container for custom structures. Without a codec, the library returns raw arrays. Register a codec to get automatic decoding:
+Represents an OPC UA ExtensionObject — a typed container for custom binary or XML structures.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
+```
 
+**Properties** (`public readonly`):
+
+| Property | Type | Description |
+|---|---|---|
+| `$ext->typeId` | `NodeId` | Encoding NodeId identifying the type |
+| `$ext->encoding` | `int` | `0x01` = binary, `0x02` = XML, `0x00` = no body |
+| `$ext->body` | `?string` | Raw body bytes. Null when decoded via codec. |
+| `$ext->value` | `mixed` | Decoded value from codec. Null when raw. |
+
+**Methods:**
+
+| Method | Returns | Description |
+|---|---|---|
+| `isDecoded()` | `bool` | True if decoded by a registered codec |
+| `isRaw()` | `bool` | True if no codec was available (raw body) |
+
+**Behavior with `DataValue::getValue()`:**
+
+- **With codec registered:** `getValue()` auto-extracts `$ext->value` — returns the decoded data directly (e.g. `['x' => 1.0, 'y' => 2.0]`)
+- **Without codec:** `getValue()` returns the `ExtensionObject` DTO — access `->typeId`, `->body`, etc.
+
+```php
+$value = $client->read($pointNodeId)->getValue();
+
+if ($value instanceof ExtensionObject) {
+    echo $value->typeId;   // raw, no codec
+    echo $value->body;     // binary blob
+} else {
+    echo $value['x'];      // decoded via codec
+}
+```
+
+---
+
+## ExtensionObject Codecs
+
+Register codecs to automatically decode ExtensionObjects. Full guide: [ExtensionObject Codecs](12-extension-object-codecs.md).
+
+```php
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 
@@ -617,5 +656,3 @@ $result = $client->read($pointNodeId);
 ```
 
 Each `Client` has its own isolated repository. If you do not pass one, the client creates an empty one internally.
-
-Full guide: [ExtensionObject Codecs](12-extension-object-codecs.md).

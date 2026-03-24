@@ -4,15 +4,19 @@
 
 OPC UA `ExtensionObject` is a container for custom structures -- alarm details, diagnostic info, PLC-specific types, anything beyond the standard built-in types.
 
-Without a codec, you get raw binary data:
+Without a codec, you get an `ExtensionObject` DTO with raw binary data:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
+
 $result = $client->read($nodeId);
 $value = $result->getValue();
-// ['typeId' => NodeId, 'encoding' => 1, 'body' => '<binary blob>']
+// ExtensionObject { typeId: NodeId, encoding: 1, body: '<binary blob>', value: null }
+// $value->typeId, $value->encoding, $value->body
+// $value->isRaw() === true
 ```
 
-The codec system lets you register decoders that turn these blobs into PHP arrays or objects.
+The codec system lets you register decoders that turn these blobs into PHP arrays or objects. When a codec is registered, `DataValue::getValue()` auto-extracts the decoded value directly.
 
 ## Writing a Codec
 
@@ -134,15 +138,15 @@ $repo->clear();                               // Remove all
 
 ## Finding the TypeId
 
-Read the node without a codec first and inspect the raw result:
+Read the node without a codec first and inspect the raw `ExtensionObject`:
 
 ```php
 $result = $client->read($nodeId);
-$raw = $result->getValue();
+$raw = $result->getValue(); // ExtensionObject DTO
 
-echo $raw['typeId'];       // e.g. "ns=2;i=5001"
-echo $raw['encoding'];     // 1 = binary, 2 = XML
-echo strlen($raw['body']); // body size in bytes
+echo $raw->typeId;          // e.g. "ns=2;i=5001"
+echo $raw->encoding;        // 1 = binary, 2 = XML
+echo strlen($raw->body);    // body size in bytes
 ```
 
 Use that `typeId` when calling `$repo->register()`.

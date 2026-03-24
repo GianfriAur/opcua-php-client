@@ -26,13 +26,22 @@ readonly class DataValue
     }
 
     /**
-     * Returns the raw scalar value held by the inner Variant, or null if no Variant is set.
+     * Returns the unwrapped value held by the inner Variant, or null if no Variant is set.
+     *
+     * For ExtensionObject values with a registered codec, this returns the decoded value directly
+     * (auto-extract). For raw ExtensionObjects without a codec, this returns the {@see ExtensionObject} DTO.
      *
      * @return mixed
      */
     public function getValue(): mixed
     {
-        return $this->value?->getValue();
+        $raw = $this->value?->value;
+
+        if ($raw instanceof ExtensionObject && $raw->isDecoded()) {
+            return $raw->value;
+        }
+
+        return $raw;
     }
 
     /**

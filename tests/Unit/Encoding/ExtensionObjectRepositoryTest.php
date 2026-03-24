@@ -8,6 +8,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
 class TestPointCodec implements ExtensionObjectCodec
@@ -137,12 +138,13 @@ describe('ExtensionObject decoding with codec', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer(), $repo);
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBeArray();
-        expect($result['x'])->toBe(1.5);
-        expect($result['y'])->toBe(2.5);
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->isDecoded())->toBeTrue();
+        expect($result->value['x'])->toBe(1.5);
+        expect($result->value['y'])->toBe(2.5);
     });
 
-    it('returns raw array when no codec is registered', function () {
+    it('returns ExtensionObject DTO when no codec is registered', function () {
         $typeId = NodeId::numeric(2, 999);
 
         $encoder = new BinaryEncoder();
@@ -153,13 +155,13 @@ describe('ExtensionObject decoding with codec', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKeys(['typeId', 'encoding', 'body']);
-        expect($result['encoding'])->toBe(0x01);
-        expect($result['body'])->toBe('some-binary-data');
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->isRaw())->toBeTrue();
+        expect($result->encoding)->toBe(0x01);
+        expect($result->body)->toBe('some-binary-data');
     });
 
-    it('returns raw array for XML encoding even with codec registered', function () {
+    it('returns raw ExtensionObject for XML encoding even with codec registered', function () {
         $repo = new ExtensionObjectRepository();
         $typeId = NodeId::numeric(2, 500);
         $repo->register($typeId, TestPointCodec::class);
@@ -172,12 +174,12 @@ describe('ExtensionObject decoding with codec', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer(), $repo);
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKeys(['typeId', 'encoding', 'body']);
-        expect($result['encoding'])->toBe(0x02);
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->isRaw())->toBeTrue();
+        expect($result->encoding)->toBe(0x02);
     });
 
-    it('returns raw array for no-body encoding', function () {
+    it('returns ExtensionObject DTO for no-body encoding', function () {
         $typeId = NodeId::numeric(2, 500);
 
         $encoder = new BinaryEncoder();
@@ -187,8 +189,8 @@ describe('ExtensionObject decoding with codec', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBeArray();
-        expect($result['body'])->toBeNull();
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->body)->toBeNull();
     });
 
     it('codec encode/decode round-trips', function () {
@@ -204,7 +206,7 @@ describe('ExtensionObject decoding with codec', function () {
         expect($result['y'])->toBe(2.71);
     });
 
-    it('returns raw array when decoder has no repository', function () {
+    it('returns ExtensionObject DTO when decoder has no repository', function () {
         $typeId = NodeId::numeric(2, 500);
 
         $bodyEncoder = new BinaryEncoder();
@@ -220,7 +222,7 @@ describe('ExtensionObject decoding with codec', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKeys(['typeId', 'encoding', 'body']);
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->isRaw())->toBeTrue();
     });
 });

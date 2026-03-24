@@ -7,6 +7,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
@@ -308,30 +309,24 @@ describe('DataValue encoding/decoding', function () {
 describe('ExtensionObject encoding', function () {
 
     it('round-trips ExtensionObject with binary body', function () {
-        $ext = [
-            'typeId' => NodeId::numeric(0, 100),
-            'encoding' => 0x01,
-            'body' => "\x01\x02\x03",
-        ];
+        $ext = new ExtensionObject(NodeId::numeric(0, 100), 0x01, body: "\x01\x02\x03");
         $encoder = new BinaryEncoder();
         $encoder->writeExtensionObject($ext);
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
-        expect($result['encoding'])->toBe(0x01);
-        expect($result['body'])->toBe("\x01\x02\x03");
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->encoding)->toBe(0x01);
+        expect($result->body)->toBe("\x01\x02\x03");
     });
 
     it('round-trips ExtensionObject with no body', function () {
-        $ext = [
-            'typeId' => NodeId::numeric(0, 0),
-            'encoding' => 0x00,
-            'body' => null,
-        ];
+        $ext = new ExtensionObject(NodeId::numeric(0, 0), 0x00);
         $encoder = new BinaryEncoder();
         $encoder->writeExtensionObject($ext);
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
-        expect($result['encoding'])->toBe(0x00);
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->encoding)->toBe(0x00);
     });
 });
 

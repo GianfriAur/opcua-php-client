@@ -62,7 +62,7 @@ src/
 ├── OpcUaClientInterface.php    # Public API interface
 ├── Client/                     # Client traits (connection, read/write, browse, etc.)
 ├── Transport/                  # TCP socket communication
-├── Protocol/                   # OPC UA service encoding/decoding
+├── Protocol/                   # OPC UA service encoding/decoding (AbstractProtocolService base, ServiceTypeId constants)
 ├── Encoding/                   # Binary serialization
 ├── Security/                   # Secure channel, crypto, certificates
 ├── Cache/                      # PSR-16 cache drivers (InMemoryCache, FileCache)

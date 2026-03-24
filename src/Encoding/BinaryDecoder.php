@@ -347,7 +347,10 @@ class BinaryDecoder
         };
     }
 
-    public function readExtensionObject(): array|object
+    /**
+     * @return \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject
+     */
+    public function readExtensionObject(): \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject
     {
         $typeId = $this->readNodeId();
         $encoding = $this->readByte();
@@ -363,7 +366,7 @@ class BinaryDecoder
                     $this->skip($bodyLength - $consumed);
                 }
 
-                return $decoded;
+                return new \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject($typeId, $encoding, value: $decoded);
             }
 
             $body = $this->readByteString();
@@ -373,11 +376,7 @@ class BinaryDecoder
             $body = null;
         }
 
-        return [
-            'typeId' => $typeId,
-            'encoding' => $encoding,
-            'body' => $body,
-        ];
+        return new \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject($typeId, $encoding, body: $body);
     }
 
     public function readDiagnosticInfo(): array

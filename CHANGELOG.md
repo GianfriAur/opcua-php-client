@@ -33,6 +33,13 @@
 - **Diagnostic info skip helper.** Extracted duplicated `skipDiagnosticInfo()` from 8 Protocol service classes into `BinaryDecoder::skipDiagnosticInfo()`, `skipDiagnosticInfoBody()`, and `skipDiagnosticInfoArray()`.
 - **Protocol service base class.** Introduced `AbstractProtocolService` with shared `encodeRequestAuto()`, `writeRequestHeader()`, `readResponseMetadata()`, and `wrapInMessage()`. All 10 Protocol service classes now extend it, eliminating ~400 lines of duplicated encode/decode boilerplate.
 - **Service NodeId constants.** Introduced `ServiceTypeId` class with named constants for all OPC UA service type IDs, well-known nodes, identity tokens, event filter encodings, and server limit nodes. Replaced all hard-coded `NodeId::numeric(0, N)` magic numbers across Protocol and Client layers.
+- **`ExtensionObject` DTO.** `BinaryDecoder::readExtensionObject()` now returns a typed `ExtensionObject` readonly class instead of `array|object`. Properties: `$typeId` (NodeId), `$encoding` (int), `$body` (?string, raw bytes), `$value` (mixed, decoded). Helpers: `isDecoded()`, `isRaw()`. `DataValue::getValue()` auto-extracts the decoded value when a codec is registered — no change needed for decoded access. `BinaryEncoder::writeExtensionObject()` now accepts `ExtensionObject` only (no array).
+
+### Breaking Changes
+
+- `BinaryDecoder::readExtensionObject()` returns `ExtensionObject` instead of `array`. Code accessing `$result['typeId']` must change to `$result->typeId`, `$result['body']` to `$result->body`.
+- `BinaryEncoder::writeExtensionObject()` no longer accepts `array` — pass `ExtensionObject` instances.
+- `DataValue::getValue()` for raw ExtensionObjects (no codec) now returns `ExtensionObject` DTO instead of `array`. Decoded ExtensionObjects (with codec) are unchanged — auto-extracted.
 
 ## [3.0.0] - 2026-03-22
 

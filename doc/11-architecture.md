@@ -37,6 +37,8 @@ src/
 │   └── StructureDefinitionParser.php  # Parses DataTypeDefinition attributes
 │
 ├── Protocol/
+│   ├── AbstractProtocolService.php     # Shared encode/decode base class
+│   ├── ServiceTypeId.php              # Named constants for OPC UA service NodeIds
 │   ├── MessageHeader.php               # OPC UA message framing
 │   ├── HelloMessage.php                # HEL message
 │   ├── AcknowledgeMessage.php          # ACK message
@@ -84,6 +86,7 @@ src/
 │   ├── SubscriptionResult.php        # Create subscription result DTO
 │   ├── MonitoredItemResult.php       # Create monitored item result DTO
 │   ├── PublishResult.php             # Publish response result DTO
+│   ├── ExtensionObject.php           # Typed ExtensionObject DTO (raw or decoded)
 │   ├── StructureField.php            # Field descriptor for structure definitions
 │   └── StructureDefinition.php       # Structure layout for dynamic codecs
 │

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
 use Gianfriaur\OpcuaPhpClient\Types\StructureField;
@@ -141,8 +142,8 @@ describe('DynamicCodec edge cases', function () {
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $codec->decode($decoder);
 
-        expect($result['nested'])->toBeArray();
-        expect($result['nested']['typeId']->identifier)->toBe(9999);
+        expect($result['nested'])->toBeInstanceOf(ExtensionObject::class);
+        expect($result['nested']->typeId->identifier)->toBe(9999);
     });
 
     it('encode skips field with null BuiltinType (custom nested)', function () {

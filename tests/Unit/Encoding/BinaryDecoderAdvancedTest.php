@@ -7,6 +7,7 @@ use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\Variant;
@@ -120,18 +121,15 @@ describe('BinaryDecoder readExpandedNodeId() with flags', function () {
 describe('ExtensionObject with XML body', function () {
 
     it('round-trips ExtensionObject with XML encoding', function () {
-        $ext = [
-            'typeId' => NodeId::numeric(0, 200),
-            'encoding' => 0x02,
-            'body' => '<root>test</root>',
-        ];
+        $ext = new ExtensionObject(NodeId::numeric(0, 200), 0x02, body: '<root>test</root>');
         $encoder = new BinaryEncoder();
         $encoder->writeExtensionObject($ext);
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
         $result = $decoder->readExtensionObject();
-        expect($result['encoding'])->toBe(0x02);
-        expect($result['body'])->toBe('<root>test</root>');
+        expect($result)->toBeInstanceOf(ExtensionObject::class);
+        expect($result->encoding)->toBe(0x02);
+        expect($result->body)->toBe('<root>test</root>');
     });
 });
 
@@ -151,8 +149,9 @@ describe('Variant containing complex types', function () {
         $result = $decoder->readVariant();
         expect($result->getType())->toBe(BuiltinType::ExtensionObject);
         $value = $result->getValue();
-        expect($value['encoding'])->toBe(0x01);
-        expect($value['body'])->toBe("\xAA\xBB");
+        expect($value)->toBeInstanceOf(ExtensionObject::class);
+        expect($value->encoding)->toBe(0x01);
+        expect($value->body)->toBe("\xAA\xBB");
     });
 
     it('round-trips Variant containing DataValue', function () {

@@ -327,16 +327,16 @@ class BinaryEncoder
     }
 
     /**
-     * @param array $value
+     * @param \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject $value
      */
-    public function writeExtensionObject(array $value): void
+    public function writeExtensionObject(\Gianfriaur\OpcuaPhpClient\Types\ExtensionObject $value): void
     {
-        $this->writeNodeId($value['typeId']);
-        $this->writeByte($value['encoding']);
-        if ($value['encoding'] === 0x01) {
-            $this->writeByteString($value['body']);
-        } elseif ($value['encoding'] === 0x02) {
-            $this->writeString($value['body']);
+        $this->writeNodeId($value->typeId);
+        $this->writeByte($value->encoding);
+        if ($value->encoding === 0x01) {
+            $this->writeByteString($value->body);
+        } elseif ($value->encoding === 0x02) {
+            $this->writeString($value->body);
         }
     }
 
