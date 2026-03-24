@@ -299,6 +299,39 @@ php vendor/bin/opcua-cli read opc.tcp://server:4840 "i=2259" \
 
 Zero additional dependencies. Full security support, JSON output (`--json`), debug logging (`--debug`). See [CLI documentation](doc/15-cli.md) for details.
 
+### Trust server certificates
+
+```php
+use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+
+$client = new Client();
+$client->setTrustStore(new FileTrustStore());           // ~/.opcua/trusted/
+$client->setTrustPolicy(TrustPolicy::Fingerprint);      // or FingerprintAndExpiry, Full
+$client->connect('opc.tcp://192.168.1.100:4840');        // throws UntrustedCertificateException if not trusted
+```
+
+Trust on first use (TOFU):
+
+```php
+$client->autoAccept(true);                    // accept new certificates
+$client->autoAccept(true, force: true);       // also accept changed certificates
+```
+
+Disable for a single operation:
+
+```php
+$client->setTrustPolicy(null);                // behaves like before — accept everything
+```
+
+Or manage from the CLI:
+
+```bash
+php vendor/bin/opcua-cli trust opc.tcp://server:4840          # download and trust
+php vendor/bin/opcua-cli trust:list                            # list trusted certs
+php vendor/bin/opcua-cli trust:remove AB:CD:12:34:...          # remove a cert
+```
+
 ### Auto-discover custom types
 
 ```php
@@ -315,8 +348,9 @@ $point = $client->read($pointNodeId)->getValue();
 - **Zero runtime dependencies** — only `ext-openssl`. Optional PSR-3 logging, PSR-16 caching, and PSR-14 events via any compatible implementation.
 - **PHP 8.2+** — runs on any modern PHP.
 - **Native binary protocol** — speaks OPC UA directly over TCP. No HTTP gateway, no REST bridge, no sidecar.
-- **Full security stack** — 6 policies up to Aes256Sha256RsaPss, 3 auth modes, auto-generated certs.
-- **Batteries included** — browse, read, write, call, subscriptions, events, history, path resolution, batching, retry.
+- **Full security stack** — 6 policies up to Aes256Sha256RsaPss, 3 auth modes, auto-generated certs, persistent certificate trust store with TOFU.
+- **Industrial-ready** — server certificate trust management, alarm event deduction, subscription recovery, auto-retry — built for certified industrial deployments.
+- **Batteries included** — browse, read, write, call, subscriptions, events, history, path resolution, batching, retry, CLI tool.
 - **Cross-platform** — Linux, macOS, Windows. No FFI, no COM.
 - **Thoroughly tested** — 750+ tests, 99%+ code coverage across PHP 8.2, 8.3, 8.4, and 8.5.
 - **Typed everywhere** — all service responses return `public readonly` DTOs, not arrays.
@@ -346,7 +380,8 @@ $point = $client->read($pointNodeId)->getValue();
 | **Logging** | Optional structured logging via any PSR-3 logger — connect, retry, errors, protocol details |
 | **Cache** | Browse and resolve results cached by default (InMemoryCache, 300s TTL). Plug in any PSR-16 driver (FileCache, Laravel, Redis) |
 | **Events** | 38 granular PSR-14 events — connection, session, subscription, data change, alarms, read/write, browse, cache, retry. Zero overhead when unused |
-| **CLI Tool** | `opcua-cli` — browse, read, watch, and discover endpoints from the terminal. Security, JSON output, and debug logging |
+| **Trust Store** | Persistent server certificate validation — file-based trust store, 3 policies (fingerprint/expiry/full CA chain), TOFU auto-accept, CLI management |
+| **CLI Tool** | `opcua-cli` — browse, read, watch, discover endpoints, and manage trusted certificates. Security, JSON output, and debug logging |
 
 ## Documentation
 
@@ -367,6 +402,7 @@ $point = $client->read($pointNodeId)->getValue();
 | 13 | [Testing](doc/13-testing.md) | MockClient, DataValue factories, call tracking, test examples |
 | 14 | [Events](doc/14-events.md) | PSR-14 event system, 38 events, alarm deduction, Laravel integration, examples |
 | 15 | [CLI Tool](doc/15-cli.md) | Browse, read, watch, endpoints — from the terminal with security and JSON |
+| 16 | [Trust Store](doc/16-trust-store.md) | Server certificate trust management, policies, TOFU, CLI commands |
 
 ## Testing
 

@@ -54,6 +54,10 @@ trait ManagesConnectionTrait
             $this->discoverServerCertificate($host, $port, $endpointUrl);
         }
 
+        if ($isSecure) {
+            $this->validateServerCertificate();
+        }
+
         $this->dispatch(fn () => new ClientConnecting($this, $endpointUrl));
         $this->logger->info('Connecting to {endpoint}', ['endpoint' => $endpointUrl]);
 

@@ -2,7 +2,7 @@
 
 > **A note on versioning:** We're aware of the rapid major releases in a short time frame. This library is under active, full-time development right now — the goal is to reach a production-stable state as quickly as possible. Breaking changes are being bundled and shipped deliberately to avoid dragging them out across many minor releases. Once the API surface settles, major version bumps will become rare. Thanks for your patience.
 
-## v4.0.0
+## v4.0.0 - 2026-03-29
 
 ### Features
 - [x] PSR-14 Event Dispatcher — 38 granular events (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default, zero overhead. Alarm deduction from event fields (ActiveState, AckedState, ConfirmedState, ShelvingState, LimitAlarm, OffNormalAlarm).
@@ -10,7 +10,7 @@
 - [x] CLI Tool — `bin/opcua-cli` with browse, read, endpoints, watch commands. Security, JSON, debug logging.
 - [ ] xml Code Generator
 - [ ] `TBD` Telemetry
-- [ ] Server Trust Management (also for cli)
+- [x] Server Trust Management (also for cli) — FileTrustStore, TrustPolicy enum, autoAccept(force), CLI trust/trust:list/trust:remove, 3 events
 - [ ] NodeManagement Services
 - [ ] Triggering / ModifyMonitoredItems
 - [ ] Symfony integration like Laravel ( `gianfriaur/opcua-symfony-client` )

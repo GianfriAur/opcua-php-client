@@ -8,6 +8,8 @@ use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
 use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -31,6 +33,7 @@ class CommandRunner
 
         $this->configureSecurity($client, $options);
         $this->configureAuthentication($client, $options);
+        $this->configureTrustStore($client, $options);
 
         return $client;
     }
@@ -79,6 +82,34 @@ class CommandRunner
 
         if (is_string($username) && is_string($password)) {
             $client->setUserCredentials($username, $password);
+        }
+    }
+
+    /**
+     * @param Client $client
+     * @param array<string, string|bool> $options
+     */
+    private function configureTrustStore(Client $client, array $options): void
+    {
+        if (isset($options['no-trust-policy'])) {
+            $client->setTrustPolicy(null);
+
+            return;
+        }
+
+        $storePath = isset($options['trust-store']) && is_string($options['trust-store'])
+            ? $options['trust-store']
+            : null;
+
+        if ($storePath !== null || isset($options['trust-policy'])) {
+            $client->setTrustStore(new FileTrustStore($storePath));
+        }
+
+        if (isset($options['trust-policy']) && is_string($options['trust-policy'])) {
+            $policy = TrustPolicy::tryFrom($options['trust-policy']);
+            if ($policy !== null) {
+                $client->setTrustPolicy($policy);
+            }
         }
     }
 

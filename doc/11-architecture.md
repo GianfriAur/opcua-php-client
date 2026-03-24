@@ -21,6 +21,7 @@ src/
 │   ├── ManagesSubscriptionsTrait.php    # Subscriptions and monitored items
 │   ├── ManagesCacheTrait.php             # PSR-16 cache management
 │   ├── ManagesEventDispatcherTrait.php  # PSR-14 event dispatching
+│   ├── ManagesTrustStoreTrait.php      # Server certificate trust validation
 │   ├── ManagesTimeoutTrait.php          # Timeout configuration
 │   ├── ManagesTranslateBrowsePathTrait.php # Browse path translation
 │   └── ManagesTypeDiscoveryTrait.php     # Automatic DataType discovery
@@ -112,7 +113,8 @@ src/
 │   ├── SecureChannel*.php             # Secure channel events (2)
 │   ├── DataTypesDiscovered.php        # Type discovery event
 │   ├── Cache*.php                     # Cache hit/miss events (2)
-│   └── Retry*.php                     # Retry events (2)
+│   ├── Retry*.php                     # Retry events (2)
+│   └── ServerCertificate*.php         # Trust store events (5)
 │
 ├── Cli/
 │   ├── Application.php                # CLI entry point and routing
@@ -127,6 +129,12 @@ src/
 │   └── Output/
 │       ├── ConsoleOutput.php          # ANSI colors, tree chars
 │       └── JsonOutput.php             # JSON output
+│
+├── TrustStore/
+│   ├── TrustStoreInterface.php        # Trust store contract
+│   ├── FileTrustStore.php             # File-based implementation (~/.opcua/)
+│   ├── TrustPolicy.php               # Validation policy enum
+│   └── TrustResult.php               # Validation result DTO
 │
 ├── Cache/
 │   ├── InMemoryCache.php              # PSR-16 in-memory cache
@@ -146,6 +154,7 @@ src/
     ├── InvalidNodeIdException.php     # Malformed NodeId errors
     ├── ProtocolException.php          # Protocol violations
     ├── SecurityException.php          # Crypto errors
+    ├── UntrustedCertificateException.php # Untrusted server cert (extends SecurityException)
     └── ServiceException.php           # Server errors (with status code)
 ```
 

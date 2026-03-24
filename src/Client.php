@@ -19,6 +19,7 @@ use Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTimeoutTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTranslateBrowsePathTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesTrustStoreTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
@@ -60,6 +61,7 @@ class Client implements OpcUaClientInterface
     use ManagesCacheTrait;
     use ManagesBrowseDepthTrait;
     use ManagesEventDispatcherTrait;
+    use ManagesTrustStoreTrait;
     use ManagesConnectionTrait;
     use ManagesHandshakeTrait;
     use ManagesSecureChannelTrait;

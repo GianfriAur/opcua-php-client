@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [v4.0.0] - 2026-03-29
 
 ### Added
 
@@ -26,6 +26,21 @@
 - **Code style enforcement.** Added `friendsofphp/php-cs-fixer` with Laravel-style rules (PSR-12 + opinionated). Run `composer format` before committing. `.editorconfig` included for IDE support.
 - **CLI Tool** (`bin/opcua-cli`). Four commands: `browse` (flat + recursive tree), `read` (any attribute), `endpoints` (discover security), `watch` (subscription or polling). Full security, JSON output, debug logging. Zero additional dependencies. Documentation: [CLI Tool](doc/15-cli.md).
 - `MockClient::onGetEndpoints()` handler for mocking endpoint discovery results.
+- **Server Trust Store.** Persistent server certificate validation for industrial-grade deployments.
+  - `FileTrustStore` — file-based trust store (`~/.opcua/trusted/` default, configurable path). Stores trusted and rejected certificates as DER files.
+  - `TrustPolicy` enum — three validation levels: `Fingerprint` (presence in trust store), `FingerprintAndExpiry` (+ certificate expiration check), `Full` (+ CA chain verification).
+  - `setTrustPolicy(null)` — disables trust validation entirely (default — backward compatible, behaves like before).
+  - `autoAccept(true)` — TOFU (Trust On First Use): automatically trusts new certificates and saves them to the store.
+  - `autoAccept(true, force: true)` — also accepts and updates changed certificates (replaces the stored cert).
+  - `autoAccept(true)` without `force` — rejects changed certificates even with auto-accept enabled (security protection against MITM).
+  - `trustCertificate(string $certDer)` — manually trust a certificate programmatically.
+  - `untrustCertificate(string $fingerprint)` — remove a certificate from the trust store programmatically.
+  - `UntrustedCertificateException` — thrown when a server certificate is rejected. Carries `$fingerprint` and `$certDer` for programmatic handling.
+  - Five new events: `ServerCertificateTrusted` (cert passed validation), `ServerCertificateRejected` (cert rejected), `ServerCertificateAutoAccepted` (cert auto-accepted via TOFU), `ServerCertificateManuallyTrusted` (cert added via `trustCertificate()`), `ServerCertificateRemoved` (cert removed via `untrustCertificate()`).
+  - PSR-3 logging: DEBUG for trusted certs, INFO for auto-accepted and manual trust/remove, WARNING for rejected certs.
+  - CLI commands: `trust <endpoint>` (download and trust), `trust:list` (list trusted certs), `trust:remove <fingerprint>` (remove cert).
+  - CLI options: `--trust-store=<path>` (custom store path), `--trust-policy=<policy>` (set validation level), `--no-trust-policy` (disable trust for single command).
+  - CLI shows helpful guidance when `UntrustedCertificateException` is caught — suggests `trust` command and `--no-trust-policy` flag.
 
 ### Refactored
 

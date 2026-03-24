@@ -207,6 +207,22 @@ $client->connect('opc.tcp://192.168.1.100:4840/UA/Server');
 $client->disconnect();
 ```
 
+## Server Certificate Trust
+
+By default the client accepts any server certificate. For industrial deployments, enable trust validation:
+
+```php
+use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+
+$client->setTrustStore(new FileTrustStore());           // ~/.opcua/trusted/
+$client->setTrustPolicy(TrustPolicy::Fingerprint);
+```
+
+If the server certificate is not in the trust store, `UntrustedCertificateException` is thrown. Use `autoAccept(true)` for TOFU or `setTrustPolicy(null)` to disable.
+
+> **Tip:** See [Trust Store](16-trust-store.md) for the full guide — policies, TOFU, CLI commands, events.
+
 ## Endpoint Discovery
 
 Discover what security and authentication options the server supports:

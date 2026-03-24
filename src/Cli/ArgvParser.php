@@ -132,6 +132,8 @@ class ArgvParser
             'depth',
             'interval',
             'debug-file',
+            'trust-store',
+            'trust-policy',
         ], true);
     }
 }

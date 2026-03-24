@@ -35,7 +35,8 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Automatic DataType Discovery: discoverDataTypes() auto-detects and decodes custom structures without manual codecs (OPC UA 1.04+)
 - PSR-3 Logging: optional structured logging via any PSR-3 logger (Monolog, Laravel, etc.); NullLogger by default
 - PSR-16 Cache: browse/browseAll/resolveNodeId/getEndpoints/discoverDataTypes results cached by default (InMemoryCache, 300s TTL). Any PSR-16 driver works (FileCache, Laravel Cache, Redis, etc.). Per-call bypass with useCache: false. Invalidate per-node or flush all. discoverDataTypes replays cached type definitions without server round-trips.
-- PSR-14 Events: 38 granular events dispatched at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default (zero overhead). Alarm-specific events auto-deduced from notification fields. All events carry a $client reference.
+- PSR-14 Events: 43 granular events dispatched at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry, trust store). NullEventDispatcher by default (zero overhead). Alarm-specific events auto-deduced from notification fields. All events carry a $client reference.
+- Server Trust Store: persistent server certificate validation via FileTrustStore (~/.opcua/ default). Three policies: Fingerprint, FingerprintAndExpiry, Full (CA chain). TOFU auto-accept with force option. setTrustPolicy(null) disables (default). UntrustedCertificateException thrown on rejection. CLI: trust, trust:list, trust:remove.
 - Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
 - MockClient: in-memory test double implementing OpcUaClientInterface — register handlers, assert calls, no TCP connection
 - Typed everywhere: all service responses return public readonly DTOs, not arrays
@@ -56,7 +57,8 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 - Repository (src/Repository/): per-client ExtensionObject codec registry
 - Cache (src/Cache/): PSR-16 cache drivers (InMemoryCache, FileCache)
 - Event (src/Event/): 38 PSR-14 event classes + NullEventDispatcher
-- Cli (src/Cli/): CLI tool — browse, read, endpoints, watch commands with security and JSON output
+- Cli (src/Cli/): CLI tool — browse, read, endpoints, watch, trust, trust:list, trust:remove commands
+- TrustStore (src/TrustStore/): server certificate trust management (FileTrustStore, TrustPolicy, TrustResult)
 - Testing (src/Testing/): MockClient — in-memory test double
 - Exception (src/Exception/): exception hierarchy
 

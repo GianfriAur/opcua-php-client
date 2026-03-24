@@ -67,7 +67,8 @@ src/
 ├── Encoding/                   # Binary serialization
 ├── Security/                   # Secure channel, crypto, certificates
 ├── Cache/                      # PSR-16 cache drivers (InMemoryCache, FileCache)
-├── Event/                      # PSR-14 events (38 event classes + NullEventDispatcher)
+├── TrustStore/                 # Server certificate trust management (FileTrustStore, TrustPolicy)
+├── Event/                      # PSR-14 events (43 event classes + NullEventDispatcher)
 ├── Builder/                    # Fluent builders for multi-operations
 ├── Repository/                 # Per-client codec registry
 ├── Testing/                    # MockClient for consumer testing

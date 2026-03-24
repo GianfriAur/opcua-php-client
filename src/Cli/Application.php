@@ -8,11 +8,15 @@ use Gianfriaur\OpcuaPhpClient\Cli\Commands\BrowseCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\CommandInterface;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\EndpointsCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\ReadCommand;
+use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustCommand;
+use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustListCommand;
+use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustRemoveCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\WatchCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
 use Gianfriaur\OpcuaPhpClient\Cli\Output\JsonOutput;
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
 use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
+use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
 
 /**
  * Main CLI application. Parses argv, routes to the correct command, manages the client lifecycle.
@@ -30,6 +34,9 @@ class Application
         $this->registerCommand(new ReadCommand());
         $this->registerCommand(new EndpointsCommand());
         $this->registerCommand(new WatchCommand());
+        $this->registerCommand(new TrustCommand());
+        $this->registerCommand(new TrustListCommand());
+        $this->registerCommand(new TrustRemoveCommand());
     }
 
     /**
@@ -103,6 +110,20 @@ class Application
             }
 
             return $exitCode;
+        } catch (UntrustedCertificateException $e) {
+            $output->error('Error: Server certificate not trusted.');
+            $output->error('  Fingerprint: ' . $e->fingerprint);
+            $output->writeln('');
+            $output->writeln('To trust this certificate, run:');
+            $output->writeln('  opcua-cli trust ' . ($parsed['arguments'][0] ?? '<endpoint>'));
+            $output->writeln('');
+            $output->writeln('To list trusted certificates:');
+            $output->writeln('  opcua-cli trust:list');
+            $output->writeln('');
+            $output->writeln('To skip trust validation for this command:');
+            $output->writeln('  opcua-cli ' . ($parsed['command'] ?? '') . ' ... --no-trust-policy');
+
+            return 1;
         } catch (OpcUaException $e) {
             $output->error('Error: ' . $e->getMessage());
 

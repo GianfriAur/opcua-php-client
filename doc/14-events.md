@@ -146,6 +146,16 @@ These are automatically deduced from event notification fields. They require the
 |---|---|---|
 | `DataTypesDiscovered` | `$namespaceIndex`, `$count` | After `discoverDataTypes()` completes |
 
+### Trust Store Events
+
+| Event | Properties | When |
+|---|---|---|
+| `ServerCertificateTrusted` | `$fingerprint`, `$subject` | Server cert passes trust store validation |
+| `ServerCertificateRejected` | `$fingerprint`, `$reason`, `$subject` | Server cert rejected by trust store |
+| `ServerCertificateAutoAccepted` | `$fingerprint`, `$subject` | Server cert auto-accepted via TOFU |
+| `ServerCertificateManuallyTrusted` | `$fingerprint`, `$subject` | Cert added via `trustCertificate()` |
+| `ServerCertificateRemoved` | `$fingerprint` | Cert removed via `untrustCertificate()` |
+
 ## Practical Examples
 
 ### Log all data changes to a database

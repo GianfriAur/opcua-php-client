@@ -74,6 +74,60 @@ interface OpcUaClientInterface
     public function getEventDispatcher(): EventDispatcherInterface;
 
     /**
+     * Set the trust store for server certificate validation.
+     *
+     * @param ?TrustStore\TrustStoreInterface $trustStore
+     * @return self
+     */
+    public function setTrustStore(?TrustStore\TrustStoreInterface $trustStore): self;
+
+    /**
+     * Get the current trust store, or null if none configured.
+     *
+     * @return ?TrustStore\TrustStoreInterface
+     */
+    public function getTrustStore(): ?TrustStore\TrustStoreInterface;
+
+    /**
+     * Set the trust validation policy. Pass null to disable trust validation (accept all certificates).
+     *
+     * @param ?TrustStore\TrustPolicy $policy
+     * @return self
+     */
+    public function setTrustPolicy(?TrustStore\TrustPolicy $policy): self;
+
+    /**
+     * Get the current trust policy. Null means validation is disabled.
+     *
+     * @return ?TrustStore\TrustPolicy
+     */
+    public function getTrustPolicy(): ?TrustStore\TrustPolicy;
+
+    /**
+     * Enable or disable auto-accept (TOFU) for unknown server certificates.
+     *
+     * @param bool $enabled
+     * @return self
+     */
+    public function autoAccept(bool $enabled = true, bool $force = false): self;
+
+    /**
+     * Manually trust a server certificate and add it to the trust store.
+     *
+     * @param string $certDer DER-encoded certificate bytes.
+     * @return void
+     */
+    public function trustCertificate(string $certDer): void;
+
+    /**
+     * Remove a server certificate from the trust store.
+     *
+     * @param string $fingerprint SHA-1 fingerprint (hex, colon-separated or plain hex).
+     * @return void
+     */
+    public function untrustCertificate(string $fingerprint): void;
+
+    /**
      * Return the extension object repository used for custom type decoding.
      *
      * @return ExtensionObjectRepository

@@ -13,6 +13,7 @@ RuntimeException
         ├── InvalidNodeIdException
         ├── ProtocolException
         ├── SecurityException
+        │     └── UntrustedCertificateException
         └── ServiceException
 ```
 

@@ -13,6 +13,8 @@ use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
 use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
@@ -86,6 +88,12 @@ class MockClient implements OpcUaClientInterface
     private LoggerInterface $logger;
 
     private EventDispatcherInterface $eventDispatcher;
+
+    private ?TrustStoreInterface $trustStore = null;
+
+    private ?TrustPolicy $trustPolicy = null;
+
+    private bool $autoAcceptEnabled = false;
 
     private ExtensionObjectRepository $repository;
 
@@ -251,6 +259,49 @@ class MockClient implements OpcUaClientInterface
     public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
+    }
+
+    public function setTrustStore(?TrustStoreInterface $trustStore): self
+    {
+        $this->trustStore = $trustStore;
+
+        return $this;
+    }
+
+    public function getTrustStore(): ?TrustStoreInterface
+    {
+        return $this->trustStore;
+    }
+
+    public function setTrustPolicy(?TrustPolicy $policy): self
+    {
+        $this->trustPolicy = $policy;
+
+        return $this;
+    }
+
+    public function getTrustPolicy(): ?TrustPolicy
+    {
+        return $this->trustPolicy;
+    }
+
+    public function autoAccept(bool $enabled = true, bool $force = false): self
+    {
+        $this->autoAcceptEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function trustCertificate(string $certDer): void
+    {
+        $this->record('trustCertificate', [$certDer]);
+        $this->trustStore?->trust($certDer);
+    }
+
+    public function untrustCertificate(string $fingerprint): void
+    {
+        $this->record('untrustCertificate', [$fingerprint]);
+        $this->trustStore?->untrust($fingerprint);
     }
 
     public function getExtensionObjectRepository(): ExtensionObjectRepository

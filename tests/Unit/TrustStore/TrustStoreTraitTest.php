@@ -1,0 +1,265 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
+
+use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateAutoAccepted;
+use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateRejected;
+use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateTrusted;
+use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
+use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
+use Gianfriaur\OpcuaPhpClient\Tests\Unit\Helpers\InMemoryEventDispatcher;
+use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+
+function createTestCertDer(): string
+{
+    return (new CertificateManager())->generateSelfSignedCertificate()['certDer'];
+}
+
+function createTestTrustStore(): FileTrustStore
+{
+    return new FileTrustStore(sys_get_temp_dir() . '/opcua-trust-trait-test-' . uniqid());
+}
+
+function cleanupStore(FileTrustStore $store): void
+{
+    foreach ([$store->getTrustedDir(), $store->getRejectedDir()] as $dir) {
+        foreach (glob($dir . '/*.der') ?: [] as $f) {
+            @unlink($f);
+        }
+        @rmdir($dir);
+    }
+    @rmdir(dirname($store->getTrustedDir()));
+}
+
+describe('ManagesTrustStoreTrait on Client', function () {
+
+    it('has null trust store and policy by default', function () {
+        $client = new Client();
+        expect($client->getTrustStore())->toBeNull();
+        expect($client->getTrustPolicy())->toBeNull();
+    });
+
+    it('setTrustStore is fluent', function () {
+        $client = new Client();
+        $store = createTestTrustStore();
+        $result = $client->setTrustStore($store);
+        expect($result)->toBe($client);
+        expect($client->getTrustStore())->toBe($store);
+        cleanupStore($store);
+    });
+
+    it('setTrustPolicy is fluent', function () {
+        $client = new Client();
+        $result = $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        expect($result)->toBe($client);
+        expect($client->getTrustPolicy())->toBe(TrustPolicy::Fingerprint);
+    });
+
+    it('setTrustPolicy(null) disables validation', function () {
+        $client = new Client();
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->setTrustPolicy(null);
+        expect($client->getTrustPolicy())->toBeNull();
+    });
+
+    it('autoAccept is fluent', function () {
+        $client = new Client();
+        $result = $client->autoAccept(true);
+        expect($result)->toBe($client);
+    });
+
+    it('validateServerCertificate does nothing when trust store is null', function () {
+        $client = new Client();
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+        $method->invoke($client);
+        expect(true)->toBeTrue();
+    });
+
+    it('validateServerCertificate does nothing when trust policy is null', function () {
+        $client = new Client();
+        $store = createTestTrustStore();
+        $client->setTrustStore($store);
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+        $method->invoke($client);
+        expect(true)->toBeTrue();
+        cleanupStore($store);
+    });
+
+    it('validates trusted cert and dispatches ServerCertificateTrusted event', function () {
+        $dispatcher = new InMemoryEventDispatcher();
+        $store = createTestTrustStore();
+        $cert = createTestCertDer();
+        $store->trust($cert);
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->setEventDispatcher($dispatcher);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $cert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+        $method->invoke($client);
+
+        expect($dispatcher->hasEvent(ServerCertificateTrusted::class))->toBeTrue();
+        cleanupStore($store);
+    });
+
+    it('throws UntrustedCertificateException for untrusted cert', function () {
+        $store = createTestTrustStore();
+        $cert = createTestCertDer();
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $cert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+
+        expect(fn () => $method->invoke($client))
+            ->toThrow(UntrustedCertificateException::class);
+
+        cleanupStore($store);
+    });
+
+    it('dispatches ServerCertificateRejected and rejects cert on untrusted', function () {
+        $dispatcher = new InMemoryEventDispatcher();
+        $store = createTestTrustStore();
+        $cert = createTestCertDer();
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->setEventDispatcher($dispatcher);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $cert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+
+        try {
+            $method->invoke($client);
+        } catch (UntrustedCertificateException) {
+        }
+
+        expect($dispatcher->hasEvent(ServerCertificateRejected::class))->toBeTrue();
+
+        $fingerprint = sha1($cert);
+        $rejectedPath = $store->getRejectedDir() . '/' . $fingerprint . '.der';
+        expect(file_exists($rejectedPath))->toBeTrue();
+
+        cleanupStore($store);
+    });
+
+    it('auto-accepts new cert when autoAccept enabled and no certs trusted', function () {
+        $dispatcher = new InMemoryEventDispatcher();
+        $store = createTestTrustStore();
+        $cert = createTestCertDer();
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->setEventDispatcher($dispatcher);
+        $client->autoAccept(true);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $cert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+        $method->invoke($client);
+
+        expect($store->isTrusted($cert))->toBeTrue();
+        expect($dispatcher->hasEvent(ServerCertificateAutoAccepted::class))->toBeTrue();
+
+        cleanupStore($store);
+    });
+
+    it('force auto-accept updates changed cert', function () {
+        $dispatcher = new InMemoryEventDispatcher();
+        $store = createTestTrustStore();
+        $oldCert = createTestCertDer();
+        $newCert = createTestCertDer();
+        $store->trust($oldCert);
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->setEventDispatcher($dispatcher);
+        $client->autoAccept(true, force: true);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $newCert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+        $method->invoke($client);
+
+        expect($store->isTrusted($newCert))->toBeTrue();
+        expect($dispatcher->hasEvent(ServerCertificateAutoAccepted::class))->toBeTrue();
+
+        cleanupStore($store);
+    });
+
+    it('rejects changed cert when autoAccept without force', function () {
+        $store = createTestTrustStore();
+        $oldCert = createTestCertDer();
+        $newCert = createTestCertDer();
+        $store->trust($oldCert);
+
+        $client = new Client();
+        $client->setTrustStore($store);
+        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client->autoAccept(true);
+
+        $ref = new ReflectionProperty($client, 'serverCertDer');
+        $ref->setValue($client, $newCert);
+
+        $method = new ReflectionMethod($client, 'validateServerCertificate');
+
+        expect(fn () => $method->invoke($client))
+            ->toThrow(UntrustedCertificateException::class);
+
+        cleanupStore($store);
+    });
+
+    it('UntrustedCertificateException carries fingerprint and certDer', function () {
+        $cert = createTestCertDer();
+        $fingerprint = 'aa:bb:cc';
+        $ex = new UntrustedCertificateException($fingerprint, $cert, 'Not trusted');
+
+        expect($ex->fingerprint)->toBe('aa:bb:cc');
+        expect($ex->certDer)->toBe($cert);
+        expect($ex->getMessage())->toBe('Not trusted');
+    });
+
+});
+
+describe('Trust Store Event classes', function () {
+
+    it('creates ServerCertificateTrusted', function () {
+        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $event = new ServerCertificateTrusted($client, 'aa:bb', 'CN=Server');
+        expect($event->client)->toBe($client);
+        expect($event->fingerprint)->toBe('aa:bb');
+        expect($event->subject)->toBe('CN=Server');
+    });
+
+    it('creates ServerCertificateRejected', function () {
+        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $event = new ServerCertificateRejected($client, 'aa:bb', 'Expired', 'CN=Server');
+        expect($event->reason)->toBe('Expired');
+    });
+
+    it('creates ServerCertificateAutoAccepted', function () {
+        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $event = new ServerCertificateAutoAccepted($client, 'aa:bb', 'CN=Server');
+        expect($event->fingerprint)->toBe('aa:bb');
+    });
+
+});

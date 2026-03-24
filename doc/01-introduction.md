@@ -72,11 +72,13 @@ $client->disconnect();
 - 3 security modes (None, Sign, SignAndEncrypt)
 - Anonymous, username/password, and X.509 certificate authentication
 - PEM and DER certificate support with auto-detection
+- Persistent server certificate trust store with configurable validation policies
+- TOFU (Trust On First Use) auto-accept for new certificates
 
 **Observability**
 - PSR-3 logging — pass any compatible logger (Monolog, Laravel, etc.) for structured diagnostics
 - NullLogger by default — zero overhead when logging is not needed
-- PSR-14 events — 38 granular events dispatched at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry)
+- PSR-14 events — 43 granular events dispatched at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry, trust store)
 - NullEventDispatcher by default — zero overhead when events are not needed
 
 **Testing**
