@@ -6,6 +6,7 @@
 
 ### Features
 - [x] PSR-14 Event Dispatcher — 38 granular events (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default, zero overhead. Alarm deduction from event fields (ActiveState, AckedState, ConfirmedState, ShelvingState, LimitAlarm, OffNormalAlarm).
+- [x] Write Type Auto-Detection — automatic type resolution via read-before-write with PSR-16 caching, type mismatch validation, configurable via `setAutoDetectWriteType()`
 - [ ] Cache for metadata `read()` (DisplayName, BrowseName, DataType, NodeClass, Description), **`not Value`**
 - [x] CLI Tool — `bin/opcua-cli` with browse, read, endpoints, watch commands. Security, JSON, debug logging.
 - [ ] xml Code Generator

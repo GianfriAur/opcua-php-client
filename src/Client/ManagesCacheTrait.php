@@ -69,6 +69,7 @@ trait ManagesCacheTrait
 
         $this->cache->delete($prefix . ':browse');
         $this->cache->delete($prefix . ':browseAll');
+        $this->cache->delete($prefix . ':writeType');
     }
 
     /**

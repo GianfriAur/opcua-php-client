@@ -79,6 +79,7 @@ describe('WriteMultiBuilder', function () {
         }));
 
         $client = setupConnectedClient($mock);
+        $client->setAutoDetectWriteType(false);
         $results = $client->writeMulti()
             ->node('ns=2;i=1001')->int32(42)
             ->node('ns=2;i=1002')->double(3.14)

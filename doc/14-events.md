@@ -126,6 +126,13 @@ These are automatically deduced from event notification fields. They require the
 | `NodeValueWriteFailed` | `$nodeId`, `$statusCode` | After `write()` with non-Good status |
 | `NodeBrowsed` | `$nodeId`, `$direction`, `$resultCount` | After `browse()` |
 
+### Write Type Detection Events
+
+| Event | Properties | When |
+|---|---|---|
+| `WriteTypeDetecting` | `$nodeId` | Before type detection starts (read or cache lookup) |
+| `WriteTypeDetected` | `$nodeId`, `$detectedType`, `$fromCache` | After type is successfully determined |
+
 ### Cache Events
 
 | Event | Properties | When |

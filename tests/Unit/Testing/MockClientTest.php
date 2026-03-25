@@ -218,12 +218,54 @@ describe('MockClient', function () {
             ->setTimeout(10.0)
             ->setAutoRetry(3)
             ->setBatchSize(50)
-            ->setDefaultBrowseMaxDepth(20);
+            ->setDefaultBrowseMaxDepth(20)
+            ->setAutoDetectWriteType(false);
 
         expect($mock->getTimeout())->toBe(10.0);
         expect($mock->getAutoRetry())->toBe(3);
         expect($mock->getBatchSize())->toBe(50);
         expect($mock->getDefaultBrowseMaxDepth())->toBe(20);
+    });
+
+    it('write auto-detects type from read handler when type is null', function () {
+        $mock = MockClient::create()
+            ->onRead('ns=2;i=1001', fn () => DataValue::ofInt32(0))
+            ->onWrite('ns=2;i=1001', fn ($v, $t) => $t === BuiltinType::Int32 ? 0 : StatusCode::BadTypeMismatch);
+
+        $statusCode = $mock->write('ns=2;i=1001', 42);
+        expect($statusCode)->toBe(0);
+    });
+
+    it('write passes explicit type when provided', function () {
+        $mock = MockClient::create()
+            ->onWrite('ns=2;i=1001', fn ($v, $t) => $t === BuiltinType::Double ? 0 : StatusCode::BadTypeMismatch);
+
+        $statusCode = $mock->write('ns=2;i=1001', 3.14, BuiltinType::Double);
+        expect($statusCode)->toBe(0);
+    });
+
+    it('writeMulti handles items without type key', function () {
+        $mock = MockClient::create()
+            ->onRead('ns=2;i=1001', fn () => DataValue::ofInt32(0))
+            ->onWrite('ns=2;i=1001', fn ($v, $t) => 0);
+
+        $results = $mock->writeMulti([
+            ['nodeId' => 'ns=2;i=1001', 'value' => 42],
+        ]);
+
+        expect($results)->toBe([0]);
+    });
+
+    it('writeMulti builder value() adds item without type', function () {
+        $mock = MockClient::create()
+            ->onRead('ns=2;i=1001', fn () => DataValue::ofInt32(0))
+            ->onWrite('ns=2;i=1001', fn ($v, $t) => 0);
+
+        $results = $mock->writeMulti()
+            ->node('ns=2;i=1001')->value(42)
+            ->execute();
+
+        expect($results)->toBe([0]);
     });
 
     it('reconnect sets state to Connected', function () {

@@ -98,14 +98,67 @@ if (StatusCode::isGood($statusCode)) {
 // Events: dispatches NodeValueWritten on success, NodeValueWriteFailed otherwise
 ```
 
+### Auto-Detect Write Type
+
+By default, the client automatically detects the node's type before writing. You can omit the `BuiltinType` parameter:
+
+```php
+// Auto-detect type (reads the node first, caches the type)
+$client->write('ns=2;i=1234', 42);
+
+// Explicit type (validated against the node when auto-detect is on)
+$client->write('ns=2;i=1234', 42, BuiltinType::Int32);
+```
+
+The detected type is cached (PSR-16) so subsequent writes to the same node skip the read.
+
+**Behavior:**
+
+| Auto-detect | `$type` passed | What happens |
+|---|---|---|
+| ON (default) | No | Reads node, caches type, writes |
+| ON | Yes | Reads node, validates type matches, writes |
+| OFF | No | Throws `WriteTypeDetectionException` |
+| OFF | Yes | Uses the type directly, no read |
+
+**Disable auto-detect:**
+
+```php
+$client->setAutoDetectWriteType(false);
+```
+
+**Exceptions:**
+
+- `WriteTypeDetectionException` — node has no readable value, or auto-detect is off and no type provided
+- `WriteTypeMismatchException` — explicit type does not match the detected node type. Carries `$nodeId`, `$expectedType`, `$givenType`
+
+**Events:**
+
+- `WriteTypeDetecting` — dispatched before the type detection starts
+- `WriteTypeDetected` — dispatched after the type is determined (with `$detectedType` and `$fromCache`)
+
+**Cache invalidation:**
+
+```php
+$client->invalidateCache($nodeId); // clears cached write type (and browse cache)
+$client->flushCache();             // clears everything
+```
+
 ### Writing Multiple Values
 
 ```php
-// Fluent builder
+// Fluent builder — auto-detect type
 $results = $client->writeMulti()
-    ->node('ns=2;i=1001')->value(3.14, BuiltinType::Double)
-    ->node('ns=2;i=1002')->value('Hello', BuiltinType::String)
-    ->node('ns=2;i=1003')->value(true, BuiltinType::Boolean)
+    ->node('ns=2;i=1001')->value(3.14)
+    ->node('ns=2;i=1002')->value('Hello')
+    ->node('ns=2;i=1003')->value(true)
+    ->execute();
+
+// Fluent builder — explicit type
+$results = $client->writeMulti()
+    ->node('ns=2;i=1001')->typed(3.14, BuiltinType::Double)
+    ->node('ns=2;i=1002')->typed('Hello', BuiltinType::String)
+    ->node('ns=2;i=1003')->typed(true, BuiltinType::Boolean)
     ->execute();
 
 foreach ($results as $i => $statusCode) {

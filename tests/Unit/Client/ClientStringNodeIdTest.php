@@ -156,6 +156,7 @@ describe('String NodeId parameter support', function () {
         }));
 
         $client = setupConnectedClient($mock);
+        $client->setAutoDetectWriteType(false);
         $results = $client->writeMulti([
             ['nodeId' => 'ns=2;i=1001', 'value' => 42, 'type' => Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32],
         ]);
@@ -172,6 +173,7 @@ describe('String NodeId parameter support', function () {
         }));
 
         $client = setupConnectedClient($mock);
+        $client->setAutoDetectWriteType(false);
         $status = $client->write('ns=2;i=1001', 42, Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32);
 
         expect($status)->toBe(0);

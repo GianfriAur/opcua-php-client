@@ -95,6 +95,8 @@ class MockClient implements OpcUaClientInterface
 
     private bool $autoAcceptEnabled = false;
 
+    private bool $autoDetectWriteType = true;
+
     private ExtensionObjectRepository $repository;
 
     public function __construct()
@@ -355,6 +357,13 @@ class MockClient implements OpcUaClientInterface
         return null;
     }
 
+    public function setAutoDetectWriteType(bool $enabled): self
+    {
+        $this->autoDetectWriteType = $enabled;
+
+        return $this;
+    }
+
     public function setDefaultBrowseMaxDepth(int $maxDepth): self
     {
         $this->browseMaxDepth = $maxDepth;
@@ -422,8 +431,12 @@ class MockClient implements OpcUaClientInterface
         return $results;
     }
 
-    public function write(NodeId|string $nodeId, mixed $value, BuiltinType $type): int
+    public function write(NodeId|string $nodeId, mixed $value, ?BuiltinType $type = null): int
     {
+        if ($type === null && $this->autoDetectWriteType) {
+            $dataValue = $this->read($nodeId);
+            $type = $dataValue->getVariant()?->type;
+        }
         $this->record('write', [$nodeId, $value, $type]);
         $k = $this->key($nodeId);
         if (isset($this->writeHandlers[$k])) {
@@ -441,7 +454,7 @@ class MockClient implements OpcUaClientInterface
         $this->record('writeMulti', [$writeItems]);
         $results = [];
         foreach ($writeItems as $item) {
-            $results[] = $this->write($item['nodeId'], $item['value'], $item['type']);
+            $results[] = $this->write($item['nodeId'], $item['value'], $item['type'] ?? null);
         }
 
         return $results;

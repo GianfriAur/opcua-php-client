@@ -248,4 +248,118 @@ describe('DataType Write', function () {
 
     });
 
+    describe('Write with auto-detect type', function () {
+
+        it('writes Int32 without explicit type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
+
+                $statusCode = $client->write($nodeId, 7777);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $dv = $client->read($nodeId);
+                expect($dv->getValue())->toBe(7777);
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('writes Boolean without explicit type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'BooleanValue']);
+
+                $statusCode = $client->write($nodeId, true);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $dv = $client->read($nodeId);
+                expect($dv->getValue())->toBeTrue();
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('writes Double without explicit type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'DoubleValue']);
+
+                $statusCode = $client->write($nodeId, 2.71828);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $dv = $client->read($nodeId);
+                expect(abs($dv->getValue() - 2.71828))->toBeLessThan(0.0001);
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('writes String without explicit type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'StringValue']);
+
+                $testString = 'AutoDetect ' . time();
+                $statusCode = $client->write($nodeId, $testString);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $dv = $client->read($nodeId);
+                expect($dv->getValue())->toBe($testString);
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('validates explicit type matches node type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
+
+                $statusCode = $client->write($nodeId, 42, BuiltinType::Int32);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('throws WriteTypeMismatchException for wrong explicit type', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
+
+                expect(fn () => $client->write($nodeId, 42, BuiltinType::Double))
+                    ->toThrow(Gianfriaur\OpcuaPhpClient\Exception\WriteTypeMismatchException::class);
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+        it('caches type across multiple writes', function () {
+            $client = null;
+            try {
+                $client = TestHelper::connectNoSecurity();
+                $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
+
+                $statusCode = $client->write($nodeId, 111);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $statusCode = $client->write($nodeId, 222);
+                expect(StatusCode::isGood($statusCode))->toBeTrue();
+
+                $dv = $client->read($nodeId);
+                expect($dv->getValue())->toBe(222);
+            } finally {
+                TestHelper::safeDisconnect($client);
+            }
+        })->group('integration');
+
+    });
+
 })->group('integration');

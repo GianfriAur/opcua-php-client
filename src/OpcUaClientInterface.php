@@ -9,6 +9,8 @@ use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
+use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
+use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeMismatchException;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
@@ -228,6 +230,20 @@ interface OpcUaClientInterface
      * @return int|null
      */
     public function getServerMaxNodesPerWrite(): ?int;
+
+    /**
+     * Enable or disable automatic write type detection.
+     *
+     * When enabled (default), write operations without an explicit type will read the node
+     * first to determine the correct BuiltinType. When a type is provided explicitly,
+     * it is validated against the detected type. Detected types are cached via PSR-16.
+     *
+     * When disabled, an explicit BuiltinType must be passed to every write call.
+     *
+     * @param bool $enabled Whether to enable auto-detection.
+     * @return self
+     */
+    public function setAutoDetectWriteType(bool $enabled): self;
 
     /**
      * Connect to an OPC UA server endpoint.
@@ -487,26 +503,37 @@ interface OpcUaClientInterface
     /**
      * Write a value to a node attribute.
      *
+     * When auto-detect is enabled and no type is provided, the client reads the node first
+     * to determine the correct BuiltinType (cached via PSR-16). When a type is provided
+     * explicitly, it is validated against the detected type.
+     *
      * @param NodeId|string $nodeId The node to write to.
      * @param mixed $value The value to write.
-     * @param BuiltinType $type The OPC UA built-in type of the value.
+     * @param ?BuiltinType $type The OPC UA built-in type, or null for auto-detection.
      * @return int The OPC UA status code for the write result.
      *
      * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
+     * @throws WriteTypeDetectionException If the type cannot be determined (no value on node, or auto-detect disabled without explicit type).
+     * @throws WriteTypeMismatchException If the explicit type does not match the detected node type.
      */
-    public function write(NodeId|string $nodeId, mixed $value, BuiltinType $type): int;
+    public function write(NodeId|string $nodeId, mixed $value, ?BuiltinType $type = null): int;
 
     /**
      * Write multiple values to one or more nodes in a single request.
      *
-     * @param array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
-     * @return int[] OPC UA status codes for each write result.
+     * When auto-detect is enabled, items without a type key will have their type resolved
+     * automatically via a read (or cache). Items with a type key are validated against the node.
+     *
+     * @param ?array<array{nodeId: NodeId|string, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items Items to write, or null to get a fluent builder.
+     * @return ($items is null ? Builder\WriteMultiBuilder : int[])
      *
      * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
+     * @throws WriteTypeDetectionException If a type cannot be determined for an item.
+     * @throws WriteTypeMismatchException If an explicit type does not match the detected node type.
      */
     public function writeMulti(?array $writeItems = null): array|Builder\WriteMultiBuilder;
 

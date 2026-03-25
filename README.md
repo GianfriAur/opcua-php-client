@@ -116,6 +116,10 @@ echo $value->sourceTimestamp;    // DateTimeImmutable
 ```php
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 
+// Auto-detect type (reads the node first, caches the type)
+$client->write('ns=2;i=1001', 42);
+
+// Explicit type (validated against the node when auto-detect is on)
 $client->write('ns=2;i=1001', 42, BuiltinType::Int32);
 ```
 
@@ -253,7 +257,7 @@ class HandleDataChange {
 }
 ```
 
-38 granular events covering connection, session, subscription, data change, alarms, read/write, browse, cache, and retry. Zero overhead with the default `NullEventDispatcher`. See [Events documentation](doc/14-events.md) for the full list.
+40 granular events covering connection, session, subscription, data change, alarms, read/write, browse, cache, and retry. Zero overhead with the default `NullEventDispatcher`. See [Events documentation](doc/14-events.md) for the full list.
 
 ### Monitor alarms in real time
 
@@ -363,7 +367,7 @@ $point = $client->read($pointNodeId)->getValue();
 |---|---|
 | **Browse** | Navigate the address space — recursive, automatic continuation, tree building |
 | **Path Resolution** | Resolve `/Objects/MyPLC/Temperature` to a NodeId in one call |
-| **Read / Write** | Single and multi operations, all OPC UA data types |
+| **Read / Write** | Single and multi operations, all OPC UA data types, automatic type detection with caching |
 | **Method Call** | Invoke server methods with typed arguments and results |
 | **Subscriptions** | Data change and event monitoring with publish/acknowledge |
 | **Transfer & Recovery** | Transfer subscriptions across sessions and republish unacknowledged notifications |

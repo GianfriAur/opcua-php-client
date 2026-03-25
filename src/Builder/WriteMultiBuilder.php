@@ -15,7 +15,7 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
  */
 class WriteMultiBuilder
 {
-    /** @var array<array{nodeId: NodeId|string, value: mixed, type: BuiltinType}> */
+    /** @var array<array{nodeId: NodeId|string, value: mixed, type: ?BuiltinType}> */
     private array $items = [];
 
     private NodeId|string|null $currentNodeId = null;
@@ -39,6 +39,22 @@ class WriteMultiBuilder
     public function node(NodeId|string $nodeId): self
     {
         $this->currentNodeId = $nodeId;
+
+        return $this;
+    }
+
+    /**
+     * Adds a value to write to the current node with automatic type detection.
+     *
+     * The type will be determined by reading the node before writing (cached via PSR-16).
+     * Requires auto-detect to be enabled on the client.
+     *
+     * @param mixed $value The value to write.
+     * @return $this
+     */
+    public function value(mixed $value): self
+    {
+        $this->items[] = ['nodeId' => $this->currentNodeId, 'value' => $value, 'type' => null];
 
         return $this;
     }

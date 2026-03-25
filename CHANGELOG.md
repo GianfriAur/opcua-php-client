@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Write Type Auto-Detection.** The `write()` method no longer requires an explicit `BuiltinType`. When omitted, the client reads the node first to determine the correct type, then caches it via PSR-16 for subsequent writes to the same node.
+  - `setAutoDetectWriteType(bool)` — enable/disable the feature (default: enabled).
+  - When auto-detect is on and an explicit type is provided, it is validated against the detected node type.
+  - `WriteTypeDetectionException` — thrown when the type cannot be determined (no value on node, or auto-detect disabled without explicit type).
+  - `WriteTypeMismatchException` — thrown when the explicit type does not match the detected type. Carries `$nodeId`, `$expectedType`, `$givenType`.
+  - Two new events: `WriteTypeDetecting` (before detection), `WriteTypeDetected` (after detection, with `$detectedType` and `$fromCache`).
+  - `WriteMultiBuilder::value(mixed)` — new builder method for writing without specifying a type.
+  - `invalidateCache()` now also clears cached write types.
 - **PSR-14 Event Dispatcher.** The client now dispatches 38 granular events at every key lifecycle point. Inject any PSR-14 `EventDispatcherInterface` via `$client->setEventDispatcher($dispatcher)`. Events cover:
   - **Connection** (6): `ClientConnecting`, `ClientConnected`, `ConnectionFailed`, `ClientReconnecting`, `ClientDisconnecting`, `ClientDisconnected`
   - **Session** (3): `SessionCreated`, `SessionActivated`, `SessionClosed`

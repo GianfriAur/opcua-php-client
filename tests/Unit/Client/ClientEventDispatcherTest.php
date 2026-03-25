@@ -107,6 +107,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
+        $client->setAutoDetectWriteType(false);
         $client->setEventDispatcher($dispatcher);
 
         $client->write('ns=2;i=1001', 42, BuiltinType::Int32);
@@ -125,6 +126,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
+        $client->setAutoDetectWriteType(false);
         $client->setEventDispatcher($dispatcher);
 
         $client->write('ns=2;i=1001', 42, BuiltinType::Int32);

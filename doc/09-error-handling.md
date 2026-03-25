@@ -14,7 +14,9 @@ RuntimeException
         ├── ProtocolException
         ├── SecurityException
         │     └── UntrustedCertificateException
-        └── ServiceException
+        ├── ServiceException
+        ├── WriteTypeDetectionException
+        └── WriteTypeMismatchException
 ```
 
 All live in `Gianfriaur\OpcuaPhpClient\Exception`.
@@ -150,6 +152,38 @@ OPC UA protocol violations. Thrown when:
 - Server sends ERR during handshake
 - Unexpected message type (expected ACK, got something else)
 - Invalid message size
+
+### WriteTypeDetectionException
+
+Thrown when write type auto-detection fails. This happens when:
+
+- Auto-detect is enabled but the node has no readable value (Variant is null)
+- Auto-detect is disabled and no explicit `BuiltinType` was provided
+
+```php
+use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
+
+try {
+    $client->setAutoDetectWriteType(false);
+    $client->write('ns=2;i=1001', 42); // no type provided
+} catch (WriteTypeDetectionException $e) {
+    echo $e->getMessage();
+}
+```
+
+### WriteTypeMismatchException
+
+Thrown when the explicit type passed to `write()` does not match the type detected on the node. Carries `$nodeId`, `$expectedType`, and `$givenType` for programmatic handling:
+
+```php
+use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeMismatchException;
+
+try {
+    $client->write('ns=2;i=1001', 42, BuiltinType::Double); // node is Int32
+} catch (WriteTypeMismatchException $e) {
+    echo "Node {$e->nodeId} expects {$e->expectedType->name}, got {$e->givenType->name}\n";
+}
+```
 
 ## Status Codes vs Exceptions
 
