@@ -330,7 +330,7 @@ A `NullEventDispatcher` is used by default — zero overhead when no dispatcher 
 | `RetryAttempt` | Before each automatic retry |
 | `RetryExhausted` | When all retries are exhausted |
 
-> **Tip:** See [Events](14-events.md) for the full list of 38 events and practical examples.
+> **Tip:** See [Events](14-events.md) for the full list of 47 events and practical examples.
 
 ## Disconnecting
 

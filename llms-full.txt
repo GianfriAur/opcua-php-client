@@ -45,7 +45,7 @@ composer require gianfriaur/opcua-php-client
 - Typed everywhere — all responses return public readonly DTOs, not arrays
 - MockClient — in-memory test double implementing OpcUaClientInterface; register handlers, assert calls, no TCP connection
 - DataValue factory methods — ofInt32(), ofDouble(), ofString(), ofBoolean(), of($value, BuiltinType), bad(StatusCode), etc.
-- 950+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
+- 1290+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
 
 ### Property access style
 
@@ -185,7 +185,7 @@ $client->setEventDispatcher($yourDispatcher);
 $client->setEventDispatcher(app(EventDispatcherInterface::class));
 ```
 
-NullEventDispatcher by default (zero overhead). 38 events covering connection, session, subscription, data change, alarms, read/write, browse, cache, retry. See section 14 for the full list.
+NullEventDispatcher by default (zero overhead). 47 events covering connection, session, subscription, data change, alarms, read/write, write type detection, browse, cache, retry, trust store. See section 14 for the full list.
 
 Log levels: DEBUG (handshake, secure channel, session), INFO (connect/disconnect, batch splits), WARNING (retries, server limits), ERROR (connection failures).
 
@@ -627,7 +627,7 @@ src/
 ├── Types/*.php                   # 23 type/enum/DTO classes (all public readonly, includes ExtensionObject)
 ├── Builder/*.php                 # Fluent builders for multi-operations
 ├── Cli/Application.php            # CLI entry point, command routing
-├── Cli/Commands/*.php             # 6 CLI commands (browse, read, write, endpoints, watch, generate:nodeset)
+├── Cli/Commands/*.php             # 10 CLI commands (browse, read, write, endpoints, watch, generate:nodeset, dump:nodeset, trust, trust:list, trust:remove)
 ├── Event/NullEventDispatcher.php   # No-op PSR-14 dispatcher
 ├── Event/*.php                    # 38 event classes
 ├── Cache/InMemoryCache.php        # PSR-16 in-memory cache
@@ -773,7 +773,7 @@ $results = $client->readMulti()
 
 ## 14. Events (PSR-14)
 
-The client dispatches 38 granular PSR-14 events. Inject any EventDispatcherInterface via $client->setEventDispatcher($dispatcher). NullEventDispatcher is used by default (zero overhead — event objects lazily instantiated via closures).
+The client dispatches 47 granular PSR-14 events. Inject any EventDispatcherInterface via $client->setEventDispatcher($dispatcher). NullEventDispatcher is used by default (zero overhead — event objects lazily instantiated via closures).
 
 ### Configuration
 

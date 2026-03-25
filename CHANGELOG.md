@@ -4,6 +4,7 @@
 
 ### Added
 
+- **CLI `dump:nodeset` command.** Export a live server's address space to a NodeSet2.xml file: `opcua-cli dump:nodeset opc.tcp://server:4840 --output=MyPLC.NodeSet2.xml [--namespace=2]`. Browses the entire address space recursively, reads node attributes (DataType, ValueRank, IsAbstract, Symmetric), discovers structured DataType definitions and enumerations, and produces a valid NodeSet2.xml that can be fed directly to `generate:nodeset`. Filters by namespace index (default: all non-zero). Full security support.
 - **NodeSet2.xml Code Generator.** New `generate:nodeset` CLI command reads OPC UA NodeSet2.xml files (companion specifications, PLC information models) and generates five types of PHP classes:
   - **NodeId constants** — one class per file with all node IDs as string constants, usable with `read()`, `write()`, `browse()`.
   - **PHP enums** — `BackedEnum` classes for every OPC UA enumeration type in the file.

@@ -308,21 +308,25 @@ class MonitoredItemService extends AbstractProtocolService
     {
         $this->readResponseMetadata($decoder);
 
-        $addCount = $decoder->readInt32();
         $addResults = [];
+        $addCount = $decoder->readInt32();
         for ($i = 0; $i < $addCount; $i++) {
             $addResults[] = $decoder->readUInt32();
         }
 
         $decoder->skipDiagnosticInfoArray();
 
-        $removeCount = $decoder->readInt32();
         $removeResults = [];
-        for ($i = 0; $i < $removeCount; $i++) {
-            $removeResults[] = $decoder->readUInt32();
-        }
+        if ($decoder->getRemainingLength() > 0) {
+            $removeCount = $decoder->readInt32();
+            for ($i = 0; $i < $removeCount; $i++) {
+                $removeResults[] = $decoder->readUInt32();
+            }
 
-        $decoder->skipDiagnosticInfoArray();
+            if ($decoder->getRemainingLength() > 0) {
+                $decoder->skipDiagnosticInfoArray();
+            }
+        }
 
         return new SetTriggeringResult($addResults, $removeResults);
     }

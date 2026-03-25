@@ -199,6 +199,60 @@ Generates three types of files:
 
 **No server connection required** — reads the XML file locally.
 
+### `dump:nodeset` — Export server address space to NodeSet2.xml
+
+```bash
+# Dump all non-zero namespaces
+php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.100:4840 --output=MyPLC.NodeSet2.xml
+
+# Dump only namespace 2
+php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.100:4840 --output=MyPLC.NodeSet2.xml --namespace=2
+
+# With security
+php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.100:4840 --output=MyPLC.NodeSet2.xml \
+  -s Basic256Sha256 -m SignAndEncrypt --cert=client.pem --key=client.key
+```
+
+Output:
+
+```
+Namespace URIs:
+  [0] http://opcfoundation.org/UA/
+  [1] urn:myplc:opcua:server
+
+Browsing address space...
+Found 12 top-level nodes
+
+Collecting nodes and reading attributes...
+Collected 87 nodes
+
+Building XML...
+Written: MyPLC.NodeSet2.xml
+
+Done. 87 nodes exported.
+```
+
+The exported file can be fed directly to `generate:nodeset`:
+
+```bash
+php vendor/bin/opcua-cli generate:nodeset MyPLC.NodeSet2.xml --output=src/Generated/MyPLC/
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--output=FILE` | Output XML file path (required) |
+| `--namespace=N` | Export only this namespace index (default: all non-zero) |
+
+> **WARNING: Always prefer the manufacturer's NodeSet2.xml file over a runtime dump.**
+>
+> The `dump:nodeset` command reconstructs the address space by browsing and reading attributes at runtime. This works well for NodeId constants and enumerations, but **structured DataType definitions may be incomplete or missing** depending on the server's OPC UA version and capabilities. Servers that do not support the `DataTypeDefinition` attribute (OPC UA < 1.04) will produce DataType nodes without `<Definition>` fields — meaning no DTOs or codecs can be generated for those types.
+>
+> **Use this command only when the device manufacturer does not provide a NodeSet2.xml file.** If one is available (from the vendor documentation, the OPC Foundation repository, or the [`opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) package), always use `generate:nodeset` directly on that file instead.
+>
+> This command is **not required and not mandatory** for using the library. It is a convenience tool for situations where no other source of type information is available.
+
 ## Security Options
 
 All commands support full security configuration:

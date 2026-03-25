@@ -292,6 +292,9 @@ php vendor/bin/opcua-cli read opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
 php vendor/bin/opcua-cli write opc.tcp://192.168.1.10:4840 "ns=2;i=1001" 42 # auto-detected
 php vendor/bin/opcua-cli write opc.tcp://192.168.1.10:4840 "ns=2;i=1001" 42 --type=Int32 # with type
 
+# Dump address space to NodeSet2.xml (then generate PHP types)
+php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.10:4840 --output=MyPLC.NodeSet2.xml
+
 # Watch a value in real time (subscription mode)
 php vendor/bin/opcua-cli watch opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
 
@@ -391,7 +394,7 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 - **Industrial-ready** — server certificate trust management, alarm event deduction, subscription recovery, auto-retry — built for certified industrial deployments.
 - **Batteries included** — browse, read, write, call, subscriptions, events, history, path resolution, batching, retry, CLI tool.
 - **Cross-platform** — Linux, macOS, Windows. No FFI, no COM.
-- **Thoroughly tested** — 750+ tests, 99%+ code coverage across PHP 8.2, 8.3, 8.4, and 8.5.
+- **Thoroughly tested** — 1290+ tests, 99%+ code coverage across PHP 8.2, 8.3, 8.4, and 8.5.
 - **Typed everywhere** — all service responses return `public readonly` DTOs, not arrays.
 - **Session persistence** — keep OPC UA connections alive across PHP requests via [`opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager).
 - **Laravel-ready** — drop-in via [`opcua-laravel-client`](https://github.com/GianfriAur/opcua-laravel-client).
@@ -439,14 +442,14 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 | 11 | [Architecture](doc/11-architecture.md) | Project structure, layers, protocol flow |
 | 12 | [ExtensionObject Codecs](doc/12-extension-object-codecs.md) | Custom type decoding, codec interface, repository API |
 | 13 | [Testing](doc/13-testing.md) | MockClient, DataValue factories, call tracking, test examples |
-| 14 | [Events](doc/14-events.md) | PSR-14 event system, 38 events, alarm deduction, Laravel integration, examples |
-| 15 | [CLI Tool](doc/15-cli.md) | Browse, read, watch, endpoints — from the terminal with security and JSON |
+| 14 | [Events](doc/14-events.md) | PSR-14 event system, 47 events, alarm deduction, Laravel integration, examples |
+| 15 | [CLI Tool](doc/15-cli.md) | Browse, read, write, watch, endpoints, generate, dump — from the terminal with security and JSON |
 | 16 | [Trust Store](doc/16-trust-store.md) | Server certificate trust management, policies, TOFU, CLI commands |
 | 17 | [Code Generation](doc/17-code-generation.md) | Generate PHP classes from NodeSet2.xml — NodeId constants, enums, typed DTOs, codecs |
 
 ## Testing
 
-940+ tests with **99%+ code coverage**. Unit tests cover encoding, crypto, protocol services, and error paths. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) — a Docker-based OPC UA environment with multiple security configs, custom types, and real-world scenarios.
+1290+ tests with **99%+ code coverage**. Unit tests cover encoding, crypto, protocol services, and error paths. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) — a Docker-based OPC UA environment with multiple security configs, custom types, and real-world scenarios.
 
 ```bash
 ./vendor/bin/pest                                          # everything

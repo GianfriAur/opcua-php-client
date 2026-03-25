@@ -173,17 +173,7 @@ try {
 
 ### WriteTypeMismatchException
 
-Thrown when the explicit type passed to `write()` does not match the type detected on the node. Carries `$nodeId`, `$expectedType`, and `$givenType` for programmatic handling:
-
-```php
-use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeMismatchException;
-
-try {
-    $client->write('ns=2;i=1001', 42, BuiltinType::Double); // node is Int32
-} catch (WriteTypeMismatchException $e) {
-    echo "Node {$e->nodeId} expects {$e->expectedType->name}, got {$e->givenType->name}\n";
-}
-```
+Reserved for type mismatch detection. Carries `$nodeId`, `$expectedType`, and `$givenType`. Currently not thrown by the library — when an explicit type is passed to `write()`, it is used directly without validation. The class exists for use in custom validation logic or future features.
 
 ## Status Codes vs Exceptions
 

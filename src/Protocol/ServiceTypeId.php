@@ -64,7 +64,7 @@ final class ServiceTypeId
 
     public const MODIFY_MONITORED_ITEMS_REQUEST = 763;
 
-    public const SET_TRIGGERING_REQUEST = 769;
+    public const SET_TRIGGERING_REQUEST = 775;
 
     public const DELETE_MONITORED_ITEMS_REQUEST = 781;
 

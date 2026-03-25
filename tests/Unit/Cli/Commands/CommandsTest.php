@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\BrowseCommand;
+use Gianfriaur\OpcuaPhpClient\Cli\Commands\DumpNodesetCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\EndpointsCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\GenerateNodesetCommand;
 use Gianfriaur\OpcuaPhpClient\Cli\Commands\ReadCommand;
@@ -692,5 +693,25 @@ describe('GenerateNodesetCommand', function () {
         @rmdir($outputDir . '/Codecs');
         array_map('unlink', glob($outputDir . '/*.php') ?: []);
         @rmdir($outputDir);
+    });
+});
+
+describe('DumpNodesetCommand', function () {
+
+    it('returns name and description', function () {
+        $cmd = new DumpNodesetCommand();
+        expect($cmd->getName())->toBe('dump:nodeset');
+        expect($cmd->getDescription())->toBeString();
+        expect($cmd->getUsage())->toContain('dump:nodeset');
+        expect($cmd->requiresConnection())->toBeTrue();
+    });
+
+    it('returns 1 when no output specified', function () {
+        $cmd = new DumpNodesetCommand();
+        $client = MockClient::create();
+        [$stdout, $stderr] = createOutputStream();
+        $output = new ConsoleOutput($stdout, $stderr);
+        $code = $cmd->execute($client, ['opc.tcp://localhost'], [], $output);
+        expect($code)->toBe(1);
     });
 });

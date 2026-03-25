@@ -216,8 +216,40 @@ The generated types are opt-in and have zero impact on existing code.
 | `<Aliases>` | Used internally for type resolution |
 | `<References>` with `HasEncoding` | Used to find binary encoding NodeIds |
 
+## Generate from a Live Server
+
+Don't have a NodeSet2.xml file? Dump the address space directly from a running OPC UA server:
+
+```bash
+# 1. Dump the server's address space
+php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.100:4840 \
+  --output=MyPLC.NodeSet2.xml --namespace=2
+
+# 2. Generate PHP types from the dump
+php vendor/bin/opcua-cli generate:nodeset MyPLC.NodeSet2.xml \
+  --output=src/Generated/MyPLC/ --namespace=App\\OpcUa\\MyPLC
+
+# 3. Use in your code
+```
+
+```php
+use App\OpcUa\MyPLC\MyPLCRegistrar;
+use App\OpcUa\MyPLC\MyPLCNodeIds;
+
+$client = new Client();
+$client->loadGeneratedTypes(new MyPLCRegistrar());
+$client->connect('opc.tcp://192.168.1.100:4840');
+
+$temp = $client->read(MyPLCNodeIds::Temperature)->getValue();
+// float 23.5 — with IDE autocomplete on the NodeId constant
+```
+
+The `dump:nodeset` command browses the entire address space, reads all node attributes, discovers structured data types and enumerations, and produces a valid NodeSet2.xml file. See [CLI Tool](15-cli.md) for full options.
+
 ## Where to Find NodeSet2.xml Files
 
-- **OPC Foundation**: [https://github.com/OPCFoundation/UA-Nodeset](https://github.com/OPCFoundation/UA-Nodeset) — all official companion specifications
 - **Device manufacturers**: often ship NodeSet files with their OPC UA server documentation
-- **node-opcua**: includes many NodeSet files in `node_modules/node-opcua-nodesets/nodesets/`
+- **Pre-built package**: [`gianfriaur/opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) — 51 specs already generated
+- **OPC Foundation**: [https://github.com/OPCFoundation/UA-Nodeset](https://github.com/OPCFoundation/UA-Nodeset) — all official companion specifications
+- **Live server**: use `dump:nodeset` to export from any OPC UA server
+

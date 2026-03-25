@@ -40,7 +40,7 @@ A PHP library for connecting to OPC UA servers (industrial automation protocol).
 - Connection State: lifecycle tracking (Disconnected, Connected, Broken) with reconnect()
 - MockClient: in-memory test double implementing OpcUaClientInterface — register handlers, assert calls, no TCP connection
 - Typed everywhere: all service responses return public readonly DTOs, not arrays
-- Thoroughly tested: 950+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
+- Thoroughly tested: 1290+ tests, 99%+ code coverage on PHP 8.2/8.3/8.4/8.5
 
 ## Property access style
 
@@ -57,7 +57,7 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 - Repository (src/Repository/): per-client ExtensionObject codec registry
 - Cache (src/Cache/): PSR-16 cache drivers (InMemoryCache, FileCache)
 - Event (src/Event/): 40 PSR-14 event classes + NullEventDispatcher
-- Cli (src/Cli/): CLI tool — browse, read, write, endpoints, watch, generate:nodeset, trust, trust:list, trust:remove commands
+- Cli (src/Cli/): CLI tool — browse, read, write, endpoints, watch, generate:nodeset, dump:nodeset, trust, trust:list, trust:remove commands (10 total)
 - TrustStore (src/TrustStore/): server certificate trust management (FileTrustStore, TrustPolicy, TrustResult)
 - Testing (src/Testing/): MockClient — in-memory test double
 - Exception (src/Exception/): exception hierarchy
