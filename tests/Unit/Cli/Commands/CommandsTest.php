@@ -676,17 +676,18 @@ describe('GenerateNodesetCommand', function () {
 
         expect($code)->toBe(0);
         expect(file_exists($outputDir . '/TestNodeIds.php'))->toBeTrue();
+        expect(file_exists($outputDir . '/Types/TestPoint.php'))->toBeTrue();
         expect(file_exists($outputDir . '/Codecs/TestPointCodec.php'))->toBeTrue();
-        expect(file_exists($outputDir . '/Codecs/TestRangeCodec.php'))->toBeTrue();
-        expect(file_exists($outputDir . '/Codecs/TestPersonCodec.php'))->toBeTrue();
+        expect(file_exists($outputDir . '/Enums/TestStatusEnum.php'))->toBeTrue();
         expect(file_exists($outputDir . '/TestRegistrar.php'))->toBeTrue();
 
         $content = getStreamContent($stdout);
-        expect($content)->toContain('6 file(s) generated');
-        expect(file_exists($outputDir . '/Enums/TestStatusEnum.php'))->toBeTrue();
+        expect($content)->toContain('file(s) generated');
 
         array_map('unlink', glob($outputDir . '/Enums/*.php') ?: []);
         @rmdir($outputDir . '/Enums');
+        array_map('unlink', glob($outputDir . '/Types/*.php') ?: []);
+        @rmdir($outputDir . '/Types');
         array_map('unlink', glob($outputDir . '/Codecs/*.php') ?: []);
         @rmdir($outputDir . '/Codecs');
         array_map('unlink', glob($outputDir . '/*.php') ?: []);

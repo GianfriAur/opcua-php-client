@@ -84,60 +84,105 @@ class GenerateNodesetCommand implements CommandInterface
         $this->ensureDirectory($outputDir);
 
         $baseName = $this->deriveBaseName($xmlFile);
+        $nodeIdClassName = $baseName . 'NodeIds';
         $filesWritten = 0;
 
+        $nodeIdConstMap = $this->buildConstNameMap($nodes);
+
         if (! empty($nodes)) {
-            $nodeIdCode = $generator->generateNodeIdClass($baseName . 'NodeIds', $nodes, $namespace);
-            $this->writeFile($outputDir . '/' . $baseName . 'NodeIds.php', $nodeIdCode);
-            $output->writeln("Generated: {$outputDir}/{$baseName}NodeIds.php");
+            $nodeIdCode = $generator->generateNodeIdClass($nodeIdClassName, $nodes, $namespace);
+            $this->writeFile($outputDir . '/' . $nodeIdClassName . '.php', $nodeIdCode);
+            $output->writeln("Generated: {$outputDir}/{$nodeIdClassName}.php");
             $filesWritten++;
+        }
+
+        $enumFieldMap = [];
+        $enumNodeMappings = [];
+
+        if (! empty($enumerations)) {
+            $this->ensureDirectory($outputDir . '/Enums');
+
+            foreach ($enumerations as $enumNodeId => $enum) {
+                $enumCode = $generator->generateEnumClass($enum['name'], $enum['values'], $namespace);
+                $this->writeFile($outputDir . '/Enums/' . $enum['name'] . '.php', $enumCode);
+                $output->writeln("Generated: {$outputDir}/Enums/{$enum['name']}.php");
+                $filesWritten++;
+
+                $enumFieldMap[$enumNodeId] = $enum['name'];
+                $enumNodeMappings[$enumNodeId] = [
+                    'enumClass' => $enum['name'],
+                    'constName' => $nodeIdConstMap[$enumNodeId] ?? null,
+                ];
+            }
         }
 
         $codecRegistrations = [];
 
         if (! empty($dataTypes)) {
+            $this->ensureDirectory($outputDir . '/Types');
             $this->ensureDirectory($outputDir . '/Codecs');
 
             foreach ($dataTypes as $dt) {
-                if (empty($dt['fields']) || $dt['encodingId'] === null) {
+                if (empty($dt['fields'])) {
                     continue;
                 }
 
+                $dtoName = $dt['name'];
                 $codecName = $dt['name'] . 'Codec';
-                $codecCode = $generator->generateCodecClass($codecName, $dt['fields'], $namespace);
+                $encodingId = $dt['encodingId'] ?? $dt['nodeId'];
+
+                $dtoCode = $generator->generateDtoClass($dtoName, $dt['fields'], $namespace, $enumFieldMap);
+                $this->writeFile($outputDir . '/Types/' . $dtoName . '.php', $dtoCode);
+                $output->writeln("Generated: {$outputDir}/Types/{$dtoName}.php");
+                $filesWritten++;
+
+                $codecCode = $generator->generateCodecClass($codecName, $dtoName, $dt['fields'], $namespace, $enumFieldMap);
                 $this->writeFile($outputDir . '/Codecs/' . $codecName . '.php', $codecCode);
                 $output->writeln("Generated: {$outputDir}/Codecs/{$codecName}.php");
                 $filesWritten++;
 
                 $codecRegistrations[] = [
-                    'encodingId' => $dt['encodingId'],
+                    'encodingId' => $encodingId,
                     'codecClass' => $codecName,
+                    'constName' => $nodeIdConstMap[$encodingId] ?? $nodeIdConstMap[$dt['nodeId']] ?? null,
                 ];
             }
         }
 
-        if (! empty($enumerations)) {
-            $this->ensureDirectory($outputDir . '/Enums');
-
-            foreach ($enumerations as $enum) {
-                $enumCode = $generator->generateEnumClass($enum['name'], $enum['values'], $namespace);
-                $this->writeFile($outputDir . '/Enums/' . $enum['name'] . '.php', $enumCode);
-                $output->writeln("Generated: {$outputDir}/Enums/{$enum['name']}.php");
-                $filesWritten++;
-            }
-        }
-
-        if (! empty($codecRegistrations)) {
-            $registrarCode = $generator->generateRegistrarClass($baseName . 'Registrar', $codecRegistrations, $namespace);
-            $this->writeFile($outputDir . '/' . $baseName . 'Registrar.php', $registrarCode);
-            $output->writeln("Generated: {$outputDir}/{$baseName}Registrar.php");
-            $filesWritten++;
-        }
+        $registrarCode = $generator->generateRegistrarClass($baseName . 'Registrar', $codecRegistrations, $enumNodeMappings, $nodeIdClassName, $namespace);
+        $this->writeFile($outputDir . '/' . $baseName . 'Registrar.php', $registrarCode);
+        $output->writeln("Generated: {$outputDir}/{$baseName}Registrar.php");
+        $filesWritten++;
 
         $output->writeln('');
         $output->writeln("Done. {$filesWritten} file(s) generated in {$outputDir}/");
 
         return 0;
+    }
+
+    /**
+     * @param array<string, array{nodeId: string, browseName: string, displayName: string, type: string}> $nodes
+     * @return array<string, string>
+     */
+    private function buildConstNameMap(array $nodes): array
+    {
+        $map = [];
+        $usedNames = [];
+        foreach ($nodes as $node) {
+            $constName = preg_replace('/[^a-zA-Z0-9_]/', '_', $node['browseName']) ?? $node['browseName'];
+            if (is_numeric($constName[0] ?? '')) {
+                $constName = '_' . $constName;
+            }
+            if (isset($usedNames[$constName])) {
+                $usedNames[$constName]++;
+                $constName .= '_' . $usedNames[$constName];
+            } else {
+                $usedNames[$constName] = 1;
+            }
+            $map[$node['nodeId']] = $constName;
+        }
+
+        return $map;
     }
 
     /**

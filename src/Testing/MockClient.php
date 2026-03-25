@@ -13,6 +13,7 @@ use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
 use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar;
 use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
 use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
@@ -371,6 +372,14 @@ class MockClient implements OpcUaClientInterface
     public function setReadMetadataCache(bool $enabled): self
     {
         $this->readMetadataCache = $enabled;
+
+        return $this;
+    }
+
+    public function loadGeneratedTypes(GeneratedTypeRegistrar $registrar): self
+    {
+        $registrar->registerCodecs($this->repository);
+        $this->record('loadGeneratedTypes', [$registrar]);
 
         return $this;
     }

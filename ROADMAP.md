@@ -9,7 +9,7 @@
 - [x] Write Type Auto-Detection — automatic type resolution via read-before-write with PSR-16 caching, type mismatch validation, configurable via `setAutoDetectWriteType()`
 - [x] Cache for metadata `read()` (DisplayName, BrowseName, DataType, NodeClass, Description), **`not Value`** — opt-in via `setReadMetadataCache(true)`, `refresh: true` to bypass
 - [x] CLI Tool — `bin/opcua-cli` with browse, read, write, endpoints, watch commands. Security, JSON, debug logging.
-- [x] NodeSet2.xml Code Generator — `generate:nodeset` CLI command, generates NodeId constants + Codec classes + Registrar from NodeSet2.xml files
+- [x] NodeSet2.xml Code Generator — `generate:nodeset` CLI command with typed DTOs, PHP enums, codecs, and `GeneratedTypeRegistrar` for auto-cast integration
 - [x] Server Trust Management (also for cli) — FileTrustStore, TrustPolicy enum, autoAccept(force), CLI trust/trust:list/trust:remove, 3 events
 - [x] Triggering / ModifyMonitoredItems — `setTriggering()` for conditional sampling, `modifyMonitoredItems()` for changing parameters on existing items
 

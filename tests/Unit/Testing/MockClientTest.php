@@ -292,6 +292,23 @@ describe('MockClient', function () {
         expect($result->removeResults)->toBe([0]);
     });
 
+    it('loadGeneratedTypes is fluent and records call', function () {
+        $mock = MockClient::create();
+        $registrar = new class() implements Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar {
+            public function registerCodecs(Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository $repository): void
+            {
+            }
+
+            public function getEnumMappings(): array
+            {
+                return [];
+            }
+        };
+        $result = $mock->loadGeneratedTypes($registrar);
+        expect($result)->toBe($mock);
+        expect($mock->callCount('loadGeneratedTypes'))->toBe(1);
+    });
+
     it('reconnect sets state to Connected', function () {
         $mock = MockClient::create();
         $mock->reconnect();

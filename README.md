@@ -411,6 +411,7 @@ $point = $client->read($pointNodeId)->getValue();
 | 14 | [Events](doc/14-events.md) | PSR-14 event system, 38 events, alarm deduction, Laravel integration, examples |
 | 15 | [CLI Tool](doc/15-cli.md) | Browse, read, watch, endpoints — from the terminal with security and JSON |
 | 16 | [Trust Store](doc/16-trust-store.md) | Server certificate trust management, policies, TOFU, CLI commands |
+| 17 | [Code Generation](doc/17-code-generation.md) | Generate PHP classes from NodeSet2.xml — NodeId constants, enums, typed DTOs, codecs |
 
 ## Testing
 

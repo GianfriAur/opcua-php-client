@@ -10,6 +10,7 @@ use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
 use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected;
 use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetecting;
 use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
+use Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
@@ -26,6 +27,26 @@ trait ManagesReadWriteTrait
     private bool $autoDetectWriteType = true;
 
     private bool $readMetadataCache = false;
+
+    /** @var array<string, class-string<\BackedEnum>> */
+    private array $enumMappings = [];
+
+    /**
+     * Load generated types from a NodeSet2.xml code generator registrar.
+     *
+     * Registers ExtensionObject codecs and enum mappings for automatic value casting.
+     * Can be called multiple times to load types from different NodeSet files.
+     *
+     * @param GeneratedTypeRegistrar $registrar The generated registrar.
+     * @return self
+     */
+    public function loadGeneratedTypes(GeneratedTypeRegistrar $registrar): self
+    {
+        $registrar->registerCodecs($this->repository);
+        $this->enumMappings = array_merge($this->enumMappings, $registrar->getEnumMappings());
+
+        return $this;
+    }
 
     /**
      * Enable or disable caching for metadata read operations.
@@ -127,7 +148,7 @@ trait ManagesReadWriteTrait
      */
     private function readFromServer(NodeId $nodeId, int $attributeId): DataValue
     {
-        return $this->executeWithRetry(function () use ($nodeId, $attributeId) {
+        $dataValue = $this->executeWithRetry(function () use ($nodeId, $attributeId) {
             $this->ensureConnected();
 
             $requestId = $this->nextRequestId();
@@ -144,6 +165,43 @@ trait ManagesReadWriteTrait
 
             return $dataValue;
         });
+
+        return $this->applyEnumMapping($nodeId, $dataValue);
+    }
+
+    /**
+     * Cast the DataValue's raw value to a BackedEnum if the node has an enum mapping.
+     *
+     * @param NodeId $nodeId The node that was read.
+     * @param DataValue $dataValue The raw DataValue from the server.
+     * @return DataValue The original DataValue, or a new one with the enum-cast value.
+     */
+    private function applyEnumMapping(NodeId $nodeId, DataValue $dataValue): DataValue
+    {
+        $nodeIdStr = (string) $nodeId;
+        if (! isset($this->enumMappings[$nodeIdStr])) {
+            return $dataValue;
+        }
+
+        $rawValue = $dataValue->getValue();
+        if (! is_int($rawValue) && ! is_string($rawValue)) {
+            return $dataValue;
+        }
+
+        $enumClass = $this->enumMappings[$nodeIdStr];
+
+        try {
+            $enumValue = $enumClass::from($rawValue);
+
+            return new DataValue(
+                new Variant($dataValue->getVariant()?->type ?? BuiltinType::Int32, $enumValue),
+                $dataValue->statusCode,
+                $dataValue->sourceTimestamp,
+                $dataValue->serverTimestamp,
+            );
+        } catch (\ValueError) {
+            return $dataValue;
+        }
     }
 
     /**

@@ -22,39 +22,97 @@ describe('CodeGenerator', function () {
         expect($code)->toContain('declare(strict_types=1);');
     });
 
-    it('generates Codec class with correct decode/encode methods', function () {
+    it('generates DTO class with typed properties', function () {
+        $gen = new CodeGenerator();
+        $fields = [
+            ['name' => 'X', 'dataType' => 'i=11'],
+            ['name' => 'Name', 'dataType' => 'i=12'],
+            ['name' => 'Active', 'dataType' => 'i=1'],
+        ];
+
+        $code = $gen->generateDtoClass('TestPoint', $fields, 'App\\OpcUa');
+
+        expect($code)->toContain('namespace App\\OpcUa\\Types;');
+        expect($code)->toContain('readonly class TestPoint');
+        expect($code)->toContain('public float $X');
+        expect($code)->toContain('public string $Name');
+        expect($code)->toContain('public bool $Active');
+    });
+
+    it('generates DTO with enum field types', function () {
+        $gen = new CodeGenerator();
+        $fields = [
+            ['name' => 'Value', 'dataType' => 'i=11'],
+            ['name' => 'Status', 'dataType' => 'ns=1;i=100'],
+        ];
+        $enumMap = ['ns=1;i=100' => 'StatusEnum'];
+
+        $code = $gen->generateDtoClass('Snapshot', $fields, 'App', $enumMap);
+
+        expect($code)->toContain('public float $Value');
+        expect($code)->toContain('public Enums\\StatusEnum $Status');
+    });
+
+    it('generates Codec class that returns DTO', function () {
         $gen = new CodeGenerator();
         $fields = [
             ['name' => 'X', 'dataType' => 'i=11'],
             ['name' => 'Y', 'dataType' => 'i=11'],
-            ['name' => 'Name', 'dataType' => 'i=12'],
         ];
 
-        $code = $gen->generateCodecClass('TestCodec', $fields, 'App\\OpcUa');
+        $code = $gen->generateCodecClass('TestPointCodec', 'TestPoint', $fields, 'App\\OpcUa');
 
         expect($code)->toContain('namespace App\\OpcUa\\Codecs;');
-        expect($code)->toContain('class TestCodec implements ExtensionObjectCodec');
+        expect($code)->toContain('class TestPointCodec implements ExtensionObjectCodec');
+        expect($code)->toContain('return new TestPoint(');
         expect($code)->toContain('$decoder->readDouble()');
-        expect($code)->toContain('$decoder->readString()');
-        expect($code)->toContain("\$encoder->writeDouble(\$value['X'])");
-        expect($code)->toContain("\$encoder->writeString(\$value['Name'])");
+        expect($code)->toContain('$encoder->writeDouble($value->X)');
     });
 
-    it('generates Registrar class', function () {
+    it('generates Codec with enum field casting', function () {
+        $gen = new CodeGenerator();
+        $fields = [
+            ['name' => 'Value', 'dataType' => 'i=10'],
+            ['name' => 'Status', 'dataType' => 'ns=1;i=100'],
+        ];
+        $enumMap = ['ns=1;i=100' => 'StatusEnum'];
+
+        $code = $gen->generateCodecClass('TestCodec', 'TestDto', $fields, 'App', $enumMap);
+
+        expect($code)->toContain('Enums\\StatusEnum::from($decoder->readInt32())');
+        expect($code)->toContain('$encoder->writeInt32($value->Status->value)');
+    });
+
+    it('generates Registrar implementing GeneratedTypeRegistrar with constants', function () {
         $gen = new CodeGenerator();
         $codecs = [
-            ['encodingId' => 'ns=1;i=5001', 'codecClass' => 'TestPointCodec'],
-            ['encodingId' => 'ns=1;i=5002', 'codecClass' => 'TestRangeCodec'],
+            ['encodingId' => 'ns=1;i=5001', 'codecClass' => 'TestPointCodec', 'constName' => 'TestPoint'],
+        ];
+        $enumMappings = [
+            'ns=1;i=100' => ['enumClass' => 'StatusEnum', 'constName' => 'StatusNode'],
         ];
 
-        $code = $gen->generateRegistrarClass('TestRegistrar', $codecs, 'App\\OpcUa');
+        $code = $gen->generateRegistrarClass('TestRegistrar', $codecs, $enumMappings, 'TestNodeIds', 'App\\OpcUa');
 
-        expect($code)->toContain('namespace App\\OpcUa;');
-        expect($code)->toContain('class TestRegistrar');
-        expect($code)->toContain("NodeId::parse('ns=1;i=5001')");
+        expect($code)->toContain('class TestRegistrar implements GeneratedTypeRegistrar');
+        expect($code)->toContain('NodeId::parse(TestNodeIds::TestPoint)');
         expect($code)->toContain('new Codecs\\TestPointCodec()');
-        expect($code)->toContain('new Codecs\\TestRangeCodec()');
-        expect($code)->toContain('static function register');
+        expect($code)->toContain('TestNodeIds::StatusNode => Enums\\StatusEnum::class');
+    });
+
+    it('generates Registrar with string fallback when no constant', function () {
+        $gen = new CodeGenerator();
+        $codecs = [
+            ['encodingId' => 'ns=1;i=5001', 'codecClass' => 'TestCodec', 'constName' => null],
+        ];
+        $enumMappings = [
+            'ns=1;i=100' => ['enumClass' => 'MyEnum', 'constName' => null],
+        ];
+
+        $code = $gen->generateRegistrarClass('TestRegistrar', $codecs, $enumMappings, 'NodeIds', 'App');
+
+        expect($code)->toContain("NodeId::parse('ns=1;i=5001')");
+        expect($code)->toContain("'ns=1;i=100' => Enums\\MyEnum::class");
     });
 
     it('handles unknown data types with readExtensionObject', function () {
@@ -63,7 +121,7 @@ describe('CodeGenerator', function () {
             ['name' => 'Nested', 'dataType' => 'ns=2;i=9999'],
         ];
 
-        $code = $gen->generateCodecClass('NestedCodec', $fields, 'App');
+        $code = $gen->generateCodecClass('NestedCodec', 'NestedDto', $fields, 'App');
 
         expect($code)->toContain('readExtensionObject()');
         expect($code)->toContain('writeExtensionObject');
@@ -95,5 +153,20 @@ describe('CodeGenerator', function () {
         $code = $gen->generateNodeIdClass('Test', $nodes, 'App');
 
         expect($code)->toContain('public const My_Node_Name');
+    });
+
+    it('deduplicates constant names with _N suffix', function () {
+        $gen = new CodeGenerator();
+        $nodes = [
+            'ns=1;i=1' => ['nodeId' => 'ns=1;i=1', 'browseName' => 'Temp', 'displayName' => 'Temp', 'type' => 'UAVariable'],
+            'ns=1;i=2' => ['nodeId' => 'ns=1;i=2', 'browseName' => 'Temp', 'displayName' => 'Temp', 'type' => 'UAVariable'],
+            'ns=1;i=3' => ['nodeId' => 'ns=1;i=3', 'browseName' => 'Temp', 'displayName' => 'Temp', 'type' => 'UAVariable'],
+        ];
+
+        $code = $gen->generateNodeIdClass('Test', $nodes, 'App');
+
+        expect($code)->toContain("public const Temp = 'ns=1;i=1';");
+        expect($code)->toContain("public const Temp_2 = 'ns=1;i=2';");
+        expect($code)->toContain("public const Temp_3 = 'ns=1;i=3';");
     });
 });

@@ -259,6 +259,17 @@ interface OpcUaClientInterface
     public function setReadMetadataCache(bool $enabled): self;
 
     /**
+     * Load generated types from a NodeSet2.xml code generator registrar.
+     *
+     * Registers ExtensionObject codecs and enum mappings for automatic value casting.
+     * Can be called multiple times to load types from different NodeSet files.
+     *
+     * @param Repository\GeneratedTypeRegistrar $registrar The generated registrar.
+     * @return self
+     */
+    public function loadGeneratedTypes(Repository\GeneratedTypeRegistrar $registrar): self;
+
+    /**
      * Connect to an OPC UA server endpoint.
      *
      * @param string $endpointUrl The OPC UA endpoint URL (e.g. "opc.tcp://host:4840").

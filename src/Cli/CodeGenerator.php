@@ -22,7 +22,7 @@ class CodeGenerator
         'i=10' => ['read' => 'readFloat', 'write' => 'writeFloat', 'php' => 'float'],
         'i=11' => ['read' => 'readDouble', 'write' => 'writeDouble', 'php' => 'float'],
         'i=12' => ['read' => 'readString', 'write' => 'writeString', 'php' => 'string'],
-        'i=13' => ['read' => 'readDateTime', 'write' => 'writeDateTime', 'php' => 'DateTimeImmutable'],
+        'i=13' => ['read' => 'readDateTime', 'write' => 'writeDateTime', 'php' => '\\DateTimeImmutable'],
         'i=14' => ['read' => 'readGuid', 'write' => 'writeGuid', 'php' => 'string'],
         'i=15' => ['read' => 'readByteString', 'write' => 'writeByteString', 'php' => 'string'],
         'i=17' => ['read' => 'readNodeId', 'write' => 'writeNodeId', 'php' => 'NodeId'],
@@ -72,29 +72,72 @@ class CodeGenerator
     }
 
     /**
-     * Generate a Codec class for a structured DataType.
+     * Generate a readonly DTO class for a structured DataType.
      *
-     * @param string $className The codec class name.
+     * @param string $className The DTO class name.
      * @param array<array{name: string, dataType: string}> $fields The structure fields.
      * @param string $namespace The PHP namespace.
+     * @param array<string, string> $enumFieldMap DataType NodeId → enum class name (short) for fields that are enums.
      * @return string The generated PHP code.
      */
-    public function generateCodecClass(string $className, array $fields, string $namespace): string
+    public function generateDtoClass(string $className, array $fields, string $namespace, array $enumFieldMap = []): string
     {
-        $decodeLines = '';
+        $properties = '';
+        foreach ($fields as $field) {
+            $phpType = $this->resolvePhpType($field['dataType'], $enumFieldMap);
+            $properties .= "        public {$phpType} \${$field['name']},\n";
+        }
+
+        return <<<PHP
+        <?php
+
+        declare(strict_types=1);
+
+        namespace {$namespace}\\Types;
+
+        /**
+         * DTO for the {$className} structured data type.
+         *
+         * @generated
+         */
+        readonly class {$className}
+        {
+            public function __construct(
+        {$properties}    ) {
+            }
+        }
+        PHP;
+    }
+
+    /**
+     * Generate a Codec class for a structured DataType that returns a DTO.
+     *
+     * @param string $codecName The codec class name.
+     * @param string $dtoName The DTO class name.
+     * @param array<array{name: string, dataType: string}> $fields The structure fields.
+     * @param string $namespace The PHP namespace.
+     * @param array<string, string> $enumFieldMap DataType NodeId → enum class name (short) for fields that are enums.
+     * @return string The generated PHP code.
+     */
+    public function generateCodecClass(string $codecName, string $dtoName, array $fields, string $namespace, array $enumFieldMap = []): string
+    {
+        $decodeArgs = '';
         $encodeLines = '';
 
         foreach ($fields as $field) {
             $mapping = self::DATATYPE_TO_METHOD[$field['dataType']] ?? null;
-            if ($mapping === null) {
-                $decodeLines .= "        \$result['{$field['name']}'] = \$decoder->readExtensionObject();\n";
-                $encodeLines .= "        \$encoder->writeExtensionObject(\$value['{$field['name']}']);\n";
+            $enumClass = $enumFieldMap[$field['dataType']] ?? null;
 
-                continue;
+            if ($enumClass !== null) {
+                $decodeArgs .= "            Enums\\{$enumClass}::from(\$decoder->readInt32()),\n";
+                $encodeLines .= "        \$encoder->writeInt32(\$value->{$field['name']}->value);\n";
+            } elseif ($mapping === null) {
+                $decodeArgs .= "            \$decoder->readExtensionObject(),\n";
+                $encodeLines .= "        \$encoder->writeExtensionObject(\$value->{$field['name']});\n";
+            } else {
+                $decodeArgs .= "            \$decoder->{$mapping['read']}(),\n";
+                $encodeLines .= "        \$encoder->{$mapping['write']}(\$value->{$field['name']});\n";
             }
-
-            $decodeLines .= "        \$result['{$field['name']}'] = \$decoder->{$mapping['read']}();\n";
-            $encodeLines .= "        \$encoder->{$mapping['write']}(\$value['{$field['name']}']);\n";
         }
 
         return <<<PHP
@@ -107,23 +150,23 @@ class CodeGenerator
         use Gianfriaur\\OpcuaPhpClient\\Encoding\\BinaryDecoder;
         use Gianfriaur\\OpcuaPhpClient\\Encoding\\BinaryEncoder;
         use Gianfriaur\\OpcuaPhpClient\\Encoding\\ExtensionObjectCodec;
+        use {$namespace}\\Types\\{$dtoName};
 
         /**
-         * Codec for the {$className} structured data type.
+         * Codec for the {$dtoName} structured data type.
          *
          * @generated
          */
-        class {$className} implements ExtensionObjectCodec
+        class {$codecName} implements ExtensionObjectCodec
         {
             /**
              * @param BinaryDecoder \$decoder
-             * @return array
+             * @return {$dtoName}
              */
-            public function decode(BinaryDecoder \$decoder): array
+            public function decode(BinaryDecoder \$decoder): {$dtoName}
             {
-                \$result = [];
-        {$decodeLines}
-                return \$result;
+                return new {$dtoName}(
+        {$decodeArgs}        );
             }
 
             /**
@@ -139,18 +182,31 @@ class CodeGenerator
     }
 
     /**
-     * Generate a Registrar class that registers all codecs.
+     * Generate a Registrar class that implements GeneratedTypeRegistrar.
      *
      * @param string $className The registrar class name.
-     * @param array<array{encodingId: string, codecClass: string}> $codecs Codec registrations.
+     * @param array<array{encodingId: string, codecClass: string, constName: ?string}> $codecs Codec registrations.
+     * @param array<string, array{enumClass: string, constName: ?string}> $enumMappings NodeId → enum info.
+     * @param string $nodeIdClassName The NodeIds class name for constant references.
      * @param string $namespace The PHP namespace.
      * @return string The generated PHP code.
      */
-    public function generateRegistrarClass(string $className, array $codecs, string $namespace): string
+    public function generateRegistrarClass(string $className, array $codecs, array $enumMappings, string $nodeIdClassName, string $namespace): string
     {
-        $registrations = '';
+        $codecRegistrations = '';
         foreach ($codecs as $codec) {
-            $registrations .= "        \$repository->register(\\Gianfriaur\\OpcuaPhpClient\\Types\\NodeId::parse('{$codec['encodingId']}'), new Codecs\\{$codec['codecClass']}());\n";
+            $nodeIdRef = $codec['constName'] !== null
+                ? "{$nodeIdClassName}::{$codec['constName']}"
+                : "'{$codec['encodingId']}'";
+            $codecRegistrations .= "        \$repository->register(\\Gianfriaur\\OpcuaPhpClient\\Types\\NodeId::parse({$nodeIdRef}), new Codecs\\{$codec['codecClass']}());\n";
+        }
+
+        $enumEntries = '';
+        foreach ($enumMappings as $nodeId => $info) {
+            $nodeIdRef = $info['constName'] !== null
+                ? "{$nodeIdClassName}::{$info['constName']}"
+                : "'{$nodeId}'";
+            $enumEntries .= "            {$nodeIdRef} => Enums\\{$info['enumClass']}::class,\n";
         }
 
         return <<<PHP
@@ -161,21 +217,31 @@ class CodeGenerator
         namespace {$namespace};
 
         use Gianfriaur\\OpcuaPhpClient\\Repository\\ExtensionObjectRepository;
+        use Gianfriaur\\OpcuaPhpClient\\Repository\\GeneratedTypeRegistrar;
 
         /**
-         * Registers all generated codecs with an ExtensionObjectRepository.
+         * Registers all generated codecs and enum mappings.
          *
          * @generated
          */
-        class {$className}
+        class {$className} implements GeneratedTypeRegistrar
         {
             /**
              * @param ExtensionObjectRepository \$repository
              * @return void
              */
-            public static function register(ExtensionObjectRepository \$repository): void
+            public function registerCodecs(ExtensionObjectRepository \$repository): void
             {
-        {$registrations}    }
+        {$codecRegistrations}    }
+
+            /**
+             * @return array<string, class-string<\\BackedEnum>>
+             */
+            public function getEnumMappings(): array
+            {
+                return [
+        {$enumEntries}        ];
+            }
         }
         PHP;
     }
@@ -212,6 +278,25 @@ class CodeGenerator
         {
         {$cases}}
         PHP;
+    }
+
+    /**
+     * @param string $dataType
+     * @param array<string, string> $enumFieldMap
+     * @return string
+     */
+    private function resolvePhpType(string $dataType, array $enumFieldMap): string
+    {
+        if (isset($enumFieldMap[$dataType])) {
+            return 'Enums\\' . $enumFieldMap[$dataType];
+        }
+
+        $mapping = self::DATATYPE_TO_METHOD[$dataType] ?? null;
+        if ($mapping !== null) {
+            return $mapping['php'];
+        }
+
+        return 'mixed';
     }
 
     /**
