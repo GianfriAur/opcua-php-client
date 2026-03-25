@@ -97,6 +97,8 @@ class MockClient implements OpcUaClientInterface
 
     private bool $autoDetectWriteType = true;
 
+    private bool $readMetadataCache = false;
+
     private ExtensionObjectRepository $repository;
 
     public function __construct()
@@ -364,6 +366,13 @@ class MockClient implements OpcUaClientInterface
         return $this;
     }
 
+    public function setReadMetadataCache(bool $enabled): self
+    {
+        $this->readMetadataCache = $enabled;
+
+        return $this;
+    }
+
     public function setDefaultBrowseMaxDepth(int $maxDepth): self
     {
         $this->browseMaxDepth = $maxDepth;
@@ -405,7 +414,7 @@ class MockClient implements OpcUaClientInterface
         $this->getCache()?->clear();
     }
 
-    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value, bool $refresh = false): DataValue
     {
         $this->record('read', [$nodeId, $attributeId]);
         $k = $this->key($nodeId);

@@ -245,6 +245,20 @@ interface OpcUaClientInterface
     public function setAutoDetectWriteType(bool $enabled): self;
 
     /**
+     * Enable or disable caching for metadata read operations.
+     *
+     * When enabled, read operations for non-Value attributes (DisplayName, BrowseName,
+     * DataType, NodeClass, Description, etc.) are cached via PSR-16. The Value attribute
+     * (id 13) is never cached regardless of this setting.
+     *
+     * Disabled by default.
+     *
+     * @param bool $enabled Whether to enable metadata caching.
+     * @return self
+     */
+    public function setReadMetadataCache(bool $enabled): self;
+
+    /**
      * Connect to an OPC UA server endpoint.
      *
      * @param string $endpointUrl The OPC UA endpoint URL (e.g. "opc.tcp://host:4840").
@@ -475,8 +489,13 @@ interface OpcUaClientInterface
     /**
      * Read a single attribute from a node.
      *
+     * When metadata caching is enabled via {@see setReadMetadataCache()}, non-Value attributes
+     * are served from cache on subsequent calls. Use `$refresh = true` to bypass the cache
+     * and re-read from the server.
+     *
      * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
+     * @param bool $refresh Force a server read even if the result is cached.
      * @return DataValue
      *
      * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
@@ -485,7 +504,7 @@ interface OpcUaClientInterface
      *
      * @see DataValue
      */
-    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue;
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value, bool $refresh = false): DataValue;
 
     /**
      * Read multiple attributes from one or more nodes in a single request.

@@ -34,7 +34,7 @@ composer require gianfriaur/opcua-php-client
 - Security — 6 policies (None through Aes256Sha256RsaPss), 3 modes
 - Authentication — anonymous, username/password, X.509 certificate
 - PSR-3 Logging — optional structured logging via any PSR-3 logger; NullLogger by default
-- PSR-16 Cache — browse/browseAll/resolveNodeId/getEndpoints/discoverDataTypes results cached by default (InMemoryCache, 300s TTL). Any PSR-16 driver works (FileCache, Laravel, Redis). Per-call bypass with useCache: false. discoverDataTypes replays cached type definitions without server round-trips.
+- PSR-16 Cache — browse/browseAll/resolveNodeId/getEndpoints/discoverDataTypes results cached by default (InMemoryCache, 300s TTL). Any PSR-16 driver works (FileCache, Laravel, Redis). Per-call bypass with useCache: false. discoverDataTypes replays cached type definitions without server round-trips. Metadata read cache opt-in via setReadMetadataCache(true): caches non-Value attributes (DisplayName, BrowseName, DataType, NodeClass, etc.). Value never cached. read($nodeId, $attr, refresh: true) to bypass.
 - PSR-14 Events — 45 granular events at lifecycle points (connection, session, subscription, data change, alarms, read/write, browse, cache, retry, trust store). NullEventDispatcher by default (zero overhead). Alarm events auto-deduced from notification fields. All events carry a $client reference.
 - Server Trust Store — persistent server certificate validation via FileTrustStore. Three policies (Fingerprint, FingerprintAndExpiry, Full). TOFU auto-accept. setTrustPolicy(null) disables (default). 5 trust-specific events. CLI trust/trust:list/trust:remove commands.
 - Auto-Retry — automatic reconnect on failure

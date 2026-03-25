@@ -219,7 +219,8 @@ describe('MockClient', function () {
             ->setAutoRetry(3)
             ->setBatchSize(50)
             ->setDefaultBrowseMaxDepth(20)
-            ->setAutoDetectWriteType(false);
+            ->setAutoDetectWriteType(false)
+            ->setReadMetadataCache(true);
 
         expect($mock->getTimeout())->toBe(10.0);
         expect($mock->getAutoRetry())->toBe(3);

@@ -25,6 +25,27 @@ trait ManagesReadWriteTrait
 {
     private bool $autoDetectWriteType = true;
 
+    private bool $readMetadataCache = false;
+
+    /**
+     * Enable or disable caching for metadata read operations.
+     *
+     * When enabled, read operations for non-Value attributes (DisplayName, BrowseName,
+     * DataType, NodeClass, Description, etc.) are cached via PSR-16. The Value attribute
+     * (id 13) is never cached regardless of this setting.
+     *
+     * Disabled by default.
+     *
+     * @param bool $enabled Whether to enable metadata caching.
+     * @return self
+     */
+    public function setReadMetadataCache(bool $enabled): self
+    {
+        $this->readMetadataCache = $enabled;
+
+        return $this;
+    }
+
     /**
      * Enable or disable automatic write type detection.
      *
@@ -47,8 +68,13 @@ trait ManagesReadWriteTrait
     /**
      * Read a single attribute from a node.
      *
+     * When metadata caching is enabled via {@see setReadMetadataCache()}, non-Value attributes
+     * are served from cache on subsequent calls. Use `$refresh = true` to bypass the cache
+     * and re-read from the server.
+     *
      * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
+     * @param bool $refresh Force a server read even if the result is cached.
      * @return DataValue
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
@@ -57,10 +83,50 @@ trait ManagesReadWriteTrait
      *
      * @see DataValue
      */
-    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value): DataValue
+    public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value, bool $refresh = false): DataValue
     {
         $nodeId = $this->resolveNodeIdParam($nodeId);
 
+        $useMetadataCache = $this->readMetadataCache && $attributeId !== AttributeId::Value && ! $refresh;
+
+        if ($useMetadataCache) {
+            $cacheKey = $this->buildCacheKey('readMeta:' . $attributeId, $nodeId);
+            $this->logger->debug('Reading metadata attribute {attr} for node {nodeId} (cache enabled)', [
+                'nodeId' => (string) $nodeId,
+                'attr' => $attributeId,
+            ]);
+
+            return $this->cachedFetch($cacheKey, fn () => $this->readFromServer($nodeId, $attributeId), true);
+        }
+
+        if ($refresh && $this->readMetadataCache && $attributeId !== AttributeId::Value) {
+            $this->logger->debug('Refreshing metadata attribute {attr} for node {nodeId}', [
+                'nodeId' => (string) $nodeId,
+                'attr' => $attributeId,
+            ]);
+            $cacheKey = $this->buildCacheKey('readMeta:' . $attributeId, $nodeId);
+            $dataValue = $this->readFromServer($nodeId, $attributeId);
+
+            $this->ensureCacheInitialized();
+            if ($this->cache !== null) {
+                $this->cache->set($cacheKey, $dataValue);
+            }
+
+            return $dataValue;
+        }
+
+        return $this->readFromServer($nodeId, $attributeId);
+    }
+
+    /**
+     * Perform the actual read from the server.
+     *
+     * @param NodeId $nodeId The node to read.
+     * @param int $attributeId The attribute to read.
+     * @return DataValue
+     */
+    private function readFromServer(NodeId $nodeId, int $attributeId): DataValue
+    {
         return $this->executeWithRetry(function () use ($nodeId, $attributeId) {
             $this->ensureConnected();
 

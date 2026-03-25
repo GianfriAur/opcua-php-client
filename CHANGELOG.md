@@ -4,6 +4,7 @@
 
 ### Added
 
+- **Read Metadata Cache.** Non-Value attributes (DisplayName, BrowseName, DataType, NodeClass, Description, etc.) can now be cached via PSR-16 to avoid redundant server reads. Opt-in via `setReadMetadataCache(true)`. The Value attribute (id 13) is never cached. Use `read($nodeId, $attributeId, refresh: true)` to bypass the cache and re-read from the server. `invalidateCache($nodeId)` clears all cached metadata for a node.
 - **Write Type Auto-Detection.** The `write()` method no longer requires an explicit `BuiltinType`. When omitted, the client reads the node first to determine the correct type, then caches it via PSR-16 for subsequent writes to the same node.
   - `setAutoDetectWriteType(bool)` — enable/disable the feature (default: enabled).
   - When auto-detect is on and an explicit type is provided, it is validated against the detected node type.

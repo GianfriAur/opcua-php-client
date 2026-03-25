@@ -19,6 +19,31 @@ if (StatusCode::isGood($dataValue->statusCode)) {
 
 > **Events:** Every `read()` dispatches a `NodeValueRead` event. See [Events](14-events.md).
 
+### Metadata Cache
+
+Attributes like DisplayName, BrowseName, DataType, and NodeClass are static — they don't change at runtime. Enable metadata caching to avoid redundant server reads:
+
+```php
+$client->setReadMetadataCache(true);
+
+// First call: reads from server, caches the result
+$name = $client->read('ns=2;i=1001', AttributeId::DisplayName);
+
+// Second call: served from cache (no server round-trip)
+$name = $client->read('ns=2;i=1001', AttributeId::DisplayName);
+
+// Force a refresh from the server
+$name = $client->read('ns=2;i=1001', AttributeId::DisplayName, refresh: true);
+```
+
+**Rules:**
+
+- **Disabled by default** — opt-in via `setReadMetadataCache(true)`.
+- **Value (attribute 13) is never cached** — always reads from the server, regardless of the setting.
+- **`refresh: true`** bypasses the cache and re-reads from the server, then updates the cache.
+- Uses the same PSR-16 cache backend as browse and write type detection.
+- `invalidateCache($nodeId)` clears all cached metadata for that node.
+
 ### Reading a Specific Attribute
 
 By default, `read()` targets the Value attribute (id 13). You can read any attribute:
