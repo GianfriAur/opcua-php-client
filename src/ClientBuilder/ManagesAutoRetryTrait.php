@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
 
 /**
  * Provides automatic reconnection retry configuration for failed operations.
@@ -27,16 +27,10 @@ trait ManagesAutoRetryTrait
     /**
      * Get the current automatic retry count.
      *
-     * Returns the explicitly configured value, or 1 if a previous connection exists (enabling one automatic reconnect attempt), or 0 otherwise.
-     *
      * @return int
      */
     public function getAutoRetry(): int
     {
-        if ($this->autoRetry !== null) {
-            return $this->autoRetry;
-        }
-
-        return $this->lastEndpointUrl !== null ? 1 : 0;
+        return $this->autoRetry ?? 0;
     }
 }

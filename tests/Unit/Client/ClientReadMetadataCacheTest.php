@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
@@ -39,7 +38,7 @@ describe('Read metadata cache', function () {
         $mock->addResponse(readResponseMsgString('Temperature'));
 
         $client = setupConnectedClient($mock);
-        $client->setReadMetadataCache(true);
+        setClientProperty($client, 'readMetadataCache', true);
 
         $dv1 = $client->read('i=1001', AttributeId::DisplayName);
         $dv2 = $client->read('i=1001', AttributeId::DisplayName);
@@ -55,7 +54,7 @@ describe('Read metadata cache', function () {
         $mock->addResponse(readResponseMsg(43));
 
         $client = setupConnectedClient($mock);
-        $client->setReadMetadataCache(true);
+        setClientProperty($client, 'readMetadataCache', true);
 
         $dv1 = $client->read('i=1001', AttributeId::Value);
         $dv2 = $client->read('i=1001', AttributeId::Value);
@@ -71,7 +70,7 @@ describe('Read metadata cache', function () {
         $mock->addResponse(readResponseMsgString('NewName'));
 
         $client = setupConnectedClient($mock);
-        $client->setReadMetadataCache(true);
+        setClientProperty($client, 'readMetadataCache', true);
 
         $dv1 = $client->read('i=1001', AttributeId::DisplayName);
         expect($dv1->getValue())->toBe('OldName');
@@ -92,7 +91,7 @@ describe('Read metadata cache', function () {
         $mock->addResponse(readResponseMsgString('Sensor description'));
 
         $client = setupConnectedClient($mock);
-        $client->setReadMetadataCache(true);
+        setClientProperty($client, 'readMetadataCache', true);
 
         $dv1 = $client->read('i=1001', AttributeId::DisplayName);
         $dv2 = $client->read('i=1001', AttributeId::Description);
@@ -106,11 +105,11 @@ describe('Read metadata cache', function () {
         expect(count($mock->sent))->toBe(2);
     });
 
-    it('setReadMetadataCache returns self for fluent chaining', function () {
-        $client = new Client();
-        $result = $client->setReadMetadataCache(true);
+    it('setReadMetadataCache returns self for fluent chaining on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $result = $builder->setReadMetadataCache(true);
 
-        expect($result)->toBe($client);
+        expect($result)->toBe($builder);
     });
 
     it('refresh is ignored when cache is off', function () {

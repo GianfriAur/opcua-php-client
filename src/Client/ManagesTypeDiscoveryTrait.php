@@ -29,6 +29,7 @@ trait ManagesTypeDiscoveryTrait
      * Discover server-defined structured data types and register dynamic codecs for them.
      *
      * @param ?int $namespaceIndex Only discover types in this namespace. Null for all non-zero namespaces.
+     * @param bool $useCache Whether to use cached discovery results.
      * @return int The number of types successfully discovered and registered.
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost.
@@ -81,10 +82,13 @@ trait ManagesTypeDiscoveryTrait
     }
 
     /**
-     * @param \Gianfriaur\OpcuaPhpClient\Types\BrowseNode[] $nodes
-     * @param ?int $namespaceIndex
-     * @param int $registered
-     * @param array<array{encodingId: NodeId, definition: \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition}> $discoveredEntries
+     * Recursively discover data types from a browse tree.
+     *
+     * @param \Gianfriaur\OpcuaPhpClient\Types\BrowseNode[] $nodes The browse tree nodes.
+     * @param ?int $namespaceIndex Filter by namespace index, or null for all.
+     * @param int $registered Counter for registered types (passed by reference).
+     * @param array<array{encodingId: NodeId, definition: \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition}> $discoveredEntries Accumulated entries (passed by reference).
+     * @return void
      */
     private function discoverFromTree(array $nodes, ?int $namespaceIndex, int &$registered, array &$discoveredEntries): void
     {
@@ -111,7 +115,9 @@ trait ManagesTypeDiscoveryTrait
     }
 
     /**
-     * @param NodeId $dataTypeNodeId
+     * Discover a single data type by its NodeId.
+     *
+     * @param NodeId $dataTypeNodeId The data type NodeId.
      * @return ?array{encodingId: NodeId, definition: \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition}
      */
     private function discoverSingleDataType(NodeId $dataTypeNodeId): ?array
@@ -148,8 +154,10 @@ trait ManagesTypeDiscoveryTrait
     }
 
     /**
-     * @param NodeId $dataTypeNodeId
-     * @return ?NodeId
+     * Find the Default Binary encoding NodeId for a data type.
+     *
+     * @param NodeId $dataTypeNodeId The data type NodeId.
+     * @return ?NodeId The encoding NodeId, or null if not found.
      */
     private function findBinaryEncodingId(NodeId $dataTypeNodeId): ?NodeId
     {

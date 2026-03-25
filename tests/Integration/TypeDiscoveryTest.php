@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -64,8 +64,7 @@ describe('Automatic DataType discovery', function () {
                 }
             });
 
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
             $client->discoverDataTypes();
 
             $nodeId = $client->resolveNodeId('/Objects/1:TestServer/1:ExtensionObjects/1:PointValue');

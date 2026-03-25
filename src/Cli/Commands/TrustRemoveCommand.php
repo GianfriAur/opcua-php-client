@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
 
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 
 /**
@@ -47,7 +48,7 @@ class TrustRemoveCommand implements CommandInterface
     /**
      * {@inheritDoc}
      */
-    public function execute(OpcUaClientInterface $client, array $arguments, array $options, OutputInterface $output): int
+    public function execute(OpcUaClientInterface|ClientBuilder $client, array $arguments, array $options, OutputInterface $output): int
     {
         if (empty($arguments)) {
             $output->error('Usage: opcua-cli ' . $this->getUsage());

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -32,7 +31,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('read throws InvalidNodeIdException for invalid string', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionProperty($client, 'connectionState');
         $ref->setValue($client, ConnectionState::Connected);
 
@@ -81,7 +80,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('resolveNodeIdParam returns NodeId when given NodeId', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
         $nodeId = NodeId::numeric(0, 85);
 
@@ -89,7 +88,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('resolveNodeIdParam parses string to NodeId', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
         $result = $ref->invoke($client, 'ns=2;i=1001');
 
@@ -98,7 +97,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('resolveNodeIdParam parses short format i=X', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
         $result = $ref->invoke($client, 'i=85');
 
@@ -107,7 +106,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('resolveNodeIdParam parses string NodeId', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
         $result = $ref->invoke($client, 'ns=2;s=MyVariable');
 
@@ -116,7 +115,7 @@ describe('String NodeId parameter support', function () {
     });
 
     it('resolveNodeIdParam throws on invalid format', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $ref = new ReflectionMethod($client, 'resolveNodeIdParam');
 
         expect(fn () => $ref->invoke($client, 'garbage'))
@@ -156,7 +155,7 @@ describe('String NodeId parameter support', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
+        setClientProperty($client, 'autoDetectWriteType', false);
         $results = $client->writeMulti([
             ['nodeId' => 'ns=2;i=1001', 'value' => 42, 'type' => Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32],
         ]);
@@ -173,7 +172,7 @@ describe('String NodeId parameter support', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
+        setClientProperty($client, 'autoDetectWriteType', false);
         $status = $client->write('ns=2;i=1001', 42, Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32);
 
         expect($status)->toBe(0);

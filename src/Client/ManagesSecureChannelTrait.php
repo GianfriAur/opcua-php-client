@@ -31,8 +31,19 @@ use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * Provides secure channel opening and closing for the connected client.
+ */
 trait ManagesSecureChannelTrait
 {
+    /**
+     * Open a secure channel with or without message-level security.
+     *
+     * @return void
+     *
+     * @throws ProtocolException If the server responds with an unexpected message type.
+     * @throws ConfigurationException If the client certificate cannot be loaded.
+     */
     private function openSecureChannel(): void
     {
         $isSecure = $this->securityPolicy !== SecurityPolicy::None
@@ -47,6 +58,13 @@ trait ManagesSecureChannelTrait
         $this->dispatch(fn () => new SecureChannelOpened($this, $this->secureChannelId, $this->securityPolicy, $this->securityMode));
     }
 
+    /**
+     * Open a secure channel without message-level security.
+     *
+     * @return void
+     *
+     * @throws ProtocolException If the server responds with an unexpected message type.
+     */
     private function openSecureChannelNoSecurity(): void
     {
         $this->secureChannel = new SecureChannel(
@@ -80,6 +98,14 @@ trait ManagesSecureChannelTrait
         $this->initServices($this->session);
     }
 
+    /**
+     * Open a secure channel with message-level security.
+     *
+     * @return void
+     *
+     * @throws ConfigurationException If the client certificate cannot be loaded.
+     * @throws ProtocolException If the secure channel negotiation fails.
+     */
     private function openSecureChannelWithSecurity(): void
     {
         [$clientCertDer, $clientPrivateKey] = $this->loadClientCertificateAndKey();
@@ -118,7 +144,11 @@ trait ManagesSecureChannelTrait
     }
 
     /**
+     * Load the client certificate and private key for secure channel setup.
+     *
      * @return array{0: ?string, 1: mixed}
+     *
+     * @throws ConfigurationException If the certificate file cannot be read.
      */
     private function loadClientCertificateAndKey(): array
     {
@@ -143,8 +173,10 @@ trait ManagesSecureChannelTrait
     }
 
     /**
-     * @param ?string $clientCertDer
-     * @return ?string
+     * Build a certificate chain by appending the CA certificate if configured.
+     *
+     * @param ?string $clientCertDer The client certificate in DER format.
+     * @return ?string The certificate chain, or the original certificate if no CA is configured.
      */
     private function buildCertificateChain(?string $clientCertDer): ?string
     {
@@ -165,6 +197,11 @@ trait ManagesSecureChannelTrait
         return $clientCertDer . $caCertDer;
     }
 
+    /**
+     * Close the secure channel.
+     *
+     * @return void
+     */
     private function closeSecureChannel(): void
     {
         $this->dispatch(fn () => new SecureChannelClosed($this, $this->secureChannelId));
@@ -192,6 +229,11 @@ trait ManagesSecureChannelTrait
         $this->transport->send($encoder->getBuffer());
     }
 
+    /**
+     * Close the secure channel when message-level security is active.
+     *
+     * @return void
+     */
     private function closeSecureChannelSecure(): void
     {
         $requestId = $this->nextRequestId();
@@ -212,6 +254,12 @@ trait ManagesSecureChannelTrait
         $this->transport->send($message);
     }
 
+    /**
+     * Initialize all protocol service instances from a session.
+     *
+     * @param SessionService $session The session service to derive services from.
+     * @return void
+     */
     private function initServices(SessionService $session): void
     {
         $this->browseService = new BrowseService($session);

@@ -14,6 +14,7 @@
 - [x] Triggering / ModifyMonitoredItems — `setTriggering()` for conditional sampling, `modifyMonitoredItems()` for changing parameters on existing items
 
 ### Refactoring
+- [x] ClientBuilder/Client split — two-phase architecture: `ClientBuilder` (configuration, entry point) and `Client` (connected operations). `ClientBuilder::create()` is the preferred entry point. Config setters on builder, operations on connected client. `connect()` returns `Client`. Traits split into `src/ClientBuilder/` (8 config traits) and `src/Client/` (14 operation/runtime traits). New interfaces: `ClientBuilderInterface`, updated `OpcUaClientInterface`.
 - [x] Protocol service base class — extract the repeated encode/decode pattern (security check, token/sequence/requestId header, wrapInMessage vs buildMessage) into a shared base class or trait. Currently duplicated identically across all 15 Protocol service classes.
 - [x] Service NodeId constants — replace hard-coded OPC UA service type NodeIds (461, 462, 467, 631, 673, 635, 712, etc.) with named constants in a dedicated `ServiceTypeId` class for readability.
 - [x] Diagnostic info skip helper — extract the repeated `readInt32` + loop + `skipDiagnosticInfo` pattern into a single `skipDiagnosticInfoArray()` method. Currently duplicated in 8+ Protocol service decode methods.
@@ -70,8 +71,10 @@ Persistent management of trusted/rejected server certificates, instead of accept
 Required for certified industrial deployments.
 ```php
 $trustStore = new FileTrustStore('/etc/opcua/trusted/', '/etc/opcua/rejected/');
-$client->setTrustStore($trustStore);
-// On first connect: server cert is validated against the trust store
+$client = ClientBuilder::create()
+    ->setTrustStore($trustStore)
+    ->connect('opc.tcp://server:4840');
+// On connect: server cert is validated against the trust store
 // Unknown certs trigger a configurable callback (accept/reject/prompt)
 ```
 

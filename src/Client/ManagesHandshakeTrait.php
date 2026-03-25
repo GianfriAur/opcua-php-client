@@ -18,10 +18,18 @@ use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
 use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * Provides OPC UA handshake and server certificate discovery for the connected client.
+ */
 trait ManagesHandshakeTrait
 {
     /**
-     * @param string $endpointUrl
+     * Perform the HEL/ACK handshake with the server.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
+     *
+     * @throws ProtocolException If the server responds with an error or unexpected message type.
      */
     private function doHandshake(string $endpointUrl): void
     {
@@ -47,14 +55,20 @@ trait ManagesHandshakeTrait
     }
 
     /**
-     * @param string $host
-     * @param int $port
-     * @param string $endpointUrl
+     * Discover the server certificate by connecting with no security and querying endpoints.
+     *
+     * @param string $host The server hostname.
+     * @param int $port The server port.
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
+     *
+     * @throws SecurityException If the server certificate cannot be obtained.
+     * @throws ProtocolException If the discovery handshake fails.
      */
     private function discoverServerCertificate(string $host, int $port, string $endpointUrl): void
     {
         $discoveryTransport = new TcpTransport();
-        $discoveryTransport->connect($host, $port, $this->getTimeout());
+        $discoveryTransport->connect($host, $port, $this->timeout);
 
         $session = $this->performDiscoveryHandshake($discoveryTransport, $endpointUrl);
 
@@ -77,9 +91,13 @@ trait ManagesHandshakeTrait
     }
 
     /**
-     * @param TcpTransport $transport
-     * @param string $endpointUrl
+     * Perform a discovery handshake on a temporary transport to obtain a SessionService.
+     *
+     * @param TcpTransport $transport The temporary transport.
+     * @param string $endpointUrl The OPC UA endpoint URL.
      * @return SessionService
+     *
+     * @throws ProtocolException If the handshake fails.
      */
     private function performDiscoveryHandshake(TcpTransport $transport, string $endpointUrl): SessionService
     {
@@ -108,7 +126,10 @@ trait ManagesHandshakeTrait
     }
 
     /**
+     * Extract the server certificate from discovered endpoints matching the configured security.
+     *
      * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription[] $endpoints
+     * @return void
      */
     private function extractServerCertificateFromEndpoints(array $endpoints): void
     {
@@ -136,7 +157,10 @@ trait ManagesHandshakeTrait
     }
 
     /**
+     * Extract user identity token policy IDs from an endpoint description.
+     *
      * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint
+     * @return void
      */
     private function extractTokenPolicies(\Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint): void
     {

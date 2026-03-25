@@ -7,6 +7,7 @@ namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
 use Gianfriaur\OpcuaPhpClient\Cli\CodeGenerator;
 use Gianfriaur\OpcuaPhpClient\Cli\NodeSetParser;
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 
 /**
@@ -49,7 +50,7 @@ class GenerateNodesetCommand implements CommandInterface
     /**
      * {@inheritDoc}
      */
-    public function execute(OpcUaClientInterface $client, array $arguments, array $options, OutputInterface $output): int
+    public function execute(OpcUaClientInterface|ClientBuilder $client, array $arguments, array $options, OutputInterface $output): int
     {
         if (count($arguments) < 1) {
             $output->error('Usage: opcua-cli generate:nodeset <xmlFile> [--output=./generated/] [--namespace=Generated\\OpcUa]');

@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
@@ -76,8 +76,7 @@ describe('ExtensionObject codec with real server', function () {
 
         $client = null;
         try {
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $dv = $client->read(NodeId::numeric(0, 2256));
             expect(StatusCode::isGood($dv->getStatusCode()))->toBeTrue();
@@ -107,8 +106,7 @@ describe('ExtensionObject codec with real server', function () {
 
         $client = null;
         try {
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $dv = $client->read(NodeId::numeric(0, 2256));
             $status = $dv->getValue();
@@ -131,8 +129,7 @@ describe('ExtensionObject codec with real server', function () {
 
         $client = null;
         try {
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $dv = $client->read(NodeId::numeric(0, 2256));
             $value = $dv->getValue();
@@ -221,8 +218,7 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
 
         $client = null;
         try {
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $nodeId = $client->resolveNodeId('/Objects/1:TestServer/1:ExtensionObjects/1:PointValue');
             $dv = $client->read($nodeId);
@@ -261,8 +257,7 @@ describe('Custom ExtensionObject nodes (TestPointXYZ)', function () {
 
         $client = null;
         try {
-            $client = new Client($repo);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder($repo))->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $nodeId = $client->resolveNodeId('/Objects/1:TestServer/1:ExtensionObjects/1:RangeValue');
             $dv = $client->read($nodeId);

@@ -9,27 +9,31 @@ A `NullEventDispatcher` is used by default, ensuring **zero overhead** when no d
 ## Configuration
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-$client = new Client();
-$client->setEventDispatcher($yourDispatcher);
+$client = ClientBuilder::create()
+    ->setEventDispatcher($yourDispatcher)
+    ->connect('opc.tcp://localhost:4840');
 
-// Get the current dispatcher
-$dispatcher = $client->getEventDispatcher();
+// Get the current dispatcher (on the builder before connecting)
+$builder = ClientBuilder::create();
+$dispatcher = $builder->getEventDispatcher();
 ```
 
 ### Laravel
 
 ```php
-$client->setEventDispatcher(app(EventDispatcherInterface::class));
+$builder = ClientBuilder::create();
+$builder->setEventDispatcher(app(EventDispatcherInterface::class));
+$client = $builder->connect('opc.tcp://localhost:4840');
 ```
 
 Or in a service provider:
 
 ```php
-$this->app->afterResolving(Client::class, function (Client $client) {
-    $client->setEventDispatcher($this->app->make(EventDispatcherInterface::class));
+$this->app->afterResolving(ClientBuilder::class, function (ClientBuilder $builder) {
+    $builder->setEventDispatcher($this->app->make(EventDispatcherInterface::class));
 });
 ```
 

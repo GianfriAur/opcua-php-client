@@ -1,5 +1,5 @@
 {
-  "name": "gianfriaur/opcua-php-client",
+  "name": "php-opcua/opcua-php-client",
   "description": "Pure PHP OPC UA client — binary protocol over TCP, 6 security policies, browse/read/write/subscribe/history, zero external dependencies",
   "homepage": "https://github.com/GianfriAur/opcua-php-client",
   "support": {

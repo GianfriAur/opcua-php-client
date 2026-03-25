@@ -83,27 +83,27 @@ describe('ExtensionObjectRepository', function () {
         expect($repo->has(NodeId::string(2, 'OtherType')))->toBeFalse();
     });
 
-    it('Client exposes its repository via getExtensionObjectRepository', function () {
+    it('ClientBuilder exposes its repository via getExtensionObjectRepository', function () {
         $repo = new ExtensionObjectRepository();
         $repo->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
-        $client = new Gianfriaur\OpcuaPhpClient\Client($repo);
-        expect($client->getExtensionObjectRepository())->toBe($repo);
-        expect($client->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder($repo);
+        expect($builder->getExtensionObjectRepository())->toBe($repo);
+        expect($builder->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
     });
 
-    it('Client creates empty repository when none provided', function () {
-        $client = new Gianfriaur\OpcuaPhpClient\Client();
-        $repo = $client->getExtensionObjectRepository();
+    it('ClientBuilder creates empty repository when none provided', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $repo = $builder->getExtensionObjectRepository();
         expect($repo)->toBeInstanceOf(ExtensionObjectRepository::class);
         expect($repo->has(NodeId::numeric(0, 100)))->toBeFalse();
     });
 
-    it('codecs registered via getExtensionObjectRepository are used by the client', function () {
-        $client = new Gianfriaur\OpcuaPhpClient\Client();
-        $client->getExtensionObjectRepository()->register(NodeId::numeric(0, 100), TestPointCodec::class);
+    it('codecs registered via getExtensionObjectRepository are used by the builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder->getExtensionObjectRepository()->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
-        expect($client->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
+        expect($builder->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
     });
 
     it('two repositories are isolated from each other', function () {

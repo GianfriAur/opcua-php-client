@@ -172,9 +172,68 @@ function browseNextResponseMsg(): string
     });
 }
 
+function createClientWithoutConnect(): Client
+{
+    $ref = new ReflectionClass(Client::class);
+    $client = $ref->newInstanceWithoutConstructor();
+
+    setClientProperty($client, 'connectionState', ConnectionState::Disconnected);
+    setClientProperty($client, 'securityPolicy', Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
+    setClientProperty($client, 'securityMode', Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+    setClientProperty($client, 'clientCertPath', null);
+    setClientProperty($client, 'clientKeyPath', null);
+    setClientProperty($client, 'caCertPath', null);
+    setClientProperty($client, 'username', null);
+    setClientProperty($client, 'password', null);
+    setClientProperty($client, 'userCertPath', null);
+    setClientProperty($client, 'userKeyPath', null);
+    setClientProperty($client, 'logger', new Psr\Log\NullLogger());
+    setClientProperty($client, 'eventDispatcher', new Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher());
+    setClientProperty($client, 'trustStore', null);
+    setClientProperty($client, 'trustPolicy', null);
+    setClientProperty($client, 'autoAcceptEnabled', false);
+    setClientProperty($client, 'autoAcceptForce', false);
+    setClientProperty($client, 'cache', null);
+    setClientProperty($client, 'cacheInitialized', false);
+    setClientProperty($client, 'timeout', 5.0);
+    setClientProperty($client, 'autoRetry', null);
+    setClientProperty($client, 'batchSize', null);
+    setClientProperty($client, 'serverMaxNodesPerRead', null);
+    setClientProperty($client, 'serverMaxNodesPerWrite', null);
+    setClientProperty($client, 'defaultBrowseMaxDepth', 10);
+    setClientProperty($client, 'autoDetectWriteType', true);
+    setClientProperty($client, 'readMetadataCache', false);
+    setClientProperty($client, 'extensionObjectRepository', new Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository());
+    setClientProperty($client, 'enumMappings', []);
+    setClientProperty($client, 'transport', new TcpTransport());
+    setClientProperty($client, 'session', null);
+    setClientProperty($client, 'browseService', null);
+    setClientProperty($client, 'readService', null);
+    setClientProperty($client, 'writeService', null);
+    setClientProperty($client, 'callService', null);
+    setClientProperty($client, 'getEndpointsService', null);
+    setClientProperty($client, 'subscriptionService', null);
+    setClientProperty($client, 'monitoredItemService', null);
+    setClientProperty($client, 'publishService', null);
+    setClientProperty($client, 'historyReadService', null);
+    setClientProperty($client, 'translateBrowsePathService', null);
+    setClientProperty($client, 'authenticationToken', null);
+    setClientProperty($client, 'secureChannelId', 0);
+    setClientProperty($client, 'requestId', 10);
+    setClientProperty($client, 'serverCertDer', null);
+    setClientProperty($client, 'secureChannel', null);
+    setClientProperty($client, 'serverNonce', null);
+    setClientProperty($client, 'usernamePolicyId', null);
+    setClientProperty($client, 'certificatePolicyId', null);
+    setClientProperty($client, 'anonymousPolicyId', null);
+    setClientProperty($client, 'lastEndpointUrl', null);
+
+    return $client;
+}
+
 function setupConnectedClient(MockTransport $mock): Client
 {
-    $client = new Client();
+    $client = createClientWithoutConnect();
     $session = new SessionService(1, 1);
 
     setClientProperty($client, 'transport', $mock);
@@ -480,7 +539,7 @@ describe('ManagesConnectionTrait retry and disconnect', function () {
     it('executeWithRetry retries on ConnectionException', function () {
         $mock = new MockTransport();
         $client = setupConnectedClient($mock);
-        $client->setAutoRetry(0);
+        setClientProperty($client, 'autoRetry', 0);
 
         expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class);

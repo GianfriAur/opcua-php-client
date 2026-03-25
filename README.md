@@ -50,11 +50,11 @@ composer require gianfriaur/opcua-php-client
 ```
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // Read server status — string format
 $status = $client->read('i=2259');
@@ -66,7 +66,7 @@ $status = $client->read(NodeId::numeric(0, 2259));
 $client->disconnect();
 ```
 
-That's it. Three lines to connect, read, and disconnect. No config files, no service containers, no XML.
+That's it. Three lines to build, connect, and read. No config files, no service containers, no XML.
 
 > **Tip:** All client methods accept NodeId strings like `'i=2259'`, `'ns=2;i=1001'`, or `'ns=2;s=MyNode'` anywhere a `NodeId` is expected. Invalid strings throw `InvalidNodeIdException`.
 
@@ -170,15 +170,16 @@ foreach ($values as $dv) {
 ### Connect with full security
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
-$client->setUserCredentials('operator', 'secret');
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem')
+    ->setUserCredentials('operator', 'secret')
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
 > **Tip:** Skip `setClientCertificate()` and a self-signed cert gets auto-generated in memory — perfect for quick tests or servers with auto-accept.
@@ -186,13 +187,14 @@ $client->connect('opc.tcp://192.168.1.100:4840');
 ### Decode custom structures with codecs
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 
-$client = new Client(extensionObjectRepository: $repo);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 
 $point = $client->read($pointNodeId)->getValue();
 // ['x' => 1.5, 'y' => 2.5, 'z' => 3.5]
@@ -226,14 +228,16 @@ echo $client->callCount('read'); // 1
 ### Add structured logging
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 $logger = new Logger('opcua');
 $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 
-$client = new Client(logger: $logger);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setLogger($logger)
+    ->connect('opc.tcp://localhost:4840');
 // Logs: handshake, secure channel, session creation, reads, retries, errors...
 ```
 
@@ -242,11 +246,14 @@ Any [PSR-3](https://www.php-fig.org/psr/psr-3/) logger works — Monolog, Larave
 ### React to events (PSR-14)
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
 
-// Set any PSR-14 event dispatcher
-$client->setEventDispatcher($yourDispatcher);
+// Set any PSR-14 event dispatcher on the builder
+$client = ClientBuilder::create()
+    ->setEventDispatcher($yourDispatcher)
+    ->connect('opc.tcp://localhost:4840');
 
 // In your listener:
 class HandleDataChange {
@@ -313,26 +320,32 @@ Zero additional dependencies. Full security support, JSON output (`--json`), deb
 ### Trust server certificates
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
 use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
 
-$client = new Client();
-$client->setTrustStore(new FileTrustStore());           // ~/.opcua/trusted/
-$client->setTrustPolicy(TrustPolicy::Fingerprint);      // or FingerprintAndExpiry, Full
-$client->connect('opc.tcp://192.168.1.100:4840');        // throws UntrustedCertificateException if not trusted
+$client = ClientBuilder::create()
+    ->setTrustStore(new FileTrustStore())           // ~/.opcua/trusted/
+    ->setTrustPolicy(TrustPolicy::Fingerprint)      // or FingerprintAndExpiry, Full
+    ->connect('opc.tcp://192.168.1.100:4840');       // throws UntrustedCertificateException if not trusted
 ```
 
 Trust on first use (TOFU):
 
 ```php
-$client->autoAccept(true);                    // accept new certificates
-$client->autoAccept(true, force: true);       // also accept changed certificates
+$builder = ClientBuilder::create()
+    ->setTrustStore(new FileTrustStore())
+    ->autoAccept(true);                    // accept new certificates
+    // ->autoAccept(true, force: true);    // also accept changed certificates
+$client = $builder->connect('opc.tcp://192.168.1.100:4840');
 ```
 
-Disable for a single operation:
+Disable trust validation:
 
 ```php
-$client->setTrustPolicy(null);                // behaves like before — accept everything
+$client = ClientBuilder::create()
+    ->setTrustPolicy(null)                // behaves like before — accept everything
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
 Or manage from the CLI:
@@ -346,8 +359,8 @@ php vendor/bin/opcua-cli trust:remove AB:CD:12:34:...          # remove a cert
 ### Auto-discover custom types
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 $client->discoverDataTypes();
 
 $point = $client->read($pointNodeId)->getValue();
@@ -363,13 +376,14 @@ composer require gianfriaur/opcua-php-client-nodeset
 ```
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaNodeset\Robotics\RoboticsRegistrar;
 use Gianfriaur\OpcuaNodeset\Robotics\RoboticsNodeIds;
 use Gianfriaur\OpcuaNodeset\Robotics\Enums\OperationalModeEnumeration;
 
-$client = new Client();
-$client->loadGeneratedTypes(new RoboticsRegistrar());  // loads DI + IA dependencies automatically
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->loadGeneratedTypes(new RoboticsRegistrar())  // loads DI + IA dependencies automatically
+    ->connect('opc.tcp://192.168.1.100:4840');
 
 // Enum values are auto-cast to PHP BackedEnum
 $mode = $client->read(RoboticsNodeIds::OperationalMode)->getValue();

@@ -145,13 +145,14 @@ class CentrifugalPumpRegistrar implements GeneratedTypeRegistrar
 Use `loadGeneratedTypes()` to register everything with the client:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use App\OpcUa\CentrifugalPump\CentrifugalPumpRegistrar;
 use App\OpcUa\CentrifugalPump\CentrifugalPumpNodeIds;
 use App\OpcUa\CentrifugalPump\Enums\OperatingStateEnum;
 
-$client = new Client();
-$client->loadGeneratedTypes(new CentrifugalPumpRegistrar());
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->loadGeneratedTypes(new CentrifugalPumpRegistrar())
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
 After loading:
@@ -179,12 +180,14 @@ $snapshot->AcquisitionTimestamp;     // DateTimeImmutable
 
 ## Loading Multiple NodeSets
 
-Call `loadGeneratedTypes()` multiple times to stack registrars from different NodeSet files:
+Call `loadGeneratedTypes()` multiple times on the builder to stack registrars from different NodeSet files:
 
 ```php
-$client->loadGeneratedTypes(new CentrifugalPumpRegistrar());
-$client->loadGeneratedTypes(new RoboticsRegistrar());
-$client->loadGeneratedTypes(new DiRegistrar());
+$client = ClientBuilder::create()
+    ->loadGeneratedTypes(new CentrifugalPumpRegistrar())
+    ->loadGeneratedTypes(new RoboticsRegistrar())
+    ->loadGeneratedTypes(new DiRegistrar())
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
 Each registrar adds its codecs and enum mappings without affecting the others.
@@ -194,8 +197,8 @@ Each registrar adds its codecs and enum mappings without affecting the others.
 If you don't call `loadGeneratedTypes()`, everything works exactly as before:
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://192.168.1.100:4840');
 
 $state = $client->read('ns=1;i=100')->getValue();
 // int 2 — no enum casting, no DTO wrapping
@@ -233,12 +236,13 @@ php vendor/bin/opcua-cli generate:nodeset MyPLC.NodeSet2.xml \
 ```
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use App\OpcUa\MyPLC\MyPLCRegistrar;
 use App\OpcUa\MyPLC\MyPLCNodeIds;
 
-$client = new Client();
-$client->loadGeneratedTypes(new MyPLCRegistrar());
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->loadGeneratedTypes(new MyPLCRegistrar())
+    ->connect('opc.tcp://192.168.1.100:4840');
 
 $temp = $client->read(MyPLCNodeIds::Temperature)->getValue();
 // float 23.5 — with IDE autocomplete on the NodeId constant

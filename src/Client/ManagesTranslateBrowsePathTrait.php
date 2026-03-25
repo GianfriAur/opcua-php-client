@@ -56,6 +56,7 @@ trait ManagesTranslateBrowsePathTrait
      *
      * @param string $path Slash-separated browse path (e.g. "Objects/MyFolder/MyNode"). Segments may include a namespace prefix like "2:MyNode".
      * @param NodeId|string|null $startingNodeId Starting node, defaults to the Root node (ns=0;i=84).
+     * @param bool $useCache Whether to use cached results.
      * @return NodeId
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
@@ -67,7 +68,7 @@ trait ManagesTranslateBrowsePathTrait
         if (is_string($startingNodeId)) {
             $startingNodeId = NodeId::parse($startingNodeId);
         }
-        $startingNodeId ??= NodeId::numeric(0, ServiceTypeId::ROOT); // Root
+        $startingNodeId ??= NodeId::numeric(0, ServiceTypeId::ROOT);
 
         $normalizedPath = trim($path, '/');
         $cacheKey = $this->buildCacheKey('resolve', $startingNodeId, md5($normalizedPath));
@@ -114,6 +115,12 @@ trait ManagesTranslateBrowsePathTrait
         );
     }
 
+    /**
+     * Parse a segment string into a QualifiedName.
+     *
+     * @param string $segment The segment string, optionally prefixed with "ns:".
+     * @return QualifiedName
+     */
     private static function parseQualifiedName(string $segment): QualifiedName
     {
         if (str_contains($segment, ':')) {

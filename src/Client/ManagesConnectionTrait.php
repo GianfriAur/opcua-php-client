@@ -26,91 +26,22 @@ use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 trait ManagesConnectionTrait
 {
     /**
-     * Connect to an OPC UA server endpoint.
-     *
-     * @param string $endpointUrl The OPC UA endpoint URL (e.g. "opc.tcp://host:4840").
-     * @return void
-     *
-     * @throws ConfigurationException If the endpoint URL is invalid.
-     * @throws ConnectionException If the TCP connection or handshake fails.
-     *
-     * @see self::reconnect()
-     * @see self::disconnect()
-     */
-    public function connect(string $endpointUrl): void
-    {
-        $parsed = parse_url($endpointUrl);
-        if ($parsed === false || ! isset($parsed['host'])) {
-            throw new ConfigurationException("Invalid endpoint URL: {$endpointUrl}");
-        }
-
-        $host = $parsed['host'];
-        $port = $parsed['port'] ?? 4840;
-
-        $isSecure = $this->securityPolicy !== SecurityPolicy::None
-            && $this->securityMode !== SecurityMode::None;
-
-        if ($isSecure && $this->serverCertDer === null) {
-            $this->discoverServerCertificate($host, $port, $endpointUrl);
-        }
-
-        if ($isSecure) {
-            $this->validateServerCertificate();
-        }
-
-        $this->dispatch(fn () => new ClientConnecting($this, $endpointUrl));
-        $this->logger->info('Connecting to {endpoint}', ['endpoint' => $endpointUrl]);
-
-        try {
-            $this->transport->connect($host, $port, $this->getTimeout());
-            $this->logger->debug('TCP connection established to {host}:{port}', ['host' => $host, 'port' => $port]);
-
-            $this->doHandshake($endpointUrl);
-            $this->logger->debug('HEL/ACK handshake complete');
-
-            $this->openSecureChannel();
-            $this->logger->debug('Secure channel opened (channelId={channelId})', ['channelId' => $this->secureChannelId]);
-
-            $this->createAndActivateSession($endpointUrl);
-            $this->logger->debug('Session created and activated');
-        } catch (ConnectionException $e) {
-            $this->connectionState = ConnectionState::Broken;
-            $this->lastEndpointUrl = $endpointUrl;
-            $this->dispatch(fn () => new ConnectionFailed($this, $endpointUrl, $e));
-            $this->logger->error('Connection failed: {message}', ['message' => $e->getMessage(), 'endpoint' => $endpointUrl]);
-            throw $e;
-        }
-
-        $this->lastEndpointUrl = $endpointUrl;
-        $this->connectionState = ConnectionState::Connected;
-
-        $this->discoverServerOperationLimits();
-        $this->logger->info('Connected to {endpoint}', ['endpoint' => $endpointUrl]);
-        $this->dispatch(fn () => new ClientConnected($this, $endpointUrl));
-    }
-
-    /**
      * Reconnect to the previously connected endpoint.
      *
      * @return void
      *
-     * @throws ConfigurationException If no previous endpoint exists (connect() was never called).
      * @throws ConnectionException If the reconnection attempt fails.
      *
-     * @see self::connect()
+     * @see self::disconnect()
      */
     public function reconnect(): void
     {
-        if ($this->lastEndpointUrl === null) {
-            throw new ConfigurationException('Cannot reconnect: no previous connection endpoint. Call connect() first.');
-        }
-
         $this->dispatch(fn () => new ClientReconnecting($this, $this->lastEndpointUrl));
         $this->logger->info('Reconnecting to {endpoint}', ['endpoint' => $this->lastEndpointUrl]);
         $this->transport->close();
         $this->resetConnectionState();
 
-        $this->connect($this->lastEndpointUrl);
+        $this->performConnect($this->lastEndpointUrl);
     }
 
     /**
@@ -167,7 +98,11 @@ trait ManagesConnectionTrait
     }
 
     /**
-     * @throws ConnectionException
+     * Ensure the client is in a connected state.
+     *
+     * @return void
+     *
+     * @throws ConnectionException If the client is not connected.
      */
     private function ensureConnected(): void
     {
@@ -183,13 +118,17 @@ trait ManagesConnectionTrait
     }
 
     /**
+     * Execute an operation with automatic retry on connection failure.
+     *
      * @template T
-     * @param Closure(): T $operation
+     * @param Closure(): T $operation The operation to execute.
      * @return T
+     *
+     * @throws ConnectionException If all retry attempts are exhausted.
      */
     private function executeWithRetry(Closure $operation): mixed
     {
-        $maxRetries = $this->getAutoRetry();
+        $maxRetries = $this->autoRetry ?? 0;
 
         for ($attempt = 0; ; $attempt++) {
             try {
@@ -216,6 +155,72 @@ trait ManagesConnectionTrait
         }
     }
 
+    /**
+     * Perform the TCP connection, handshake, secure channel, and session establishment.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
+     *
+     * @throws ConfigurationException If the endpoint URL is invalid.
+     * @throws ConnectionException If the TCP connection or handshake fails.
+     */
+    private function performConnect(string $endpointUrl): void
+    {
+        $parsed = parse_url($endpointUrl);
+        if ($parsed === false || ! isset($parsed['host'])) {
+            throw new ConfigurationException("Invalid endpoint URL: {$endpointUrl}");
+        }
+
+        $host = $parsed['host'];
+        $port = $parsed['port'] ?? 4840;
+
+        $isSecure = $this->securityPolicy !== SecurityPolicy::None
+            && $this->securityMode !== SecurityMode::None;
+
+        if ($isSecure && $this->serverCertDer === null) {
+            $this->discoverServerCertificate($host, $port, $endpointUrl);
+        }
+
+        if ($isSecure) {
+            $this->validateServerCertificate();
+        }
+
+        $this->dispatch(fn () => new ClientConnecting($this, $endpointUrl));
+        $this->logger->info('Connecting to {endpoint}', ['endpoint' => $endpointUrl]);
+
+        try {
+            $this->transport->connect($host, $port, $this->timeout);
+            $this->logger->debug('TCP connection established to {host}:{port}', ['host' => $host, 'port' => $port]);
+
+            $this->doHandshake($endpointUrl);
+            $this->logger->debug('HEL/ACK handshake complete');
+
+            $this->openSecureChannel();
+            $this->logger->debug('Secure channel opened (channelId={channelId})', ['channelId' => $this->secureChannelId]);
+
+            $this->createAndActivateSession($endpointUrl);
+            $this->logger->debug('Session created and activated');
+        } catch (ConnectionException $e) {
+            $this->connectionState = ConnectionState::Broken;
+            $this->lastEndpointUrl = $endpointUrl;
+            $this->dispatch(fn () => new ConnectionFailed($this, $endpointUrl, $e));
+            $this->logger->error('Connection failed: {message}', ['message' => $e->getMessage(), 'endpoint' => $endpointUrl]);
+            throw $e;
+        }
+
+        $this->lastEndpointUrl = $endpointUrl;
+        $this->connectionState = ConnectionState::Connected;
+
+        $this->discoverServerOperationLimits();
+        $this->logger->info('Connected to {endpoint}', ['endpoint' => $endpointUrl]);
+        $this->dispatch(fn () => new ClientConnected($this, $endpointUrl));
+    }
+
+    /**
+     * Reset internal connection state for a fresh connection attempt.
+     *
+     * @return void
+     */
     private function resetConnectionState(): void
     {
         $this->session = null;

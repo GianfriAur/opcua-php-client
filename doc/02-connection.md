@@ -3,15 +3,17 @@
 ## Connecting
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // ... your operations ...
 
 $client->disconnect();
 ```
+
+The two-phase pattern is: **ClientBuilder configures**, **connect() returns Client**. All configuration setters live on `ClientBuilder` and return `$this` for fluent chaining. The `connect()` method creates and returns the `Client` instance.
 
 Behind the scenes, `connect()` does the following:
 
@@ -28,9 +30,9 @@ Behind the scenes, `connect()` does the following:
 The default timeout is **5 seconds** for both TCP connection and socket I/O.
 
 ```php
-$client = new Client();
-$client->setTimeout(10.0); // 10 seconds
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setTimeout(10.0) // 10 seconds
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 This applies to every operation: handshake, secure channel, browse, read, write, and so on. If exceeded, a `ConnectionException` is thrown with "Read timeout".
@@ -42,12 +44,12 @@ This applies to every operation: handshake, secure channel, browse, read, write,
 The client tracks its lifecycle through `ConnectionState`:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 
-$client = new Client();
-$client->getConnectionState(); // ConnectionState::Disconnected
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
-$client->connect('opc.tcp://localhost:4840');
 $client->getConnectionState(); // ConnectionState::Connected
 $client->isConnected();        // true
 
@@ -71,7 +73,8 @@ When you call an operation on a non-connected client, the error message reflects
 If the connection drops, `reconnect()` does a full disconnect/connect cycle using the last endpoint URL:
 
 ```php
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // ... connection drops ...
 
@@ -85,9 +88,9 @@ $client->reconnect();
 The client can automatically reconnect and retry when a `ConnectionException` occurs during an operation:
 
 ```php
-$client = new Client();
-$client->setAutoRetry(3); // retry up to 3 times
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setAutoRetry(3) // retry up to 3 times
+    ->connect('opc.tcp://localhost:4840');
 
 // If this fails due to a broken connection, the client will:
 // 1. Mark the state as Broken
@@ -104,7 +107,9 @@ $value = $client->read(NodeId::numeric(0, 2259));
 To disable auto-retry entirely:
 
 ```php
-$client->setAutoRetry(0);
+$client = ClientBuilder::create()
+    ->setAutoRetry(0)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 > **Note:** Auto-retry only applies to operations (read, write, browse, etc.), not to `connect()` itself. After `disconnect()`, there is no endpoint to reconnect to, so retry is off.
@@ -114,12 +119,14 @@ $client->setAutoRetry(0);
 ### Security Policy & Mode
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
+$client = ClientBuilder::create()
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 **Available policies:**
@@ -146,11 +153,12 @@ $client->setSecurityMode(SecurityMode::SignAndEncrypt);
 Required for any security policy other than `None`:
 
 ```php
-$client->setClientCertificate(
-    '/path/to/client-cert.pem',   // or .der
-    '/path/to/client-key.pem',
-    '/path/to/ca-cert.pem'        // optional
-);
+$builder = ClientBuilder::create()
+    ->setClientCertificate(
+        '/path/to/client-cert.pem',   // or .der
+        '/path/to/client-key.pem',
+        '/path/to/ca-cert.pem'        // optional
+    );
 ```
 
 Both PEM and DER formats are supported -- the library auto-detects.
@@ -164,7 +172,8 @@ Nothing to configure. Anonymous authentication is used by default.
 ### Username & Password
 
 ```php
-$client->setUserCredentials('myuser', 'mypassword');
+$builder = ClientBuilder::create()
+    ->setUserCredentials('myuser', 'mypassword');
 ```
 
 When security is active, the password is encrypted with the server's public key before transmission.
@@ -172,35 +181,31 @@ When security is active, the password is encrypted with the server's public key 
 ### X.509 Certificate
 
 ```php
-$client->setUserCertificate(
-    '/path/to/user-cert.pem',
-    '/path/to/user-key.pem'
-);
+$builder = ClientBuilder::create()
+    ->setUserCertificate(
+        '/path/to/user-cert.pem',
+        '/path/to/user-key.pem'
+    );
 ```
 
 ## Full Secure Connection Example
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
-
-$client->setTimeout(10.0);
-
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-
-$client->setClientCertificate(
-    '/certs/client.pem',
-    '/certs/client.key',
-    '/certs/ca.pem'
-);
-
-$client->setUserCredentials('operator', 'secret123');
-
-$client->connect('opc.tcp://192.168.1.100:4840/UA/Server');
+$client = ClientBuilder::create()
+    ->setTimeout(10.0)
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->setClientCertificate(
+        '/certs/client.pem',
+        '/certs/client.key',
+        '/certs/ca.pem'
+    )
+    ->setUserCredentials('operator', 'secret123')
+    ->connect('opc.tcp://192.168.1.100:4840/UA/Server');
 
 // ... secure operations ...
 
@@ -212,14 +217,17 @@ $client->disconnect();
 By default the client accepts any server certificate. For industrial deployments, enable trust validation:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
 use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
 
-$client->setTrustStore(new FileTrustStore());           // ~/.opcua/trusted/
-$client->setTrustPolicy(TrustPolicy::Fingerprint);
+$client = ClientBuilder::create()
+    ->setTrustStore(new FileTrustStore())           // ~/.opcua/trusted/
+    ->setTrustPolicy(TrustPolicy::Fingerprint)
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
-If the server certificate is not in the trust store, `UntrustedCertificateException` is thrown. Use `autoAccept(true)` for TOFU or `setTrustPolicy(null)` to disable.
+If the server certificate is not in the trust store, `UntrustedCertificateException` is thrown during `connect()`. Use `autoAccept(true)` on the builder for TOFU or `setTrustPolicy(null)` to disable.
 
 > **Tip:** See [Trust Store](16-trust-store.md) for the full guide — policies, TOFU, CLI commands, events.
 
@@ -228,8 +236,8 @@ If the server certificate is not in the trust store, `UntrustedCertificateExcept
 Discover what security and authentication options the server supports:
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 $endpoints = $client->getEndpoints('opc.tcp://localhost:4840');
 
@@ -253,20 +261,19 @@ The client supports [PSR-3](https://www.php-fig.org/psr/psr-3/) logging. Pass an
 
 ### Setting up a logger
 
-You can pass a logger at construction time or set it later:
+Pass a logger to the builder:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 $logger = new Logger('opcua');
 $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 
-// Via constructor
-$client = new Client(logger: $logger);
-
-// Or after construction
-$client->setLogger($logger);
+$client = ClientBuilder::create()
+    ->setLogger($logger)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 ### Laravel integration
@@ -274,7 +281,9 @@ $client->setLogger($logger);
 Laravel's logger is PSR-3 compatible out of the box:
 
 ```php
-$client = new Client(logger: app('log'));
+$client = ClientBuilder::create()
+    ->setLogger(app('log'))
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 ### What gets logged
@@ -288,12 +297,12 @@ $client = new Client(logger: app('log'));
 
 ### Disabling logging
 
-Logging is off by default (uses `NullLogger`). If you previously set a logger and want to disable it:
+Logging is off by default (uses `NullLogger`). To explicitly disable it on the builder:
 
 ```php
 use Psr\Log\NullLogger;
 
-$client->setLogger(new NullLogger());
+$builder->setLogger(new NullLogger());
 ```
 
 ## Events (PSR-14)
@@ -301,13 +310,18 @@ $client->setLogger(new NullLogger());
 The client dispatches [PSR-14](https://www.php-fig.org/psr/psr-14/) events at every lifecycle point. Inject any compatible dispatcher to react to connections, disconnections, retries, and more.
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-// Via setter
-$client->setEventDispatcher($yourDispatcher);
+// Via builder
+$client = ClientBuilder::create()
+    ->setEventDispatcher($yourDispatcher)
+    ->connect('opc.tcp://localhost:4840');
 
 // Laravel
-$client->setEventDispatcher(app(EventDispatcherInterface::class));
+$client = ClientBuilder::create()
+    ->setEventDispatcher(app(EventDispatcherInterface::class))
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 A `NullEventDispatcher` is used by default — zero overhead when no dispatcher is configured. Event objects are lazily instantiated.

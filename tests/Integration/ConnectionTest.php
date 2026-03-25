@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -58,14 +59,14 @@ describe('Connection', function () {
     })->group('integration');
 
     it('throws on connection to invalid host', function () {
-        $client = new Client();
-        expect(fn () => $client->connect('opc.tcp://invalid.host.that.does.not.exist:4840/UA/TestServer'))
+        $builder = new ClientBuilder();
+        expect(fn () => $builder->connect('opc.tcp://invalid.host.that.does.not.exist:4840/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     })->group('integration');
 
     it('throws on connection to invalid port', function () {
-        $client = new Client();
-        expect(fn () => $client->connect('opc.tcp://localhost:59999/UA/TestServer'))
+        $builder = new ClientBuilder();
+        expect(fn () => $builder->connect('opc.tcp://localhost:59999/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     })->group('integration');
 

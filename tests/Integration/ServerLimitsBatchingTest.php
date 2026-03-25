@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
@@ -97,9 +97,9 @@ describe('Server with real operation limits', function () {
     it('setBatchSize(0) disables auto-batching and skips discovery', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(0);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(0)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             expect($client->getServerMaxNodesPerRead())->toBeNull();
             expect($client->getServerMaxNodesPerWrite())->toBeNull();
@@ -111,9 +111,9 @@ describe('Server with real operation limits', function () {
     it('setBatchSize overrides server limit', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(3);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(3)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             expect($client->getBatchSize())->toBe(3);
             expect($client->getServerMaxNodesPerRead())->toBe(5);

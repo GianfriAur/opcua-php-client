@@ -24,6 +24,7 @@ trait ManagesBrowseTrait
      * Discover endpoints available at the given server URL.
      *
      * @param string $endpointUrl The OPC UA endpoint URL to query.
+     * @param bool $useCache Whether to use cached results.
      * @return EndpointDescription[]
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
@@ -61,6 +62,7 @@ trait ManagesBrowseTrait
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
+     * @param bool $useCache Whether to use cached results.
      * @return ReferenceDescription[]
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
@@ -148,6 +150,7 @@ trait ManagesBrowseTrait
      * @param ?NodeId $referenceTypeId Filter by reference type, or null for all.
      * @param bool $includeSubtypes Whether to include subtypes of the reference type.
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
+     * @param bool $useCache Whether to use cached results.
      * @return ReferenceDescription[]
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
@@ -209,7 +212,7 @@ trait ManagesBrowseTrait
         array $nodeClasses = [],
     ): array {
         $nodeId = $this->resolveNodeIdParam($nodeId);
-        $resolvedDepth = $maxDepth ?? $this->getDefaultBrowseMaxDepth();
+        $resolvedDepth = $maxDepth ?? $this->defaultBrowseMaxDepth;
         $effectiveMaxDepth = $resolvedDepth === -1
             ? self::MAX_BROWSE_RECURSIVE_DEPTH
             : min($resolvedDepth, self::MAX_BROWSE_RECURSIVE_DEPTH);
@@ -220,14 +223,16 @@ trait ManagesBrowseTrait
     }
 
     /**
-     * @param NodeId $nodeId
-     * @param int $maxDepth
-     * @param int $currentDepth
-     * @param BrowseDirection $direction
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param NodeClass[] $nodeClasses
-     * @param array<string, true> $visited
+     * Internal recursive browse implementation.
+     *
+     * @param NodeId $nodeId The current node to browse.
+     * @param int $maxDepth The maximum depth.
+     * @param int $currentDepth The current recursion depth.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?NodeId $referenceTypeId Filter by reference type.
+     * @param bool $includeSubtypes Whether to include subtypes.
+     * @param NodeClass[] $nodeClasses Filter by node classes.
+     * @param array<string, true> $visited Visited node tracking map.
      * @return BrowseNode[]
      */
     private function browseRecursiveInternal(
@@ -279,11 +284,11 @@ trait ManagesBrowseTrait
     /**
      * Send a browse request and return a BinaryDecoder for the response body.
      *
-     * @param NodeId $nodeId
-     * @param BrowseDirection $direction
-     * @param ?NodeId $referenceTypeId
-     * @param bool $includeSubtypes
-     * @param int $nodeClassMask
+     * @param NodeId $nodeId The node to browse.
+     * @param BrowseDirection $direction The browse direction.
+     * @param ?NodeId $referenceTypeId Filter by reference type.
+     * @param bool $includeSubtypes Whether to include subtypes.
+     * @param int $nodeClassMask The node class bitmask.
      * @return BinaryDecoder
      */
     public function getBinaryDecoder(NodeId $nodeId, BrowseDirection $direction, ?NodeId $referenceTypeId, bool $includeSubtypes, int $nodeClassMask): BinaryDecoder

@@ -58,7 +58,10 @@ Old getter methods are deprecated but still work.
 ### Architecture
 
 ```
-Client (main entry point, 14 traits)
+ClientBuilder (entry point, 8 config traits in ClientBuilder/)
+  +-- connect() → returns Client
+
+Client (connected client, 14 runtime traits in Client/)
   +-- Transport/TcpTransport        (TCP socket communication)
   +-- Protocol/*Service              (OPC UA service encoding/decoding)
   +-- Encoding/BinaryEncoder         (binary serialization)
@@ -74,11 +77,11 @@ Client (main entry point, 14 traits)
 ### Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // String format — all methods accept NodeId|string
 $dv = $client->read('i=2259');
@@ -104,8 +107,8 @@ $client->disconnect();
 ### Basic Connection
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 // ... do stuff ...
 $client->disconnect();
 ```
@@ -113,7 +116,9 @@ $client->disconnect();
 ### Timeout
 
 ```php
-$client->setTimeout(10.0); // 10 seconds (default: 5)
+$builder = ClientBuilder::create();
+$builder->setTimeout(10.0); // 10 seconds (default: 5)
+$client = $builder->connect('opc.tcp://localhost:4840');
 ```
 
 ### Connection State
@@ -128,18 +133,22 @@ $client->reconnect();          // re-establishes using last URL
 ### Auto-Retry
 
 ```php
-$client->setAutoRetry(3); // retry up to 3 times on connection failure
+$builder = ClientBuilder::create();
+$builder->setAutoRetry(3); // retry up to 3 times on connection failure
 ```
 
 ### Security Configuration
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
+$client = ClientBuilder::create()
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem')
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 Policies: None, Basic128Rsa15, Basic256, Basic256Sha256, Aes128Sha256RsaOaep, Aes256Sha256RsaPss
@@ -149,30 +158,35 @@ If no certificate provided, one gets auto-generated in memory (RSA 2048, self-si
 ### Authentication
 
 ```php
-$client->setUserCredentials('user', 'password');       // username/password
-$client->setUserCertificate('/certs/user.pem', '/certs/user.key'); // X.509
+$builder = ClientBuilder::create();
+$builder->setUserCredentials('user', 'password');       // username/password
+$builder->setUserCertificate('/certs/user.pem', '/certs/user.key'); // X.509
 // or nothing — anonymous by default
 ```
 
 ### Logging
 
-The client accepts any PSR-3 logger. Without one, a NullLogger is used (zero overhead).
+The builder accepts any PSR-3 logger. Without one, a NullLogger is used (zero overhead).
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 $logger = new Logger('opcua');
 $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 
-$client = new Client(logger: $logger);
+$client = ClientBuilder::create(logger: $logger)
+    ->connect('opc.tcp://localhost:4840');
 // or
-$client->setLogger($logger);
+$builder = ClientBuilder::create();
+$builder->setLogger($logger);
 ```
 
 Laravel integration:
 ```php
-$client = new Client(logger: app('log'));
+$client = ClientBuilder::create(logger: app('log'))
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 ### Events (PSR-14)
@@ -180,9 +194,10 @@ $client = new Client(logger: app('log'));
 ```php
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-$client->setEventDispatcher($yourDispatcher);
+$builder = ClientBuilder::create();
+$builder->setEventDispatcher($yourDispatcher);
 // or in Laravel:
-$client->setEventDispatcher(app(EventDispatcherInterface::class));
+$builder->setEventDispatcher(app(EventDispatcherInterface::class));
 ```
 
 NullEventDispatcher by default (zero overhead). 47 events covering connection, session, subscription, data change, alarms, read/write, write type detection, browse, cache, retry, trust store. See section 14 for the full list.
@@ -294,14 +309,15 @@ use Gianfriaur\OpcuaPhpClient\Cache\FileCache;
 
 // Default: InMemoryCache with 300s TTL (active out of the box)
 
-// File-based cache
-$client->setCache(new FileCache('/tmp/opcua-cache', defaultTtl: 600));
+// File-based cache (on the builder, before connect)
+$builder = ClientBuilder::create();
+$builder->setCache(new FileCache('/tmp/opcua-cache', defaultTtl: 600));
 
 // Laravel
-$client->setCache(app('cache')->store('redis'));
+$builder->setCache(app('cache')->store('redis'));
 
 // Disable
-$client->setCache(null);
+$builder->setCache(null);
 
 // Bypass cache for a single call
 $refs = $client->browse('i=85', useCache: false);
@@ -356,8 +372,9 @@ $statusCode = $client->write('ns=2;i=1234', 42, BuiltinType::Int32);
 After connect(), the client reads server limits (MaxNodesPerRead/Write). When readMulti/writeMulti exceeds the limit, requests are split automatically.
 
 ```php
-$client->setBatchSize(50);  // manual override
-$client->setBatchSize(0);   // disable batching
+$builder = ClientBuilder::create();
+$builder->setBatchSize(50);  // manual override
+$builder->setBatchSize(0);   // disable batching
 ```
 
 ### Status Codes
@@ -614,8 +631,12 @@ Connection flow with security:
 
 ```
 src/
-├── Client.php                    # Main entry point (13 traits)
-├── OpcUaClientInterface.php      # Public API contract
+├── ClientBuilder.php             # Builder / entry point (8 config traits)
+├── ClientBuilderInterface.php    # Builder interface
+├── Client.php                    # Connected client (14 runtime traits)
+├── OpcUaClientInterface.php      # Public API contract (operations)
+├── ClientBuilder/*.php           # Builder traits (configuration: cache, events, timeout, trust, etc.)
+├── Client/*.php                  # Client traits (operations: browse, read/write, subscriptions, etc.)
 ├── Transport/TcpTransport.php    # TCP socket I/O
 ├── Encoding/BinaryEncoder.php    # Serialization
 ├── Encoding/BinaryDecoder.php    # Deserialization (accepts optional ExtensionObjectRepository)
@@ -664,12 +685,15 @@ Register per-client (not static):
 ```php
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
-$client = new Client(extensionObjectRepository: $repo);
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
-Or after creation:
+Or on the builder before connecting:
 ```php
-$client->getExtensionObjectRepository()->register(NodeId::numeric(2, 5001), MyPointCodec::class);
+$builder = ClientBuilder::create();
+$builder->getExtensionObjectRepository()->register(NodeId::numeric(2, 5001), MyPointCodec::class);
+$client = $builder->connect('opc.tcp://localhost:4840');
 ```
 
 Repository API: register(), has(), get(), unregister(), clear()
@@ -679,8 +703,8 @@ Repository API: register(), has(), get(), unregister(), clear()
 Instead of writing codecs manually, call discoverDataTypes() after connecting:
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 $client->discoverDataTypes();
 
 $point = $client->read($pointNodeId)->getValue();
@@ -773,13 +797,15 @@ $results = $client->readMulti()
 
 ## 14. Events (PSR-14)
 
-The client dispatches 47 granular PSR-14 events. Inject any EventDispatcherInterface via $client->setEventDispatcher($dispatcher). NullEventDispatcher is used by default (zero overhead — event objects lazily instantiated via closures).
+The client dispatches 47 granular PSR-14 events. Inject any EventDispatcherInterface via $builder->setEventDispatcher($dispatcher) on the ClientBuilder. NullEventDispatcher is used by default (zero overhead — event objects lazily instantiated via closures).
 
 ### Configuration
 
 ```php
-$client->setEventDispatcher($yourDispatcher);
-$client->getEventDispatcher(); // returns current dispatcher
+$builder = ClientBuilder::create();
+$builder->setEventDispatcher($yourDispatcher);
+$builder->getEventDispatcher(); // returns current dispatcher
+$client = $builder->connect('opc.tcp://localhost:4840');
 ```
 
 ### Event Categories
@@ -811,14 +837,17 @@ Alarm-specific events are deduced from event notification fields:
 ### Key Classes
 
 - Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default)
-- Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait — trait with setEventDispatcher(), getEventDispatcher(), dispatch()
+- Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesEventDispatcherTrait — builder trait with setEventDispatcher(), getEventDispatcher()
+- Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatchTrait — client trait with runtime dispatch() helper
 
 ---
 
 ## Main Classes
 
-- Gianfriaur\OpcuaPhpClient\Client — main client, accepts optional ExtensionObjectRepository
-- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract
+- Gianfriaur\OpcuaPhpClient\ClientBuilder — builder / entry point, implements ClientBuilderInterface, static create() factory
+- Gianfriaur\OpcuaPhpClient\ClientBuilderInterface — builder interface (configuration methods + connect)
+- Gianfriaur\OpcuaPhpClient\Client — connected client (operations), implements OpcUaClientInterface
+- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract (operations on a connected client)
 - Gianfriaur\OpcuaPhpClient\Types\NodeId — public readonly: namespaceIndex, identifier, type
 - Gianfriaur\OpcuaPhpClient\Types\Variant — public readonly: type, value, dimensions
 - Gianfriaur\OpcuaPhpClient\Types\DataValue — public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue()

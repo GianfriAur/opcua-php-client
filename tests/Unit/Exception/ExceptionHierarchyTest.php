@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
+
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
@@ -70,20 +71,21 @@ describe('Exception hierarchy', function () {
 describe('Exception thrown in correct context', function () {
 
     it('throws ConnectionException when calling browse without connecting', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->browse(NodeId::numeric(0, 85)))
             ->toThrow(ConnectionException::class);
     });
 
     it('throws ConfigurationException for invalid endpoint URL', function () {
-        $client = new Client();
-        expect(fn () => $client->connect('not-a-valid-url'))
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        expect(fn () => $builder->connect('not-a-valid-url'))
             ->toThrow(ConfigurationException::class);
     });
 
     it('throws ConnectionException for unreachable host', function () {
-        $client = new Client();
-        expect(fn () => $client->connect('opc.tcp://192.0.2.1:4840/UA/TestServer'))
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder->setTimeout(1.0);
+        expect(fn () => $builder->connect('opc.tcp://192.0.2.1:4840/UA/TestServer'))
             ->toThrow(ConnectionException::class);
     });
 

@@ -10,7 +10,6 @@ use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
 use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected;
 use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetecting;
 use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
-use Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\CallResult;
@@ -24,80 +23,12 @@ use Gianfriaur\OpcuaPhpClient\Types\Variant;
  */
 trait ManagesReadWriteTrait
 {
-    private bool $autoDetectWriteType = true;
-
-    private bool $readMetadataCache = false;
-
-    /** @var array<string, class-string<\BackedEnum>> */
-    private array $enumMappings = [];
-
-    /**
-     * Load generated types from a NodeSet2.xml code generator registrar.
-     *
-     * Registers ExtensionObject codecs and enum mappings for automatic value casting.
-     * Can be called multiple times to load types from different NodeSet files.
-     *
-     * @param GeneratedTypeRegistrar $registrar The generated registrar.
-     * @return self
-     */
-    public function loadGeneratedTypes(GeneratedTypeRegistrar $registrar): self
-    {
-        if (! property_exists($registrar, 'only') || ! $registrar->only) {
-            foreach ($registrar->dependencyRegistrars() as $dependency) {
-                $this->loadGeneratedTypes($dependency);
-            }
-        }
-
-        $registrar->registerCodecs($this->repository);
-        $this->enumMappings = array_merge($this->enumMappings, $registrar->getEnumMappings());
-
-        return $this;
-    }
-
-    /**
-     * Enable or disable caching for metadata read operations.
-     *
-     * When enabled, read operations for non-Value attributes (DisplayName, BrowseName,
-     * DataType, NodeClass, Description, etc.) are cached via PSR-16. The Value attribute
-     * (id 13) is never cached regardless of this setting.
-     *
-     * Disabled by default.
-     *
-     * @param bool $enabled Whether to enable metadata caching.
-     * @return self
-     */
-    public function setReadMetadataCache(bool $enabled): self
-    {
-        $this->readMetadataCache = $enabled;
-
-        return $this;
-    }
-
-    /**
-     * Enable or disable automatic write type detection.
-     *
-     * When enabled (default), write operations without an explicit type will read the node
-     * first to determine the correct BuiltinType. When a type is provided explicitly,
-     * it is validated against the detected type. Detected types are cached via PSR-16.
-     *
-     * When disabled, an explicit BuiltinType must be passed to every write call.
-     *
-     * @param bool $enabled Whether to enable auto-detection.
-     * @return self
-     */
-    public function setAutoDetectWriteType(bool $enabled): self
-    {
-        $this->autoDetectWriteType = $enabled;
-
-        return $this;
-    }
-
     /**
      * Read a single attribute from a node.
      *
-     * When metadata caching is enabled via {@see setReadMetadataCache()}, non-Value attributes
-     * are served from cache on subsequent calls. Use `$refresh = true` to bypass the cache
-     * and re-read from the server.
+     * When metadata caching is enabled, non-Value attributes are served from cache
+     * on subsequent calls. Use `$refresh = true` to bypass the cache and re-read
+     * from the server.
      *
      * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
@@ -239,7 +170,9 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, attributeId?: int}> $items
+     * Perform a raw multi-read request without batching.
+     *
+     * @param array<array{nodeId: NodeId, attributeId?: int}> $items Items to read.
      * @return DataValue[]
      */
     private function readMultiRaw(array $items): array
@@ -260,8 +193,10 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, attributeId?: int}> $items
-     * @param int $batchSize
+     * Perform a batched multi-read request by splitting items into chunks.
+     *
+     * @param array<array{nodeId: NodeId, attributeId?: int}> $items Items to read.
+     * @param int $batchSize Maximum items per batch.
      * @return DataValue[]
      */
     private function readMultiBatched(array $items, int $batchSize): array
@@ -372,8 +307,10 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items
-     * @param int $batchSize
+     * Perform a batched multi-write request by splitting items into chunks.
+     *
+     * @param array<array{nodeId: NodeId, value: mixed, type: BuiltinType, attributeId?: int}> $items Items to write.
+     * @param int $batchSize Maximum items per batch.
      * @return int[]
      */
     private function writeMultiBatched(array $items, int $batchSize): array
@@ -402,7 +339,9 @@ trait ManagesReadWriteTrait
     }
 
     /**
-     * @param array<array{nodeId: NodeId, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items
+     * Prepare write items by resolving types and building DataValue objects.
+     *
+     * @param array<array{nodeId: NodeId, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items Raw write items.
      * @return array<array{nodeId: NodeId, dataValue: DataValue, attributeId: int}>
      */
     private function prepareWriteItems(array $items): array
@@ -426,7 +365,7 @@ trait ManagesReadWriteTrait
     /**
      * Prefetch write types for items that need auto-detection, using a single readMulti.
      *
-     * @param array<array{nodeId: NodeId, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items
+     * @param array<array{nodeId: NodeId, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items Write items to prefetch types for.
      * @return void
      */
     private function prefetchWriteTypes(array $items): void

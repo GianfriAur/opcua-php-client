@@ -26,6 +26,7 @@ All live in `Gianfriaur\OpcuaPhpClient\Exception`.
 Start here. This covers the most common failure modes in order of likelihood:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
 use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
@@ -33,16 +34,20 @@ use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
+$client = null;
+
 try {
-    $client->connect('opc.tcp://localhost:4840');
+    $client = ClientBuilder::create()
+        ->connect('opc.tcp://localhost:4840');
+
     $value = $client->read(NodeId::numeric(2, 1001));
-    $client->disconnect();
 
 } catch (ConnectionException $e) {
     // TCP-level failure: host unreachable, timeout, connection dropped
+    // Note: if connect() itself fails, $client is null — there is no Client to reconnect
     echo "Connection failed: {$e->getMessage()}\n";
 
-    if ($client->getConnectionState() === ConnectionState::Broken) {
+    if ($client !== null && $client->getConnectionState() === ConnectionState::Broken) {
         $client->reconnect(); // or connect() again
     }
 
@@ -60,9 +65,11 @@ try {
     echo "OPC UA error: {$e->getMessage()}\n";
 
 } finally {
-    $client->disconnect();
+    $client?->disconnect();
 }
 ```
+
+> **Note:** Because `connect()` returns the `Client`, if it throws an exception, no `Client` instance exists. Always initialize `$client = null` before the try block and use null-safe calls (`$client?->disconnect()`) in the finally block.
 
 > **Tip:** With auto-retry enabled (default: 1 retry after first connect), the client attempts reconnection before throwing. You only need manual recovery if auto-retry is exhausted or disabled.
 
@@ -75,10 +82,12 @@ try {
 Base class for all library exceptions. Catch this when you want a single catch-all:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
 
 try {
-    $client->connect('opc.tcp://localhost:4840');
+    $client = ClientBuilder::create()
+        ->connect('opc.tcp://localhost:4840');
     $value = $client->read(NodeId::numeric(0, 2259));
 } catch (OpcUaException $e) {
     echo "OPC UA error: {$e->getMessage()}\n";
@@ -161,11 +170,15 @@ Thrown when write type auto-detection fails. This happens when:
 - Auto-detect is disabled and no explicit `BuiltinType` was provided
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
 
 try {
-    $client->setAutoDetectWriteType(false);
-    $client->write('ns=2;i=1001', 42); // no type provided
+    $client = ClientBuilder::create()
+        ->setAutoDetectWriteType(false)
+        ->connect('opc.tcp://localhost:4840');
+
+    $client->write('ns=2;i=1001', 42); // no type provided — throws
 } catch (WriteTypeDetectionException $e) {
     echo $e->getMessage();
 }

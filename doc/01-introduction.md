@@ -18,12 +18,12 @@ composer require gianfriaur/opcua-php-client
 ## Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // Read a value
 $dataValue = $client->read(NodeId::numeric(0, 2259));

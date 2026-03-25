@@ -406,8 +406,8 @@ trait ManagesSubscriptionsTrait
     /**
      * Transfer subscriptions from another session to this session.
      *
-     * @param int[] $subscriptionIds
-     * @param bool $sendInitialValues
+     * @param int[] $subscriptionIds Subscription IDs to transfer.
+     * @param bool $sendInitialValues Whether the server should send initial values after transfer.
      * @return TransferResult[]
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
@@ -447,8 +447,8 @@ trait ManagesSubscriptionsTrait
     /**
      * Request the server to re-send a previously published notification message.
      *
-     * @param int $subscriptionId
-     * @param int $retransmitSequenceNumber
+     * @param int $subscriptionId The subscription ID.
+     * @param int $retransmitSequenceNumber The sequence number to retransmit.
      * @return array{sequenceNumber: int, publishTime: ?DateTimeImmutable, notifications: array}
      *
      * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
@@ -479,7 +479,7 @@ trait ManagesSubscriptionsTrait
     /**
      * Dispatch events for a publish response: per-notification events, keep-alive, and alarm deduction.
      *
-     * @param PublishResult $result
+     * @param PublishResult $result The publish result to dispatch events for.
      * @return void
      */
     private function dispatchPublishEvents(PublishResult $result): void
@@ -539,16 +539,9 @@ trait ManagesSubscriptionsTrait
     /**
      * Analyze event notification fields and dispatch alarm-specific events.
      *
-     * This method examines the event fields for known alarm condition fields
-     * (ActiveState, AckedState, ConfirmedState, ShelvingState, Severity, EventType)
-     * and dispatches the appropriate specific alarm events.
-     *
-     * The deduction works only with fields present in the EventFilter select clause.
-     * If a field was not requested, no corresponding event is dispatched.
-     *
-     * @param int $subscriptionId
-     * @param int $clientHandle
-     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields
+     * @param int $subscriptionId The subscription ID.
+     * @param int $clientHandle The client handle for the monitored item.
+     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields The event field values.
      * @return void
      */
     private function dispatchAlarmEvents(int $subscriptionId, int $clientHandle, array $eventFields): void
@@ -604,14 +597,12 @@ trait ManagesSubscriptionsTrait
     /**
      * Dispatch state-transition alarm events from extended event fields.
      *
-     * Checks fields beyond the default 6 for ActiveState, AckedState, ConfirmedState, ShelvingState patterns.
-     *
-     * @param int $subscriptionId
-     * @param int $clientHandle
-     * @param ?string $sourceName
-     * @param ?int $severity
-     * @param ?string $message
-     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields
+     * @param int $subscriptionId The subscription ID.
+     * @param int $clientHandle The client handle.
+     * @param ?string $sourceName The alarm source name.
+     * @param ?int $severity The alarm severity.
+     * @param ?string $message The alarm message.
+     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields The event field values.
      * @return void
      */
     private function dispatchStateAlarmEvents(

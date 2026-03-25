@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
 
 /**
  * Provides default maximum depth configuration for recursive browse operations.

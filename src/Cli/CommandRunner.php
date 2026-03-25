@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Cli;
 
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
@@ -20,12 +20,12 @@ class CommandRunner
     /**
      * @param array<string, string|bool> $options
      * @param OutputInterface $output
-     * @return Client
+     * @return ClientBuilder
      */
-    public function createClient(array $options, OutputInterface $output): Client
+    public function createClientBuilder(array $options, OutputInterface $output): ClientBuilder
     {
         $logger = $this->createLogger($options, $output);
-        $client = new Client(logger: $logger);
+        $client = new ClientBuilder(logger: $logger);
 
         if (isset($options['timeout'])) {
             $client->setTimeout((float) $options['timeout']);
@@ -39,10 +39,10 @@ class CommandRunner
     }
 
     /**
-     * @param Client $client
+     * @param ClientBuilder $client
      * @param array<string, string|bool> $options
      */
-    private function configureSecurity(Client $client, array $options): void
+    private function configureSecurity(ClientBuilder $client, array $options): void
     {
         if (isset($options['security-policy'])) {
             $policy = SecurityPolicy::tryFrom('http://opcfoundation.org/UA/SecurityPolicy#' . $options['security-policy']);
@@ -72,10 +72,10 @@ class CommandRunner
     }
 
     /**
-     * @param Client $client
+     * @param ClientBuilder $client
      * @param array<string, string|bool> $options
      */
-    private function configureAuthentication(Client $client, array $options): void
+    private function configureAuthentication(ClientBuilder $client, array $options): void
     {
         $username = $options['username'] ?? null;
         $password = $options['password'] ?? null;
@@ -86,10 +86,10 @@ class CommandRunner
     }
 
     /**
-     * @param Client $client
+     * @param ClientBuilder $client
      * @param array<string, string|bool> $options
      */
-    private function configureTrustStore(Client $client, array $options): void
+    private function configureTrustStore(ClientBuilder $client, array $options): void
     {
         if (isset($options['no-trust-policy'])) {
             $client->setTrustPolicy(null);

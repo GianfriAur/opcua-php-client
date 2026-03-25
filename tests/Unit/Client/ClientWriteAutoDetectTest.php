@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
@@ -110,11 +109,9 @@ describe('Write auto-detect type', function () {
     });
 
     it('throws WriteTypeDetectionException when auto-detect is off and no type provided', function () {
-        $client = new Client();
-        $ref = new ReflectionProperty($client, 'connectionState');
-        $ref->setValue($client, Gianfriaur\OpcuaPhpClient\Types\ConnectionState::Connected);
-
-        $client->setAutoDetectWriteType(false);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'connectionState', Gianfriaur\OpcuaPhpClient\Types\ConnectionState::Connected);
+        setClientProperty($client, 'autoDetectWriteType', false);
 
         expect(fn () => $client->write('i=1001', 42))
             ->toThrow(WriteTypeDetectionException::class);
@@ -125,7 +122,7 @@ describe('Write auto-detect type', function () {
         $mock->addResponse(writeResponseMsg());
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
+        setClientProperty($client, 'autoDetectWriteType', false);
         $statusCode = $client->write('i=1001', 42, BuiltinType::Int32);
 
         expect(StatusCode::isGood($statusCode))->toBeTrue();
@@ -145,11 +142,11 @@ describe('Write auto-detect type', function () {
         expect(count($mock->sent))->toBe(3);
     });
 
-    it('setAutoDetectWriteType returns self for fluent chaining', function () {
-        $client = new Client();
-        $result = $client->setAutoDetectWriteType(true);
+    it('setAutoDetectWriteType returns self for fluent chaining on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $result = $builder->setAutoDetectWriteType(true);
 
-        expect($result)->toBe($client);
+        expect($result)->toBe($builder);
     });
 });
 
@@ -175,7 +172,7 @@ describe('Write auto-detect events', function () {
                 return $event;
             }
         };
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->write('i=1001', 42);
 
@@ -211,7 +208,7 @@ describe('Write auto-detect events', function () {
                 return $event;
             }
         };
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->write('i=1001', 42);
         $client->write('i=1001', 99);

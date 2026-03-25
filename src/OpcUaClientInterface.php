@@ -11,6 +11,8 @@ use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
@@ -34,38 +36,20 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 /**
- * Contract for an OPC UA client capable of connecting, browsing, reading, writing, and subscribing to an OPC UA server.
+ * Contract for a connected OPC UA client capable of browsing, reading, writing, and subscribing.
+ *
+ * Instances are obtained via {@see ClientBuilderInterface::connect()}. This interface provides
+ * read-only access to configuration and all OPC UA operations.
  *
  * @see Client
+ * @see ClientBuilderInterface
  */
 interface OpcUaClientInterface
 {
     /**
-     * @param LoggerInterface $logger
-     * @return self
-     */
-    public function setLogger(LoggerInterface $logger): self;
-
-    /**
      * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface;
-
-    /**
-     * Set the PSR-14 event dispatcher for client lifecycle and operation events.
-     *
-     * When set, the client dispatches granular events at key points: connection,
-     * session, subscription, data change, alarms, read/write, browse, cache, and retry.
-     * A {@see Event\NullEventDispatcher} is used by default,
-     * ensuring zero overhead when no custom dispatcher is configured.
-     *
-     * @param EventDispatcherInterface $eventDispatcher The event dispatcher to use.
-     * @return self
-     *
-     * @see EventDispatcherInterface
-     * @see Event\NullEventDispatcher
-     */
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self;
 
     /**
      * Get the current PSR-14 event dispatcher.
@@ -75,42 +59,18 @@ interface OpcUaClientInterface
     public function getEventDispatcher(): EventDispatcherInterface;
 
     /**
-     * Set the trust store for server certificate validation.
-     *
-     * @param ?TrustStore\TrustStoreInterface $trustStore
-     * @return self
-     */
-    public function setTrustStore(?TrustStore\TrustStoreInterface $trustStore): self;
-
-    /**
      * Get the current trust store, or null if none configured.
      *
-     * @return ?TrustStore\TrustStoreInterface
+     * @return ?TrustStoreInterface
      */
-    public function getTrustStore(): ?TrustStore\TrustStoreInterface;
-
-    /**
-     * Set the trust validation policy. Pass null to disable trust validation (accept all certificates).
-     *
-     * @param ?TrustStore\TrustPolicy $policy
-     * @return self
-     */
-    public function setTrustPolicy(?TrustStore\TrustPolicy $policy): self;
+    public function getTrustStore(): ?TrustStoreInterface;
 
     /**
      * Get the current trust policy. Null means validation is disabled.
      *
-     * @return ?TrustStore\TrustPolicy
+     * @return ?TrustPolicy
      */
-    public function getTrustPolicy(): ?TrustStore\TrustPolicy;
-
-    /**
-     * Enable or disable auto-accept (TOFU) for unknown server certificates.
-     *
-     * @param bool $enabled
-     * @return self
-     */
-    public function autoAccept(bool $enabled = true, bool $force = false): self;
+    public function getTrustPolicy(): ?TrustPolicy;
 
     /**
      * Manually trust a server certificate and add it to the trust store.
@@ -138,16 +98,6 @@ interface OpcUaClientInterface
     public function getExtensionObjectRepository(): ExtensionObjectRepository;
 
     /**
-     * Set the cache driver. Pass null to disable caching entirely.
-     *
-     * @param ?CacheInterface $cache A PSR-16 cache instance, or null to disable.
-     * @return self
-     *
-     * @see CacheInterface
-     */
-    public function setCache(?CacheInterface $cache): self;
-
-    /**
      * Get the current cache driver, or null if caching is disabled.
      *
      * @return ?CacheInterface
@@ -172,14 +122,6 @@ interface OpcUaClientInterface
     public function flushCache(): void;
 
     /**
-     * Set the network timeout for transport operations.
-     *
-     * @param float $timeout Timeout in seconds.
-     * @return self
-     */
-    public function setTimeout(float $timeout): self;
-
-    /**
      * Get the current network timeout.
      *
      * @return float Timeout in seconds.
@@ -187,27 +129,11 @@ interface OpcUaClientInterface
     public function getTimeout(): float;
 
     /**
-     * Set the maximum number of automatic reconnection retries on connection loss.
-     *
-     * @param int $maxRetries Maximum retry count (0 to disable).
-     * @return self
-     */
-    public function setAutoRetry(int $maxRetries): self;
-
-    /**
      * Get the current automatic retry count.
      *
      * @return int
      */
     public function getAutoRetry(): int;
-
-    /**
-     * Set the batch size for multi-read and multi-write operations.
-     *
-     * @param int $batchSize Maximum items per batch (0 to disable batching).
-     * @return self
-     */
-    public function setBatchSize(int $batchSize): self;
 
     /**
      * Get the configured batch size, or null if not explicitly set.
@@ -231,55 +157,11 @@ interface OpcUaClientInterface
     public function getServerMaxNodesPerWrite(): ?int;
 
     /**
-     * Enable or disable automatic write type detection.
+     * Get the default maximum depth for recursive browse operations.
      *
-     * When enabled (default), write operations without an explicit type will read the node
-     * first to determine the correct BuiltinType. When a type is provided explicitly,
-     * it is validated against the detected type. Detected types are cached via PSR-16.
-     *
-     * When disabled, an explicit BuiltinType must be passed to every write call.
-     *
-     * @param bool $enabled Whether to enable auto-detection.
-     * @return self
+     * @return int
      */
-    public function setAutoDetectWriteType(bool $enabled): self;
-
-    /**
-     * Enable or disable caching for metadata read operations.
-     *
-     * When enabled, read operations for non-Value attributes (DisplayName, BrowseName,
-     * DataType, NodeClass, Description, etc.) are cached via PSR-16. The Value attribute
-     * (id 13) is never cached regardless of this setting.
-     *
-     * Disabled by default.
-     *
-     * @param bool $enabled Whether to enable metadata caching.
-     * @return self
-     */
-    public function setReadMetadataCache(bool $enabled): self;
-
-    /**
-     * Load generated types from a NodeSet2.xml code generator registrar.
-     *
-     * Registers ExtensionObject codecs and enum mappings for automatic value casting.
-     * Can be called multiple times to load types from different NodeSet files.
-     *
-     * @param Repository\GeneratedTypeRegistrar $registrar The generated registrar.
-     * @return self
-     */
-    public function loadGeneratedTypes(Repository\GeneratedTypeRegistrar $registrar): self;
-
-    /**
-     * Connect to an OPC UA server endpoint.
-     *
-     * @param string $endpointUrl The OPC UA endpoint URL (e.g. "opc.tcp://host:4840").
-     * @return void
-     *
-     * @throws ConfigurationException If the endpoint URL is invalid.
-     * @throws ConnectionException If the TCP connection or handshake fails.
-     * @throws ServiceException If a protocol-level error occurs during session creation.
-     */
-    public function connect(string $endpointUrl): void;
+    public function getDefaultBrowseMaxDepth(): int;
 
     /**
      * Reconnect to the previously connected endpoint.
@@ -429,21 +311,6 @@ interface OpcUaClientInterface
     ): array;
 
     /**
-     * Set the default maximum depth for recursive browse operations.
-     *
-     * @param int $maxDepth Maximum depth (-1 for unlimited up to internal cap).
-     * @return self
-     */
-    public function setDefaultBrowseMaxDepth(int $maxDepth): self;
-
-    /**
-     * Get the default maximum depth for recursive browse operations.
-     *
-     * @return int
-     */
-    public function getDefaultBrowseMaxDepth(): int;
-
-    /**
      * Recursively browse the address space starting from a node, building a tree of BrowseNode objects.
      *
      * @param NodeId|string $nodeId The root node to start browsing from.
@@ -500,10 +367,6 @@ interface OpcUaClientInterface
     /**
      * Read a single attribute from a node.
      *
-     * When metadata caching is enabled via {@see setReadMetadataCache()}, non-Value attributes
-     * are served from cache on subsequent calls. Use `$refresh = true` to bypass the cache
-     * and re-read from the server.
-     *
      * @param NodeId|string $nodeId The node to read.
      * @param int $attributeId The attribute to read (default 13 = Value).
      * @param bool $refresh Force a server read even if the result is cached.
@@ -532,10 +395,6 @@ interface OpcUaClientInterface
     /**
      * Write a value to a node attribute.
      *
-     * When no type is provided and auto-detect is enabled, the client reads the node first
-     * to determine the correct BuiltinType (cached via PSR-16). When a type is provided
-     * explicitly, it is used directly without any read.
-     *
      * @param NodeId|string $nodeId The node to write to.
      * @param mixed $value The value to write.
      * @param ?BuiltinType $type The OPC UA built-in type, or null for auto-detection.
@@ -544,15 +403,12 @@ interface OpcUaClientInterface
      * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
-     * @throws WriteTypeDetectionException If the type cannot be determined (no value on node, or auto-detect disabled without explicit type).
+     * @throws WriteTypeDetectionException If the type cannot be determined.
      */
     public function write(NodeId|string $nodeId, mixed $value, ?BuiltinType $type = null): int;
 
     /**
      * Write multiple values to one or more nodes in a single request.
-     *
-     * When auto-detect is enabled, items without a type key will have their type resolved
-     * automatically via a read (or cache). Items with a type key are validated against the node.
      *
      * @param ?array<array{nodeId: NodeId|string, value: mixed, type?: ?BuiltinType, attributeId?: int}> $items Items to write, or null to get a fluent builder.
      * @return ($items is null ? Builder\WriteMultiBuilder : int[])
@@ -584,7 +440,7 @@ interface OpcUaClientInterface
      * Create a subscription for receiving data change or event notifications.
      *
      * @param float $publishingInterval Requested publishing interval in milliseconds.
-     * @param int $lifetimeCount Requested lifetime count (number of publishing intervals before expiry).
+     * @param int $lifetimeCount Requested lifetime count.
      * @param int $maxKeepAliveCount Maximum keep-alive count.
      * @param int $maxNotificationsPerPublish Maximum notifications per publish response (0 = unlimited).
      * @param bool $publishingEnabled Whether publishing is initially enabled.
@@ -606,7 +462,7 @@ interface OpcUaClientInterface
     ): SubscriptionResult;
 
     /**
-     * Create monitored items within an existing subscription for data change notifications.
+     * Create monitored items within an existing subscription.
      *
      * @param int $subscriptionId The subscription to add items to.
      * @param array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $items Items to monitor.
@@ -658,7 +514,7 @@ interface OpcUaClientInterface
     public function deleteMonitoredItems(int $subscriptionId, array $monitoredItemIds): array;
 
     /**
-     * Modify parameters of existing monitored items without recreating them.
+     * Modify parameters of existing monitored items.
      *
      * @param int $subscriptionId The subscription owning the monitored items.
      * @param array<array{monitoredItemId: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, discardOldest?: bool}> $itemsToModify Items to modify.
@@ -666,16 +522,11 @@ interface OpcUaClientInterface
      *
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
-     *
-     * @see Types\MonitoredItemModifyResult
      */
     public function modifyMonitoredItems(int $subscriptionId, array $itemsToModify): array;
 
     /**
      * Configure triggering links between monitored items.
-     *
-     * The triggering item controls when linked items are sampled and reported.
-     * Linked items only produce notifications when the triggering item changes.
      *
      * @param int $subscriptionId The subscription owning the items.
      * @param int $triggeringItemId The monitored item that acts as the trigger.
@@ -685,8 +536,6 @@ interface OpcUaClientInterface
      *
      * @throws ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
-     *
-     * @see Types\SetTriggeringResult
      */
     public function setTriggering(int $subscriptionId, int $triggeringItemId, array $linksToAdd = [], array $linksToRemove = []): Types\SetTriggeringResult;
 
@@ -763,7 +612,7 @@ interface OpcUaClientInterface
      * @param DateTimeImmutable $startTime Start of the time range.
      * @param DateTimeImmutable $endTime End of the time range.
      * @param float $processingInterval Aggregation interval in milliseconds.
-     * @param NodeId $aggregateType The aggregate function NodeId (e.g. Average, Count).
+     * @param NodeId $aggregateType The aggregate function NodeId.
      * @return DataValue[]
      *
      * @throws InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.

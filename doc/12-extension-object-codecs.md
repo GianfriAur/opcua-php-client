@@ -76,10 +76,10 @@ The decoder is positioned at the start of the ExtensionObject body. Read fields 
 
 ## Registering a Codec
 
-Create an `ExtensionObjectRepository`, register your codecs, and pass it to the `Client`:
+Create an `ExtensionObjectRepository`, register your codecs, and pass it to the `ClientBuilder`:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
@@ -91,19 +91,21 @@ $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 // By instance (useful when the codec needs configuration)
 $repo->register(NodeId::numeric(2, 5001), new MyPointCodec());
 
-$client = new Client(extensionObjectRepository: $repo);
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
-> **Note:** Each `Client` has its own isolated repository. Codecs registered on one client do not affect another. If you don't pass a repository, the client creates an empty one internally.
+> **Note:** Each `Client` has its own isolated repository. Codecs registered on one client do not affect another. If you don't pass a repository, the builder creates an empty one internally.
 
-You can also register codecs after creating the client:
+You can also register codecs on the builder before connecting:
 
 ```php
-$client = new Client();
-$client->getExtensionObjectRepository()->register(
+$builder = ClientBuilder::create();
+$builder->getExtensionObjectRepository()->register(
     NodeId::numeric(2, 5001),
     MyPointCodec::class
 );
+$client = $builder->connect('opc.tcp://localhost:4840');
 ```
 
 ## Using It
@@ -114,8 +116,8 @@ Once registered, the codec fires automatically whenever the library encounters a
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 
-$client = new Client(extensionObjectRepository: $repo);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 
 $result = $client->read($pointNodeId);
 $point = $result->getValue();
@@ -181,15 +183,15 @@ class MyPointCodec implements ExtensionObjectCodec
 
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
-$client = new Client(extensionObjectRepository: $repo);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 **After — automatic discovery:**
 
 ```php
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 $client->discoverDataTypes();
 
 $point = $client->read($pointNodeId)->getValue();

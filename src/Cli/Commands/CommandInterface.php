@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
 
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 
 /**
@@ -28,13 +29,13 @@ interface CommandInterface
     public function getUsage(): string;
 
     /**
-     * @param OpcUaClientInterface $client
+     * @param OpcUaClientInterface|ClientBuilder $client Connected client or builder (for offline commands).
      * @param string[] $arguments
      * @param array<string, string|bool> $options
      * @param OutputInterface $output
      * @return int
      */
-    public function execute(OpcUaClientInterface $client, array $arguments, array $options, OutputInterface $output): int;
+    public function execute(OpcUaClientInterface|ClientBuilder $client, array $arguments, array $options, OutputInterface $output): int;
 
     /**
      * @return bool

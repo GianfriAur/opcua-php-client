@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateAutoAccepted;
 use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateRejected;
 use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateTrusted;
@@ -38,51 +37,51 @@ function cleanupStore(FileTrustStore $store): void
 describe('ManagesTrustStoreTrait on Client', function () {
 
     it('has null trust store and policy by default', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect($client->getTrustStore())->toBeNull();
         expect($client->getTrustPolicy())->toBeNull();
     });
 
-    it('setTrustStore is fluent', function () {
-        $client = new Client();
+    it('setTrustStore is fluent on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
         $store = createTestTrustStore();
-        $result = $client->setTrustStore($store);
-        expect($result)->toBe($client);
-        expect($client->getTrustStore())->toBe($store);
+        $result = $builder->setTrustStore($store);
+        expect($result)->toBe($builder);
+        expect($builder->getTrustStore())->toBe($store);
         cleanupStore($store);
     });
 
-    it('setTrustPolicy is fluent', function () {
-        $client = new Client();
-        $result = $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        expect($result)->toBe($client);
-        expect($client->getTrustPolicy())->toBe(TrustPolicy::Fingerprint);
+    it('setTrustPolicy is fluent on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $result = $builder->setTrustPolicy(TrustPolicy::Fingerprint);
+        expect($result)->toBe($builder);
+        expect($builder->getTrustPolicy())->toBe(TrustPolicy::Fingerprint);
     });
 
     it('setTrustPolicy(null) disables validation', function () {
-        $client = new Client();
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->setTrustPolicy(null);
-        expect($client->getTrustPolicy())->toBeNull();
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder->setTrustPolicy(TrustPolicy::Fingerprint);
+        $builder->setTrustPolicy(null);
+        expect($builder->getTrustPolicy())->toBeNull();
     });
 
-    it('autoAccept is fluent', function () {
-        $client = new Client();
-        $result = $client->autoAccept(true);
-        expect($result)->toBe($client);
+    it('autoAccept is fluent on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $result = $builder->autoAccept(true);
+        expect($result)->toBe($builder);
     });
 
     it('validateServerCertificate does nothing when trust store is null', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $method = new ReflectionMethod($client, 'validateServerCertificate');
         $method->invoke($client);
         expect(true)->toBeTrue();
     });
 
     it('validateServerCertificate does nothing when trust policy is null', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $store = createTestTrustStore();
-        $client->setTrustStore($store);
+        setClientProperty($client, 'trustStore', $store);
         $method = new ReflectionMethod($client, 'validateServerCertificate');
         $method->invoke($client);
         expect(true)->toBeTrue();
@@ -95,10 +94,10 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $cert = createTestCertDer();
         $store->trust($cert);
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->setEventDispatcher($dispatcher);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $cert);
@@ -114,9 +113,9 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $store = createTestTrustStore();
         $cert = createTestCertDer();
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $cert);
@@ -134,10 +133,10 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $store = createTestTrustStore();
         $cert = createTestCertDer();
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->setEventDispatcher($dispatcher);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $cert);
@@ -163,11 +162,11 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $store = createTestTrustStore();
         $cert = createTestCertDer();
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->setEventDispatcher($dispatcher);
-        $client->autoAccept(true);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
+        setClientProperty($client, 'autoAcceptEnabled', true);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $cert);
@@ -188,11 +187,12 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $newCert = createTestCertDer();
         $store->trust($oldCert);
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->setEventDispatcher($dispatcher);
-        $client->autoAccept(true, force: true);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
+        setClientProperty($client, 'autoAcceptEnabled', true);
+        setClientProperty($client, 'autoAcceptForce', true);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $newCert);
@@ -212,10 +212,10 @@ describe('ManagesTrustStoreTrait on Client', function () {
         $newCert = createTestCertDer();
         $store->trust($oldCert);
 
-        $client = new Client();
-        $client->setTrustStore($store);
-        $client->setTrustPolicy(TrustPolicy::Fingerprint);
-        $client->autoAccept(true);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'trustStore', $store);
+        setClientProperty($client, 'trustPolicy', TrustPolicy::Fingerprint);
+        setClientProperty($client, 'autoAcceptEnabled', true);
 
         $ref = new ReflectionProperty($client, 'serverCertDer');
         $ref->setValue($client, $newCert);

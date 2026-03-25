@@ -48,13 +48,13 @@ describe('TransferSubscriptions and Republish via MockTransport', function () {
     });
 
     it('transferSubscriptions throws ConnectionException when not connected', function () {
-        $client = new Gianfriaur\OpcuaPhpClient\Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->transferSubscriptions([1]))
             ->toThrow(Gianfriaur\OpcuaPhpClient\Exception\ConnectionException::class);
     });
 
     it('republish throws ConnectionException when not connected', function () {
-        $client = new Gianfriaur\OpcuaPhpClient\Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->republish(1, 1))
             ->toThrow(Gianfriaur\OpcuaPhpClient\Exception\ConnectionException::class);
     });

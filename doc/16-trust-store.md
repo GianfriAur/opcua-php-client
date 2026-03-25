@@ -9,14 +9,14 @@ By default, trust validation is **disabled** (`setTrustPolicy(null)`) — the cl
 ## Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
 use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
 
-$client = new Client();
-$client->setTrustStore(new FileTrustStore());            // ~/.opcua/trusted/
-$client->setTrustPolicy(TrustPolicy::Fingerprint);
-$client->connect('opc.tcp://server:4840');               // throws if not trusted
+$client = ClientBuilder::create()
+    ->setTrustStore(new FileTrustStore())            // ~/.opcua/trusted/
+    ->setTrustPolicy(TrustPolicy::Fingerprint)
+    ->connect('opc.tcp://server:4840');              // throws if not trusted
 ```
 
 ## Trust Policies
@@ -29,10 +29,11 @@ $client->connect('opc.tcp://server:4840');               // throws if not truste
 | `null` | Disabled — accept all certificates (default) |
 
 ```php
-$client->setTrustPolicy(TrustPolicy::Full);
+$builder = ClientBuilder::create();
+$builder->setTrustPolicy(TrustPolicy::Full);
 
 // Disable trust validation
-$client->setTrustPolicy(null);
+$builder->setTrustPolicy(null);
 ```
 
 ## FileTrustStore
@@ -65,8 +66,9 @@ Directory structure:
 Trust On First Use — automatically accept and save unknown certificates:
 
 ```php
-$client->autoAccept(true);                    // accept new certificates
-$client->autoAccept(true, force: true);       // also accept changed certificates
+$builder = ClientBuilder::create();
+$builder->autoAccept(true);                    // accept new certificates
+$builder->autoAccept(true, force: true);       // also accept changed certificates
 ```
 
 **Without `force`:** If a different certificate is already trusted and the server sends a new one, the connection fails. This protects against MITM attacks.
@@ -93,7 +95,9 @@ Thrown when a server certificate is not trusted:
 use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
 
 try {
-    $client->connect('opc.tcp://server:4840');
+    $client = ClientBuilder::create()
+        ->setTrustPolicy(TrustPolicy::Fingerprint)
+        ->connect('opc.tcp://server:4840');
 } catch (UntrustedCertificateException $e) {
     echo $e->fingerprint;   // "ab:cd:12:34:..."
     echo $e->certDer;       // raw DER bytes — save or inspect

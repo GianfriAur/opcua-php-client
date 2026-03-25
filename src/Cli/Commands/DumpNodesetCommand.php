@@ -6,6 +6,7 @@ namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
 
 use Gianfriaur\OpcuaPhpClient\Cli\NodeSetXmlBuilder;
 use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
 use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
 use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
@@ -54,7 +55,7 @@ class DumpNodesetCommand implements CommandInterface
     /**
      * {@inheritDoc}
      */
-    public function execute(OpcUaClientInterface $client, array $arguments, array $options, OutputInterface $output): int
+    public function execute(OpcUaClientInterface|ClientBuilder $client, array $arguments, array $options, OutputInterface $output): int
     {
         $outputFile = (string) ($options['output'] ?? '');
         if ($outputFile === '') {

@@ -2,90 +2,90 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+require_once __DIR__ . '/Client/ClientTraitsCoverageTest.php';
+
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
 describe('Client throws ConnectionException when not connected', function () {
 
     it('throws on browse', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->browse(NodeId::numeric(0, 85)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on browseWithContinuation', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->browseWithContinuation(NodeId::numeric(0, 85)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on browseNext', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->browseNext('some-continuation'))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on read', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->read(NodeId::numeric(0, 2259)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on readMulti', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->readMulti([['nodeId' => NodeId::numeric(0, 2259)]]))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on write', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->write(NodeId::numeric(1, 100), 42, BuiltinType::Int32))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on writeMulti', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->writeMulti([
             ['nodeId' => NodeId::numeric(1, 100), 'value' => 42, 'type' => BuiltinType::Int32],
         ]))->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on call', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->call(NodeId::numeric(1, 100), NodeId::numeric(1, 200)))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on createSubscription', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->createSubscription())
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on createMonitoredItems', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->createMonitoredItems(1, [['nodeId' => NodeId::numeric(0, 2259)]]))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on deleteMonitoredItems', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->deleteMonitoredItems(1, [1]))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on publish', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->publish())
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 
     it('throws on historyReadRaw', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->historyReadRaw(
             NodeId::numeric(1, 100),
             new DateTimeImmutable('-1 hour'),
@@ -94,7 +94,7 @@ describe('Client throws ConnectionException when not connected', function () {
     });
 
     it('throws on historyReadProcessed', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->historyReadProcessed(
             NodeId::numeric(1, 100),
             new DateTimeImmutable('-1 hour'),
@@ -105,7 +105,7 @@ describe('Client throws ConnectionException when not connected', function () {
     });
 
     it('throws on historyReadAtTime', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->historyReadAtTime(
             NodeId::numeric(1, 100),
             [new DateTimeImmutable()],
@@ -113,46 +113,46 @@ describe('Client throws ConnectionException when not connected', function () {
     });
 
     it('throws on getEndpoints', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect(fn () => $client->getEndpoints('opc.tcp://localhost:4840'))
             ->toThrow(ConnectionException::class, 'Not connected: call connect() first');
     });
 });
 
-describe('Client configuration methods', function () {
+describe('ClientBuilder configuration methods', function () {
 
     it('setSecurityPolicy returns self for chaining', function () {
-        $client = new Client();
-        $result = $client->setSecurityPolicy(SecurityPolicy::None);
-        expect($result)->toBe($client);
+        $builder = new ClientBuilder();
+        $result = $builder->setSecurityPolicy(Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
+        expect($result)->toBe($builder);
     });
 
     it('setSecurityMode returns self for chaining', function () {
-        $client = new Client();
-        $result = $client->setSecurityMode(SecurityMode::None);
-        expect($result)->toBe($client);
+        $builder = new ClientBuilder();
+        $result = $builder->setSecurityMode(Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+        expect($result)->toBe($builder);
     });
 
     it('setUserCredentials returns self for chaining', function () {
-        $client = new Client();
-        $result = $client->setUserCredentials('user', 'pass');
-        expect($result)->toBe($client);
+        $builder = new ClientBuilder();
+        $result = $builder->setUserCredentials('user', 'pass');
+        expect($result)->toBe($builder);
     });
 
     it('setClientCertificate returns self for chaining', function () {
-        $client = new Client();
-        $result = $client->setClientCertificate('/cert.pem', '/key.pem');
-        expect($result)->toBe($client);
+        $builder = new ClientBuilder();
+        $result = $builder->setClientCertificate('/cert.pem', '/key.pem');
+        expect($result)->toBe($builder);
     });
 
     it('setUserCertificate returns self for chaining', function () {
-        $client = new Client();
-        $result = $client->setUserCertificate('/cert.pem', '/key.pem');
-        expect($result)->toBe($client);
+        $builder = new ClientBuilder();
+        $result = $builder->setUserCertificate('/cert.pem', '/key.pem');
+        expect($result)->toBe($builder);
     });
 
     it('disconnect does not throw when not connected', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         $client->disconnect();
         expect(true)->toBeTrue();
     });

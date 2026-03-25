@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers;
 
 use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -84,10 +85,7 @@ final class TestHelper
      */
     public static function connectNoSecurity(): Client
     {
-        $client = new Client();
-        $client->connect(self::ENDPOINT_NO_SECURITY);
-
-        return $client;
+        return (new ClientBuilder())->connect(self::ENDPOINT_NO_SECURITY);
     }
 
     /**
@@ -100,18 +98,17 @@ final class TestHelper
         SecurityPolicy $policy = SecurityPolicy::None,
         SecurityMode $mode = SecurityMode::None,
     ): Client {
-        $client = new Client();
+        $builder = new ClientBuilder();
 
         if ($policy !== SecurityPolicy::None) {
-            $client->setSecurityPolicy($policy);
-            $client->setSecurityMode($mode);
-            $client->setClientCertificate(self::getClientCertPath(), self::getClientKeyPath(), self::getCaCertPath());
+            $builder->setSecurityPolicy($policy);
+            $builder->setSecurityMode($mode);
+            $builder->setClientCertificate(self::getClientCertPath(), self::getClientKeyPath(), self::getCaCertPath());
         }
 
-        $client->setUserCredentials($username, $password);
-        $client->connect($endpoint);
+        $builder->setUserCredentials($username, $password);
 
-        return $client;
+        return $builder->connect($endpoint);
     }
 
     /**
@@ -122,14 +119,12 @@ final class TestHelper
         SecurityPolicy $policy = SecurityPolicy::Basic256Sha256,
         SecurityMode $mode = SecurityMode::SignAndEncrypt,
     ): Client {
-        $client = new Client();
-        $client->setSecurityPolicy($policy);
-        $client->setSecurityMode($mode);
-        $client->setClientCertificate(self::getClientCertPath(), self::getClientKeyPath(), self::getCaCertPath());
-        $client->setUserCertificate(self::getClientCertPath(), self::getClientKeyPath());
-        $client->connect($endpoint);
-
-        return $client;
+        return (new ClientBuilder())
+            ->setSecurityPolicy($policy)
+            ->setSecurityMode($mode)
+            ->setClientCertificate(self::getClientCertPath(), self::getClientKeyPath(), self::getCaCertPath())
+            ->setUserCertificate(self::getClientCertPath(), self::getClientKeyPath())
+            ->connect($endpoint);
     }
 
     /**
@@ -141,7 +136,7 @@ final class TestHelper
      */
     public static function browseToNode(Client $client, array $path): NodeId
     {
-        $currentNodeId = NodeId::numeric(0, 85); // Objects folder
+        $currentNodeId = NodeId::numeric(0, 85);
 
         foreach ($path as $name) {
             $refs = $client->browse($currentNodeId);
@@ -200,7 +195,6 @@ final class TestHelper
         try {
             $client->disconnect();
         } catch (Throwable) {
-            // best effort
         }
     }
 }

@@ -648,11 +648,11 @@ Register codecs to automatically decode ExtensionObjects. Full guide: [Extension
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
 
-$client = new Client(extensionObjectRepository: $repo);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create($repo)
+    ->connect('opc.tcp://localhost:4840');
 
 $result = $client->read($pointNodeId);
 // $result->getValue() => ['x' => 1.0, 'y' => 2.0, 'z' => 3.0]
 ```
 
-Each `Client` has its own isolated repository. If you do not pass one, the client creates an empty one internally.
+Each `Client` has its own isolated repository. If you do not pass one, the builder creates an empty one internally.

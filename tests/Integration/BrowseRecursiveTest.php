@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
@@ -156,9 +156,9 @@ describe('browseRecursive', function () {
     it('uses configured defaultBrowseMaxDepth when maxDepth is not passed', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setDefaultBrowseMaxDepth(1);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setDefaultBrowseMaxDepth(1)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $tree = $client->browseRecursive(NodeId::numeric(0, 85));
 
@@ -173,9 +173,9 @@ describe('browseRecursive', function () {
     it('explicit maxDepth overrides the configured default', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setDefaultBrowseMaxDepth(1);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setDefaultBrowseMaxDepth(1)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $tree = $client->browseRecursive(NodeId::numeric(0, 85), maxDepth: 2);
 

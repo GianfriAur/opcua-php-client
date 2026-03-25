@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -61,25 +60,25 @@ class TestLogger implements LoggerInterface
 describe('Client PSR-3 Logger', function () {
 
     it('uses NullLogger by default', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect($client->getLogger())->toBeInstanceOf(NullLogger::class);
     });
 
-    it('accepts logger in constructor', function () {
+    it('accepts logger in builder constructor', function () {
         $logger = new TestLogger();
-        $client = new Client(logger: $logger);
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder(logger: $logger);
 
-        expect($client->getLogger())->toBe($logger);
+        expect($builder->getLogger())->toBe($logger);
     });
 
-    it('setLogger is fluent and replaces the logger', function () {
-        $client = new Client();
+    it('setLogger is fluent on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
         $logger = new TestLogger();
 
-        $result = $client->setLogger($logger);
+        $result = $builder->setLogger($logger);
 
-        expect($result)->toBe($client);
-        expect($client->getLogger())->toBe($logger);
+        expect($result)->toBe($builder);
+        expect($builder->getLogger())->toBe($logger);
     });
 
     it('logs connection events via MockTransport', function () {
@@ -89,7 +88,7 @@ describe('Client PSR-3 Logger', function () {
         $mock->addResponse(readResponseMsg(42));
 
         $client = setupConnectedClient($mock);
-        $client->setLogger($logger);
+        setClientProperty($client, 'logger', $logger);
 
         $client->read('i=2259');
 
@@ -101,7 +100,8 @@ describe('Client PSR-3 Logger', function () {
 
     it('logs disconnect', function () {
         $logger = new TestLogger();
-        $client = new Client(logger: $logger);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'logger', $logger);
 
         $client->disconnect();
 
@@ -114,8 +114,8 @@ describe('Client PSR-3 Logger', function () {
         $mock = new MockTransport();
 
         $client = setupConnectedClient($mock);
-        $client->setLogger($logger);
-        $client->setAutoRetry(0);
+        setClientProperty($client, 'logger', $logger);
+        setClientProperty($client, 'autoRetry', 0);
 
         try {
             $client->read('i=2259');
@@ -146,8 +146,8 @@ describe('Client PSR-3 Logger', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setLogger($logger);
-        $client->setBatchSize(1);
+        setClientProperty($client, 'logger', $logger);
+        setClientProperty($client, 'batchSize', 1);
 
         $results = $client->readMulti([
             ['nodeId' => 'i=2259'],

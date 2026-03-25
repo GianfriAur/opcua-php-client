@@ -24,7 +24,10 @@ if (StatusCode::isGood($dataValue->statusCode)) {
 Attributes like DisplayName, BrowseName, DataType, and NodeClass are static — they don't change at runtime. Enable metadata caching to avoid redundant server reads:
 
 ```php
-$client->setReadMetadataCache(true);
+// Enable on the builder before connecting
+$client = ClientBuilder::create()
+    ->setReadMetadataCache(true)
+    ->connect('opc.tcp://localhost:4840');
 
 // First call: reads from server, caches the result
 $name = $client->read('ns=2;i=1001', AttributeId::DisplayName);
@@ -149,7 +152,9 @@ The detected type is cached (PSR-16) so subsequent writes to the same node skip 
 **Disable auto-detect:**
 
 ```php
-$client->setAutoDetectWriteType(false);
+$client = ClientBuilder::create()
+    ->setAutoDetectWriteType(false)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 **Exceptions:**
@@ -255,7 +260,8 @@ OPC UA servers can limit how many nodes you read or write per request. The clien
 After `connect()`, the client reads the server's `MaxNodesPerRead` and `MaxNodesPerWrite` limits. When `readMulti()` or `writeMulti()` exceeds that limit, the request is split automatically and results are merged in order.
 
 ```php
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // Server says MaxNodesPerRead = 100
 // This is split into 10 requests of 100 each
@@ -275,8 +281,9 @@ $client->getServerMaxNodesPerWrite(); // e.g. 100, or null
 Override the server limit or set one when the server does not report any:
 
 ```php
-$client->setBatchSize(50);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setBatchSize(50)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 **Priority order:** your `setBatchSize(N)` (N > 0) beats the server-reported limit, which beats no batching.
@@ -286,8 +293,9 @@ $client->connect('opc.tcp://localhost:4840');
 Skip both batching and the server limits discovery on connect:
 
 ```php
-$client->setBatchSize(0);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setBatchSize(0)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 > **Tip:** Use this if you know the server has no limits and want to save the extra read on connect.

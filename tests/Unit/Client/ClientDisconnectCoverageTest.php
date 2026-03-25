@@ -80,7 +80,7 @@ function invokeMethod(Client $client, string $name, array $args = []): mixed
 
 function makeConnectedClient(TcpTransport $transport, ?SecureChannel $sc = null): Client
 {
-    $client = new Client();
+    $client = createClientWithoutConnect();
     $session = new SessionService(1, 1, $sc);
 
     setProperty($client, 'transport', $transport);
@@ -128,7 +128,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         $encoder->writeUInt32(1);
         $mock->addResponse($encoder->getBuffer());
 
-        $client = new Client();
+        $client = createClientWithoutConnect();
         setProperty($client, 'transport', $mock);
         setProperty($client, 'connectionState', ConnectionState::Connected);
 
@@ -151,7 +151,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
 
         $mock = new MockTransport();
 
-        $client = new Client();
+        $client = createClientWithoutConnect();
         setProperty($client, 'transport', $mock);
         setProperty($client, 'securityPolicy', SecurityPolicy::Basic256Sha256);
         setProperty($client, 'securityMode', SecurityMode::SignAndEncrypt);
@@ -188,7 +188,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
 
         $mock = new MockTransport();
 
-        $client = new Client();
+        $client = createClientWithoutConnect();
         setProperty($client, 'transport', $mock);
         setProperty($client, 'securityPolicy', SecurityPolicy::Basic256Sha256);
         setProperty($client, 'securityMode', SecurityMode::SignAndEncrypt);

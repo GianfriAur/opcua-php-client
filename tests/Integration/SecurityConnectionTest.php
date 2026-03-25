@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
@@ -136,11 +137,11 @@ describe('Security Connection', function () {
         it('connects with auto-generated certificate when none specified', function () {
             $client = null;
             try {
-                $client = new Client();
-                $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-                $client->setSecurityMode(SecurityMode::SignAndEncrypt);
-                // No setClientCertificate call - should auto-generate
-                $client->connect(TestHelper::ENDPOINT_AUTO_ACCEPT);
+                $client = (new ClientBuilder())
+                    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+                    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+                    // No setClientCertificate call - should auto-generate
+                    ->connect(TestHelper::ENDPOINT_AUTO_ACCEPT);
                 expect($client)->toBeInstanceOf(Client::class);
 
                 $refs = $client->browse(NodeId::numeric(0, 85));
@@ -156,15 +157,15 @@ describe('Security Connection', function () {
         it('connects with auto-generated certificate and username/password auth', function () {
             $client = null;
             try {
-                $client = new Client();
-                $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-                $client->setSecurityMode(SecurityMode::SignAndEncrypt);
-                // No setClientCertificate call - should auto-generate
-                $client->setUserCredentials(
-                    TestHelper::USER_ADMIN['username'],
-                    TestHelper::USER_ADMIN['password'],
-                );
-                $client->connect(TestHelper::ENDPOINT_AUTO_ACCEPT);
+                $client = (new ClientBuilder())
+                    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+                    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+                    // No setClientCertificate call - should auto-generate
+                    ->setUserCredentials(
+                        TestHelper::USER_ADMIN['username'],
+                        TestHelper::USER_ADMIN['password'],
+                    )
+                    ->connect(TestHelper::ENDPOINT_AUTO_ACCEPT);
                 expect($client)->toBeInstanceOf(Client::class);
 
                 $dv = $client->read(NodeId::numeric(0, 2259));
@@ -177,11 +178,11 @@ describe('Security Connection', function () {
         it('connects with auto-generated certificate in Sign mode', function () {
             $client = null;
             try {
-                $client = new Client();
-                $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-                $client->setSecurityMode(SecurityMode::Sign);
-                // No setClientCertificate call - should auto-generate
-                $client->connect(TestHelper::ENDPOINT_SIGN_ONLY);
+                $client = (new ClientBuilder())
+                    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+                    ->setSecurityMode(SecurityMode::Sign)
+                    // No setClientCertificate call - should auto-generate
+                    ->connect(TestHelper::ENDPOINT_SIGN_ONLY);
                 expect($client)->toBeInstanceOf(Client::class);
 
                 $refs = $client->browse(NodeId::numeric(0, 85));
@@ -198,11 +199,11 @@ describe('Security Connection', function () {
         it('connects anonymously with Basic256Sha256/Sign', function () {
             $client = null;
             try {
-                $client = new Client();
-                $client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-                $client->setSecurityMode(SecurityMode::Sign);
-                $client->setClientCertificate(TestHelper::getClientCertPath(), TestHelper::getClientKeyPath(), TestHelper::getCaCertPath());
-                $client->connect(TestHelper::ENDPOINT_SIGN_ONLY);
+                $client = (new ClientBuilder())
+                    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+                    ->setSecurityMode(SecurityMode::Sign)
+                    ->setClientCertificate(TestHelper::getClientCertPath(), TestHelper::getClientKeyPath(), TestHelper::getCaCertPath())
+                    ->connect(TestHelper::ENDPOINT_SIGN_ONLY);
                 expect($client)->toBeInstanceOf(Client::class);
 
                 $refs = $client->browse(NodeId::numeric(0, 85));

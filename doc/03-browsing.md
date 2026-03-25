@@ -171,9 +171,9 @@ $tree = $client->browseRecursive(
 You can change the default globally:
 
 ```php
-$client = new Client();
-$client->setDefaultBrowseMaxDepth(20);
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->setDefaultBrowseMaxDepth(20)
+    ->connect('opc.tcp://localhost:4840');
 
 $tree = $client->browseRecursive($nodeId);              // uses 20
 $tree = $client->browseRecursive($nodeId, maxDepth: 3); // override: 3
@@ -311,20 +311,29 @@ $nodeId = $client->resolveNodeId('/Objects/Server', useCache: false);
 Any PSR-16 `CacheInterface` implementation works — including Laravel's cache:
 
 ```php
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
 use Gianfriaur\OpcuaPhpClient\Cache\FileCache;
 
 // In-memory (default)
-$client->setCache(new InMemoryCache(ttl: 300));
+$client = ClientBuilder::create()
+    ->setCache(new InMemoryCache(ttl: 300))
+    ->connect('opc.tcp://localhost:4840');
 
 // File-based (survives PHP process restart)
-$client->setCache(new FileCache('/tmp/opcua-cache', ttl: 600));
+$client = ClientBuilder::create()
+    ->setCache(new FileCache('/tmp/opcua-cache', ttl: 600))
+    ->connect('opc.tcp://localhost:4840');
 
 // Laravel
-$client->setCache(app('cache')->store('redis'));
+$client = ClientBuilder::create()
+    ->setCache(app('cache')->store('redis'))
+    ->connect('opc.tcp://localhost:4840');
 
 // Disable caching entirely
-$client->setCache(null);
+$client = ClientBuilder::create()
+    ->setCache(null)
+    ->connect('opc.tcp://localhost:4840');
 ```
 
 ### Cache Invalidation

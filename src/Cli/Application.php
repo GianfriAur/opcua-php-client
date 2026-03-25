@@ -96,7 +96,7 @@ class Application
         $runner = new CommandRunner();
 
         try {
-            $client = $runner->createClient($options, $output);
+            $builder = $runner->createClientBuilder($options, $output);
 
             if ($command->requiresConnection()) {
                 $endpointUrl = $parsed['arguments'][0] ?? null;
@@ -106,14 +106,14 @@ class Application
 
                     return 1;
                 }
-                $client->connect($endpointUrl);
-            }
-
-            $exitCode = $command->execute($client, $parsed['arguments'], $options, $output);
-
-            if ($client->isConnected()) {
+                $client = $builder->connect($endpointUrl);
+                $exitCode = $command->execute($client, $parsed['arguments'], $options, $output);
                 $client->disconnect();
+
+                return $exitCode;
             }
+
+            $exitCode = $command->execute($builder, $parsed['arguments'], $options, $output);
 
             return $exitCode;
         } catch (UntrustedCertificateException $e) {

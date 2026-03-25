@@ -14,10 +14,16 @@ use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
 use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
+/**
+ * Provides session creation, activation, and teardown for the connected client.
+ */
 trait ManagesSessionTrait
 {
     /**
-     * @param string $endpointUrl
+     * Create and activate an OPC UA session.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
      */
     private function createAndActivateSession(string $endpointUrl): void
     {
@@ -26,7 +32,10 @@ trait ManagesSessionTrait
     }
 
     /**
-     * @param string $endpointUrl
+     * Send a CreateSession request and process the response.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
      */
     private function createSession(string $endpointUrl): void
     {
@@ -53,7 +62,10 @@ trait ManagesSessionTrait
     }
 
     /**
-     * @param string $endpointUrl
+     * Send an ActivateSession request and process the response.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @return void
      */
     private function activateSession(string $endpointUrl): void
     {
@@ -79,6 +91,8 @@ trait ManagesSessionTrait
     }
 
     /**
+     * Load the user certificate and private key for X509 identity token.
+     *
      * @return array{0: ?string, 1: mixed}
      */
     private function loadUserCertificate(): array
@@ -100,6 +114,11 @@ trait ManagesSessionTrait
         return [$userCertDer, $certManager->loadPrivateKeyPem($this->userKeyPath)];
     }
 
+    /**
+     * Close the current session.
+     *
+     * @return void
+     */
     private function closeSession(): void
     {
         $this->dispatch(fn () => new SessionClosed($this));
@@ -135,6 +154,11 @@ trait ManagesSessionTrait
         }
     }
 
+    /**
+     * Close the session when message-level security is active.
+     *
+     * @return void
+     */
     private function closeSessionSecure(): void
     {
         $requestId = $this->nextRequestId();
@@ -153,8 +177,10 @@ trait ManagesSessionTrait
     }
 
     /**
-     * @param BinaryEncoder $innerBody
-     * @param int $requestId
+     * Encode the CloseSession request body into a BinaryEncoder.
+     *
+     * @param BinaryEncoder $innerBody The encoder to write the message into.
+     * @param int $requestId The request identifier.
      * @return void
      */
     private function prepareCloseSessionMessage(BinaryEncoder $innerBody, int $requestId): void

@@ -11,28 +11,14 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use Psr\SimpleCache\CacheInterface;
 
 /**
- * Provides browse result caching using a PSR-16 cache backend.
+ * Provides runtime cache operations for the connected client.
+ *
+ * Handles cache lookups, invalidation, flushing, and key generation. The cache
+ * is lazily initialized with an {@see InMemoryCache} if no explicit cache was
+ * configured via the builder.
  */
-trait ManagesCacheTrait
+trait ManagesCacheRuntimeTrait
 {
-    private ?CacheInterface $cache = null;
-
-    private bool $cacheInitialized = false;
-
-    /**
-     * Set the cache driver. Pass null to disable caching entirely.
-     *
-     * @param ?CacheInterface $cache A PSR-16 cache instance, or null to disable.
-     * @return self
-     */
-    public function setCache(?CacheInterface $cache): self
-    {
-        $this->cache = $cache;
-        $this->cacheInitialized = true;
-
-        return $this;
-    }
-
     /**
      * Get the current cache driver, or null if caching is disabled.
      *
@@ -91,9 +77,11 @@ trait ManagesCacheTrait
     }
 
     /**
-     * @param string $type
-     * @param NodeId $nodeId
-     * @param string $paramsSuffix
+     * Build a cache key for a node-scoped entry.
+     *
+     * @param string $type The cache entry type.
+     * @param NodeId $nodeId The target node.
+     * @param string $paramsSuffix Additional parameters suffix.
      * @return string
      */
     private function buildCacheKey(string $type, NodeId $nodeId, string $paramsSuffix = ''): string
@@ -108,7 +96,9 @@ trait ManagesCacheTrait
     }
 
     /**
-     * @param NodeId $nodeId
+     * Build a cache key prefix for node-level invalidation.
+     *
+     * @param NodeId $nodeId The target node.
      * @return string
      */
     private function buildCacheKeyPrefix(NodeId $nodeId): string
@@ -119,8 +109,10 @@ trait ManagesCacheTrait
     }
 
     /**
-     * @param string $type
-     * @param string $paramsSuffix
+     * Build a simple cache key without a node scope.
+     *
+     * @param string $type The cache entry type.
+     * @param string $paramsSuffix Additional parameters suffix.
      * @return string
      */
     private function buildSimpleCacheKey(string $type, string $paramsSuffix = ''): string
@@ -135,9 +127,11 @@ trait ManagesCacheTrait
     }
 
     /**
-     * @param string $key
-     * @param callable $fetcher
-     * @param bool $useCache
+     * Fetch a value from cache or compute it via the fetcher callable.
+     *
+     * @param string $key The cache key.
+     * @param callable $fetcher The callable that produces the value on cache miss.
+     * @param bool $useCache Whether to use cache for this fetch.
      * @return mixed
      */
     private function cachedFetch(string $key, callable $fetcher, bool $useCache): mixed
@@ -164,7 +158,7 @@ trait ManagesCacheTrait
     }
 
     /**
-     * Initializes the cache with a default InMemoryCache if not yet configured.
+     * Initialize the cache with a default InMemoryCache if not yet configured.
      *
      * @return void
      */
@@ -177,9 +171,9 @@ trait ManagesCacheTrait
     }
 
     /**
-     * Deletes all InMemoryCache entries whose keys start with the given prefix.
+     * Delete all InMemoryCache entries whose keys start with the given prefix.
      *
-     * @param string $prefix
+     * @param string $prefix The key prefix to match.
      * @return void
      */
     private function invalidateByPrefix(string $prefix): void

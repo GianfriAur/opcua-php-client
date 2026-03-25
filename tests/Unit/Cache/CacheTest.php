@@ -67,9 +67,68 @@ function callCacheClientMethod(Client $client, string $name, array $args = []): 
     return $ref->invokeArgs($client, $args);
 }
 
+function createCacheClientWithoutConnect(): Client
+{
+    $ref = new ReflectionClass(Client::class);
+    $client = $ref->newInstanceWithoutConstructor();
+
+    setCacheClientProperty($client, 'connectionState', ConnectionState::Disconnected);
+    setCacheClientProperty($client, 'securityPolicy', Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
+    setCacheClientProperty($client, 'securityMode', Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+    setCacheClientProperty($client, 'clientCertPath', null);
+    setCacheClientProperty($client, 'clientKeyPath', null);
+    setCacheClientProperty($client, 'caCertPath', null);
+    setCacheClientProperty($client, 'username', null);
+    setCacheClientProperty($client, 'password', null);
+    setCacheClientProperty($client, 'userCertPath', null);
+    setCacheClientProperty($client, 'userKeyPath', null);
+    setCacheClientProperty($client, 'logger', new Psr\Log\NullLogger());
+    setCacheClientProperty($client, 'eventDispatcher', new Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher());
+    setCacheClientProperty($client, 'trustStore', null);
+    setCacheClientProperty($client, 'trustPolicy', null);
+    setCacheClientProperty($client, 'autoAcceptEnabled', false);
+    setCacheClientProperty($client, 'autoAcceptForce', false);
+    setCacheClientProperty($client, 'cache', null);
+    setCacheClientProperty($client, 'cacheInitialized', false);
+    setCacheClientProperty($client, 'timeout', 5.0);
+    setCacheClientProperty($client, 'autoRetry', null);
+    setCacheClientProperty($client, 'batchSize', null);
+    setCacheClientProperty($client, 'serverMaxNodesPerRead', null);
+    setCacheClientProperty($client, 'serverMaxNodesPerWrite', null);
+    setCacheClientProperty($client, 'defaultBrowseMaxDepth', 10);
+    setCacheClientProperty($client, 'autoDetectWriteType', true);
+    setCacheClientProperty($client, 'readMetadataCache', false);
+    setCacheClientProperty($client, 'extensionObjectRepository', new Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository());
+    setCacheClientProperty($client, 'enumMappings', []);
+    setCacheClientProperty($client, 'transport', new TcpTransport());
+    setCacheClientProperty($client, 'session', null);
+    setCacheClientProperty($client, 'browseService', null);
+    setCacheClientProperty($client, 'readService', null);
+    setCacheClientProperty($client, 'writeService', null);
+    setCacheClientProperty($client, 'callService', null);
+    setCacheClientProperty($client, 'getEndpointsService', null);
+    setCacheClientProperty($client, 'subscriptionService', null);
+    setCacheClientProperty($client, 'monitoredItemService', null);
+    setCacheClientProperty($client, 'publishService', null);
+    setCacheClientProperty($client, 'historyReadService', null);
+    setCacheClientProperty($client, 'translateBrowsePathService', null);
+    setCacheClientProperty($client, 'authenticationToken', null);
+    setCacheClientProperty($client, 'secureChannelId', 0);
+    setCacheClientProperty($client, 'requestId', 10);
+    setCacheClientProperty($client, 'serverCertDer', null);
+    setCacheClientProperty($client, 'secureChannel', null);
+    setCacheClientProperty($client, 'serverNonce', null);
+    setCacheClientProperty($client, 'usernamePolicyId', null);
+    setCacheClientProperty($client, 'certificatePolicyId', null);
+    setCacheClientProperty($client, 'anonymousPolicyId', null);
+    setCacheClientProperty($client, 'lastEndpointUrl', null);
+
+    return $client;
+}
+
 function setupCacheConnectedClient(CacheMockTransport $mock): Client
 {
-    $client = new Client();
+    $client = createCacheClientWithoutConnect();
     $session = new SessionService(1, 1);
 
     setCacheClientProperty($client, 'transport', $mock);
@@ -382,7 +441,8 @@ describe('ManagesCacheTrait / Client integration', function () {
     it('setCache(null) disables caching', function () {
         $mock = new CacheMockTransport();
         $client = setupCacheConnectedClient($mock);
-        $client->setCache(null);
+        setCacheClientProperty($client, 'cache', null);
+        setCacheClientProperty($client, 'cacheInitialized', true);
         expect($client->getCache())->toBeNull();
     });
 
@@ -391,7 +451,8 @@ describe('ManagesCacheTrait / Client integration', function () {
         $client = setupCacheConnectedClient($mock);
         $cacheDir = sys_get_temp_dir() . '/opcua-test-cache-' . uniqid();
         $fileCache = new FileCache($cacheDir, 120);
-        $client->setCache($fileCache);
+        setCacheClientProperty($client, 'cache', $fileCache);
+        setCacheClientProperty($client, 'cacheInitialized', true);
         expect($client->getCache())->toBe($fileCache);
         @array_map('unlink', glob($cacheDir . '/*.cache') ?: []);
         @rmdir($cacheDir);
@@ -401,7 +462,8 @@ describe('ManagesCacheTrait / Client integration', function () {
         $mock = new CacheMockTransport();
         $client = setupCacheConnectedClient($mock);
         $memCache = new InMemoryCache(60);
-        $client->setCache($memCache);
+        setCacheClientProperty($client, 'cache', $memCache);
+        setCacheClientProperty($client, 'cacheInitialized', true);
         expect($client->getCache())->toBe($memCache);
     });
 
@@ -485,7 +547,8 @@ describe('ManagesCacheTrait / Client integration', function () {
     it('invalidateCache with null cache does nothing', function () {
         $mock = new CacheMockTransport();
         $client = setupCacheConnectedClient($mock);
-        $client->setCache(null);
+        setCacheClientProperty($client, 'cache', null);
+        setCacheClientProperty($client, 'cacheInitialized', true);
         $client->invalidateCache(NodeId::numeric(0, 85));
         expect(true)->toBeTrue();
     });
@@ -493,7 +556,8 @@ describe('ManagesCacheTrait / Client integration', function () {
     it('flushCache with null cache does nothing', function () {
         $mock = new CacheMockTransport();
         $client = setupCacheConnectedClient($mock);
-        $client->setCache(null);
+        setCacheClientProperty($client, 'cache', null);
+        setCacheClientProperty($client, 'cacheInitialized', true);
         $client->flushCache();
         expect(true)->toBeTrue();
     });
@@ -504,7 +568,8 @@ describe('ManagesCacheTrait / Client integration', function () {
         $mock = new CacheMockTransport();
         $mock->addResponse(cacheBrowseResponseMsg());
         $client = setupCacheConnectedClient($mock);
-        $client->setCache($fileCache);
+        setCacheClientProperty($client, 'cache', $fileCache);
+        setCacheClientProperty($client, 'cacheInitialized', true);
 
         $client->browse(NodeId::numeric(0, 85), useCache: true);
         $client->invalidateCache(NodeId::numeric(0, 85));
@@ -693,11 +758,10 @@ describe('getEndpoints caching', function () {
 
 describe('MockClient cache', function () {
 
-    it('setCache and getCache work', function () {
+    it('getCache returns auto-initialized cache', function () {
         $mock = MockClient::create();
-        $cache = new InMemoryCache(60);
-        $mock->setCache($cache);
-        expect($mock->getCache())->toBe($cache);
+        $cache = $mock->getCache();
+        expect($cache)->toBeInstanceOf(InMemoryCache::class);
     });
 
     it('getCache auto-initializes with InMemoryCache', function () {

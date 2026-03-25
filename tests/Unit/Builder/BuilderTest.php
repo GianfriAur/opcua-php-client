@@ -79,7 +79,7 @@ describe('WriteMultiBuilder', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
+        setClientProperty($client, 'autoDetectWriteType', false);
         $results = $client->writeMulti()
             ->node('ns=2;i=1001')->int32(42)
             ->node('ns=2;i=1002')->double(3.14)
@@ -195,7 +195,7 @@ describe('BrowsePathsBuilder', function () {
 describe('MonitoredItemsBuilder', function () {
 
     it('returns builder when createMonitoredItems is called without items', function () {
-        $client = new Gianfriaur\OpcuaPhpClient\Client();
+        $client = MockClient::create();
         $builder = $client->createMonitoredItems(1);
 
         expect($builder)->toBeInstanceOf(MonitoredItemsBuilder::class);

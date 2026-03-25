@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
 use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
@@ -13,8 +13,8 @@ describe('ReadMulti batching', function () {
     it('readMulti works without batching', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -32,9 +32,9 @@ describe('ReadMulti batching', function () {
     it('readMulti with batchSize larger than items sends single request', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(100);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(100)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -51,9 +51,9 @@ describe('ReadMulti batching', function () {
     it('readMulti with batchSize splits into multiple requests', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(2);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(2)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -77,9 +77,9 @@ describe('ReadMulti batching', function () {
     it('readMulti with batchSize=1 reads one node at a time', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(1);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(1)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -97,9 +97,9 @@ describe('ReadMulti batching', function () {
     it('readMulti preserves result order across batches', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(2);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(2)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -123,9 +123,9 @@ describe('WriteMulti batching', function () {
     it('writeMulti with batchSize splits into multiple requests', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(2);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(2)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
 
@@ -149,8 +149,8 @@ describe('WriteMulti batching', function () {
     it('writeMulti without batching works normally', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $nodeId = TestHelper::browseToNode($client, ['TestServer', 'DataTypes', 'Scalar', 'Int32Value']);
 
@@ -173,8 +173,8 @@ describe('Server operation limits discovery', function () {
     it('discovers server MaxNodesPerRead after connect', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $limit = $client->getServerMaxNodesPerRead();
 
@@ -187,8 +187,8 @@ describe('Server operation limits discovery', function () {
     it('discovers server MaxNodesPerWrite after connect', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $limit = $client->getServerMaxNodesPerWrite();
             expect($limit === null || is_int($limit))->toBeTrue();
@@ -198,8 +198,8 @@ describe('Server operation limits discovery', function () {
     })->group('integration');
 
     it('server limits are reset after disconnect', function () {
-        $client = new Client();
-        $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+        $client = (new ClientBuilder())
+            ->connect(TestHelper::ENDPOINT_NO_SECURITY);
         $client->disconnect();
 
         expect($client->getServerMaxNodesPerRead())->toBeNull();
@@ -209,9 +209,9 @@ describe('Server operation limits discovery', function () {
     it('setBatchSize overrides server limits', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(50);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(50)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             expect($client->getBatchSize())->toBe(50);
 
@@ -235,10 +235,10 @@ describe('Batching disabled after setBatchSize(0)', function () {
     it('readMulti sends all items in single request after disabling batching', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(2);
-            $client->setBatchSize(0); // disable
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(2)
+                ->setBatchSize(0) // disable
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             $items = [
                 ['nodeId' => NodeId::numeric(0, 2259)],
@@ -256,9 +256,9 @@ describe('Batching disabled after setBatchSize(0)', function () {
     it('setBatchSize(0) skips server operation limits discovery', function () {
         $client = null;
         try {
-            $client = new Client();
-            $client->setBatchSize(0);
-            $client->connect(TestHelper::ENDPOINT_NO_SECURITY);
+            $client = (new ClientBuilder())
+                ->setBatchSize(0)
+                ->connect(TestHelper::ENDPOINT_NO_SECURITY);
 
             expect($client->getServerMaxNodesPerRead())->toBeNull();
             expect($client->getServerMaxNodesPerWrite())->toBeNull();

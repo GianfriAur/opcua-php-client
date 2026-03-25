@@ -2,21 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
-
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
+namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
 
 /**
  * Provides network timeout configuration for transport operations.
  */
 trait ManagesTimeoutTrait
 {
-    private float $timeout;
-
-    private function initTimeout(): void
-    {
-        $this->timeout = TcpTransport::DEFAULT_TIMEOUT;
-    }
+    private float $timeout = 5.0;
 
     /**
      * Set the network timeout for transport operations.

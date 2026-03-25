@@ -10,29 +10,10 @@ use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
 use Throwable;
 
 /**
- * Provides batch size configuration and server operation limit discovery for multi-read and multi-write operations.
+ * Provides runtime batch size resolution and server operation limit discovery for the connected client.
  */
-trait ManagesBatchingTrait
+trait ManagesBatchingRuntimeTrait
 {
-    private ?int $batchSize = null;
-
-    private ?int $serverMaxNodesPerRead = null;
-
-    private ?int $serverMaxNodesPerWrite = null;
-
-    /**
-     * Set the batch size for multi-read and multi-write operations.
-     *
-     * @param int $batchSize Maximum items per batch (0 to disable batching).
-     * @return self
-     */
-    public function setBatchSize(int $batchSize): self
-    {
-        $this->batchSize = $batchSize;
-
-        return $this;
-    }
-
     /**
      * Get the configured batch size, or null if not explicitly set.
      *
@@ -64,6 +45,8 @@ trait ManagesBatchingTrait
     }
 
     /**
+     * Compute the effective read batch size from explicit setting or server limits.
+     *
      * @return int|null
      */
     private function getEffectiveReadBatchSize(): ?int
@@ -76,6 +59,8 @@ trait ManagesBatchingTrait
     }
 
     /**
+     * Compute the effective write batch size from explicit setting or server limits.
+     *
      * @return int|null
      */
     private function getEffectiveWriteBatchSize(): ?int
@@ -87,6 +72,11 @@ trait ManagesBatchingTrait
         return $this->serverMaxNodesPerWrite;
     }
 
+    /**
+     * Discover server-reported operation limits via a readMulti call.
+     *
+     * @return void
+     */
     private function discoverServerOperationLimits(): void
     {
         if ($this->batchSize === 0) {
@@ -123,6 +113,11 @@ trait ManagesBatchingTrait
         }
     }
 
+    /**
+     * Reset discovered server operation limits.
+     *
+     * @return void
+     */
     private function resetBatchingState(): void
     {
         $this->serverMaxNodesPerRead = null;

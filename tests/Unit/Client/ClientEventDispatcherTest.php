@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmAcknowledged;
 use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
@@ -39,16 +38,16 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 describe('ManagesEventDispatcherTrait on Client', function () {
 
     it('uses NullEventDispatcher by default', function () {
-        $client = new Client();
+        $client = createClientWithoutConnect();
         expect($client->getEventDispatcher())->toBeInstanceOf(NullEventDispatcher::class);
     });
 
-    it('setEventDispatcher is fluent', function () {
-        $client = new Client();
+    it('setEventDispatcher is fluent on builder', function () {
+        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
         $dispatcher = new InMemoryEventDispatcher();
-        $result = $client->setEventDispatcher($dispatcher);
-        expect($result)->toBe($client);
-        expect($client->getEventDispatcher())->toBe($dispatcher);
+        $result = $builder->setEventDispatcher($dispatcher);
+        expect($result)->toBe($builder);
+        expect($builder->getEventDispatcher())->toBe($dispatcher);
     });
 
     it('dispatches NodeValueRead on read', function () {
@@ -57,7 +56,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         $mock->addResponse(readResponseMsg(42));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->read('i=2259');
 
@@ -74,7 +73,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         $mock->addResponse(browseResponseMsg());
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->browse('i=85');
 
@@ -88,7 +87,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         $mock->addResponse(browseResponseMsg());
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->browse('i=85');
         $dispatcher->reset();
@@ -107,8 +106,8 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'autoDetectWriteType', false);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->write('ns=2;i=1001', 42, BuiltinType::Int32);
 
@@ -126,8 +125,8 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setAutoDetectWriteType(false);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'autoDetectWriteType', false);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->write('ns=2;i=1001', 42, BuiltinType::Int32);
 
@@ -137,8 +136,8 @@ describe('ManagesEventDispatcherTrait on Client', function () {
 
     it('dispatches ClientDisconnecting and ClientDisconnected on disconnect', function () {
         $dispatcher = new InMemoryEventDispatcher();
-        $client = new Client();
-        $client->setEventDispatcher($dispatcher);
+        $client = createClientWithoutConnect();
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->disconnect();
 
@@ -151,8 +150,8 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         $mock = new MockTransport();
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
-        $client->setAutoRetry(0);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
+        setClientProperty($client, 'autoRetry', 0);
 
         try {
             $client->read('i=2259');
@@ -197,7 +196,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $result = $client->createSubscription(500.0);
 
@@ -216,7 +215,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->deleteSubscription(1);
 
@@ -238,7 +237,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->publish();
 
@@ -273,7 +272,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $result = $client->publish();
 
@@ -319,7 +318,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
 
         $client->publish();
 
@@ -367,7 +366,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmActivated::class))->toBeTrue();
@@ -411,7 +410,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmDeactivated::class))->toBeTrue();
@@ -455,7 +454,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmAcknowledged::class))->toBeTrue();
@@ -499,7 +498,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmConfirmed::class))->toBeTrue();
@@ -543,7 +542,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmShelved::class))->toBeTrue();
@@ -585,7 +584,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(OffNormalAlarmTriggered::class))->toBeTrue();
@@ -629,7 +628,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmActivated::class))->toBeTrue();
@@ -673,7 +672,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
         }));
 
         $client = setupConnectedClient($mock);
-        $client->setEventDispatcher($dispatcher);
+        setClientProperty($client, 'eventDispatcher', $dispatcher);
         $client->publish();
 
         expect($dispatcher->hasEvent(AlarmDeactivated::class))->toBeTrue();

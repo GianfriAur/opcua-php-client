@@ -4,25 +4,21 @@ declare(strict_types=1);
 
 namespace Gianfriaur\OpcuaPhpClient;
 
-use Gianfriaur\OpcuaPhpClient\Client\ManagesAutoRetryTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesBatchingTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseDepthTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesBatchingRuntimeTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesCacheTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesCacheRuntimeTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatchTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesHandshakeTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesHistoryTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSecureChannelTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesTimeoutTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTranslateBrowsePathTrait;
-use Gianfriaur\OpcuaPhpClient\Client\ManagesTrustStoreTrait;
+use Gianfriaur\OpcuaPhpClient\Client\ManagesTrustStoreRuntimeTrait;
 use Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait;
 use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
 use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
 use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
 use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
@@ -41,27 +37,30 @@ use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
 use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use Psr\SimpleCache\CacheInterface;
 
 /**
- * OPC UA client implementation providing connection management, browsing, reading, writing, subscriptions, and history access.
+ * Connected OPC UA client providing browsing, reading, writing, subscriptions, and history access.
+ *
+ * Instances are created via {@see ClientBuilder::connect()}. Do not instantiate directly.
  *
  * @implements OpcUaClientInterface
  *
  * @see OpcUaClientInterface
+ * @see ClientBuilder
  */
 class Client implements OpcUaClientInterface
 {
-    use ManagesTimeoutTrait;
-    use ManagesAutoRetryTrait;
-    use ManagesBatchingTrait;
-    use ManagesCacheTrait;
-    use ManagesBrowseDepthTrait;
-    use ManagesEventDispatcherTrait;
-    use ManagesTrustStoreTrait;
+    use ManagesEventDispatchTrait;
+    use ManagesCacheRuntimeTrait;
+    use ManagesBatchingRuntimeTrait;
+    use ManagesTrustStoreRuntimeTrait;
     use ManagesConnectionTrait;
     use ManagesHandshakeTrait;
     use ManagesSecureChannelTrait;
@@ -103,29 +102,29 @@ class Client implements OpcUaClientInterface
 
     private int $requestId = 10;
 
-    private SecurityPolicy $securityPolicy = SecurityPolicy::None;
+    private SecurityPolicy $securityPolicy;
 
-    private SecurityMode $securityMode = SecurityMode::None;
+    private SecurityMode $securityMode;
 
-    private ?string $username = null;
+    private ?string $username;
 
-    private ?string $password = null;
+    private ?string $password;
 
-    private ?string $clientCertPath = null;
+    private ?string $clientCertPath;
 
-    private ?string $clientKeyPath = null;
+    private ?string $clientKeyPath;
+
+    private ?string $caCertPath;
+
+    private ?string $userCertPath;
+
+    private ?string $userKeyPath;
 
     private ?string $serverCertDer = null;
 
     private ?SecureChannel $secureChannel = null;
 
     private ?string $serverNonce = null;
-
-    private ?string $caCertPath = null;
-
-    private ?string $userCertPath = null;
-
-    private ?string $userKeyPath = null;
 
     private ?string $usernamePolicyId = null;
 
@@ -137,40 +136,153 @@ class Client implements OpcUaClientInterface
 
     private ConnectionState $connectionState = ConnectionState::Disconnected;
 
-    private ExtensionObjectRepository $extensionObjectRepository;
-
     private LoggerInterface $logger;
 
-    /**
-     * @param ?ExtensionObjectRepository $extensionObjectRepository Optional custom repository for extension object decoding.
-     * @param ?LoggerInterface $logger Optional PSR-3 logger for connection events, retries, and errors.
-     */
-    public function __construct(?ExtensionObjectRepository $extensionObjectRepository = null, ?LoggerInterface $logger = null)
-    {
-        $this->transport = new TcpTransport();
-        $this->extensionObjectRepository = $extensionObjectRepository ?? new ExtensionObjectRepository();
-        $this->logger = $logger ?? new NullLogger();
-        $this->eventDispatcher = new NullEventDispatcher();
-        $this->initTimeout();
-    }
+    private EventDispatcherInterface $eventDispatcher;
+
+    private ?TrustStoreInterface $trustStore;
+
+    private ?TrustPolicy $trustPolicy;
+
+    private bool $autoAcceptEnabled;
+
+    private bool $autoAcceptForce;
+
+    private ?CacheInterface $cache;
+
+    private bool $cacheInitialized;
+
+    private float $timeout;
+
+    private ?int $autoRetry;
+
+    private ?int $batchSize;
+
+    private ?int $serverMaxNodesPerRead = null;
+
+    private ?int $serverMaxNodesPerWrite = null;
+
+    private int $defaultBrowseMaxDepth;
+
+    private bool $autoDetectWriteType;
+
+    private bool $readMetadataCache;
+
+    private ExtensionObjectRepository $extensionObjectRepository;
+
+    /** @var array<string, class-string<\BackedEnum>> */
+    private array $enumMappings;
 
     /**
-     * @param LoggerInterface $logger
-     * @return self
+     * Create a connected OPC UA client. Called internally by {@see ClientBuilder::connect()}.
+     *
+     * @param string $endpointUrl The OPC UA endpoint URL.
+     * @param SecurityPolicy $securityPolicy The security policy.
+     * @param SecurityMode $securityMode The security mode.
+     * @param ?string $clientCertPath Client certificate path.
+     * @param ?string $clientKeyPath Client private key path.
+     * @param ?string $caCertPath CA certificate path.
+     * @param ?string $username Username for authentication.
+     * @param ?string $password Password for authentication.
+     * @param ?string $userCertPath User certificate path.
+     * @param ?string $userKeyPath User private key path.
+     * @param LoggerInterface $logger PSR-3 logger.
+     * @param EventDispatcherInterface $eventDispatcher PSR-14 event dispatcher.
+     * @param ?TrustStoreInterface $trustStore Trust store.
+     * @param ?TrustPolicy $trustPolicy Trust policy.
+     * @param bool $autoAcceptEnabled Auto-accept TOFU.
+     * @param bool $autoAcceptForce Force auto-accept.
+     * @param ?CacheInterface $cache PSR-16 cache.
+     * @param bool $cacheInitialized Whether cache is initialized.
+     * @param float $timeout Network timeout in seconds.
+     * @param ?int $autoRetry Max retry count.
+     * @param ?int $batchSize Batch size for multi operations.
+     * @param int $defaultBrowseMaxDepth Default browse max depth.
+     * @param bool $autoDetectWriteType Enable write type auto-detection.
+     * @param bool $readMetadataCache Enable metadata read caching.
+     * @param ExtensionObjectRepository $extensionObjectRepository Codec registry.
+     * @param array<string, class-string<\BackedEnum>> $enumMappings Enum mappings.
+     *
+     * @throws Exception\ConfigurationException If the endpoint URL is invalid.
+     * @throws Exception\ConnectionException If the TCP connection or handshake fails.
+     * @throws ServiceException If a protocol-level error occurs.
      */
-    public function setLogger(LoggerInterface $logger): self
-    {
+    public function __construct(
+        string $endpointUrl,
+        SecurityPolicy $securityPolicy,
+        SecurityMode $securityMode,
+        ?string $clientCertPath,
+        ?string $clientKeyPath,
+        ?string $caCertPath,
+        ?string $username,
+        ?string $password,
+        ?string $userCertPath,
+        ?string $userKeyPath,
+        LoggerInterface $logger,
+        EventDispatcherInterface $eventDispatcher,
+        ?TrustStoreInterface $trustStore,
+        ?TrustPolicy $trustPolicy,
+        bool $autoAcceptEnabled,
+        bool $autoAcceptForce,
+        ?CacheInterface $cache,
+        bool $cacheInitialized,
+        float $timeout,
+        ?int $autoRetry,
+        ?int $batchSize,
+        int $defaultBrowseMaxDepth,
+        bool $autoDetectWriteType,
+        bool $readMetadataCache,
+        ExtensionObjectRepository $extensionObjectRepository,
+        array $enumMappings,
+    ) {
+        $this->securityPolicy = $securityPolicy;
+        $this->securityMode = $securityMode;
+        $this->clientCertPath = $clientCertPath;
+        $this->clientKeyPath = $clientKeyPath;
+        $this->caCertPath = $caCertPath;
+        $this->username = $username;
+        $this->password = $password;
+        $this->userCertPath = $userCertPath;
+        $this->userKeyPath = $userKeyPath;
         $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->trustStore = $trustStore;
+        $this->trustPolicy = $trustPolicy;
+        $this->autoAcceptEnabled = $autoAcceptEnabled;
+        $this->autoAcceptForce = $autoAcceptForce;
+        $this->cache = $cache;
+        $this->cacheInitialized = $cacheInitialized;
+        $this->timeout = $timeout;
+        $this->autoRetry = $autoRetry;
+        $this->batchSize = $batchSize;
+        $this->defaultBrowseMaxDepth = $defaultBrowseMaxDepth;
+        $this->autoDetectWriteType = $autoDetectWriteType;
+        $this->readMetadataCache = $readMetadataCache;
+        $this->extensionObjectRepository = $extensionObjectRepository;
+        $this->enumMappings = $enumMappings;
+        $this->transport = new TcpTransport();
 
-        return $this;
+        $this->performConnect($endpointUrl);
     }
 
     /**
+     * Get the configured logger.
+     *
      * @return LoggerInterface
      */
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
+    }
+
+    /**
+     * Get the current PSR-14 event dispatcher.
+     *
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
     }
 
     /**
@@ -186,80 +298,37 @@ class Client implements OpcUaClientInterface
     }
 
     /**
-     * Set the security policy for the connection.
+     * Get the current network timeout.
      *
-     * @param SecurityPolicy $policy The security policy to use.
-     * @return self
-     *
-     * @see SecurityPolicy
+     * @return float Timeout in seconds.
      */
-    public function setSecurityPolicy(SecurityPolicy $policy): self
+    public function getTimeout(): float
     {
-        $this->securityPolicy = $policy;
-
-        return $this;
+        return $this->timeout;
     }
 
     /**
-     * Set the message security mode for the connection.
+     * Get the current automatic retry count.
      *
-     * @param SecurityMode $mode The security mode to use.
-     * @return self
-     *
-     * @see SecurityMode
+     * @return int
      */
-    public function setSecurityMode(SecurityMode $mode): self
+    public function getAutoRetry(): int
     {
-        $this->securityMode = $mode;
+        if ($this->autoRetry !== null) {
+            return $this->autoRetry;
+        }
 
-        return $this;
+        return $this->lastEndpointUrl !== null ? 1 : 0;
     }
 
     /**
-     * Set username/password credentials for session authentication.
+     * Get the default maximum depth for recursive browse operations.
      *
-     * @param string $username The username.
-     * @param string $password The password.
-     * @return self
+     * @return int
      */
-    public function setUserCredentials(string $username, string $password): self
+    public function getDefaultBrowseMaxDepth(): int
     {
-        $this->username = $username;
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Set the client application certificate and private key for channel-level security.
-     *
-     * @param string $certPath Path to the client certificate file (DER or PEM).
-     * @param string $keyPath Path to the client private key file.
-     * @param ?string $caCertPath Optional path to the CA certificate for chain validation.
-     * @return self
-     */
-    public function setClientCertificate(string $certPath, string $keyPath, ?string $caCertPath = null): self
-    {
-        $this->clientCertPath = $certPath;
-        $this->clientKeyPath = $keyPath;
-        $this->caCertPath = $caCertPath;
-
-        return $this;
-    }
-
-    /**
-     * Set the user certificate and private key for X509 identity token authentication.
-     *
-     * @param string $certPath Path to the user certificate file.
-     * @param string $keyPath Path to the user private key file.
-     * @return self
-     */
-    public function setUserCertificate(string $certPath, string $keyPath): self
-    {
-        $this->userCertPath = $certPath;
-        $this->userKeyPath = $keyPath;
-
-        return $this;
+        return $this->defaultBrowseMaxDepth;
     }
 
     /**
@@ -311,7 +380,7 @@ class Client implements OpcUaClientInterface
     /**
      * Resolve a NodeId parameter that may be passed as a string.
      *
-     * @param NodeId|string $nodeId The node identifier as a NodeId object or OPC UA string format (e.g. 'i=2259', 'ns=2;s=MyNode').
+     * @param NodeId|string $nodeId The node identifier as a NodeId object or OPC UA string format.
      * @return NodeId
      *
      * @throws Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.

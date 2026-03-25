@@ -43,22 +43,19 @@ openssl x509 -in client.pem -outform der -out client.der
 ## Client Configuration
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
-
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-
-$client->setClientCertificate(
-    '/path/to/client.pem',   // PEM or DER, auto-detected
-    '/path/to/client.key',
-    '/path/to/ca.pem'        // optional: appended to the certificate chain
-);
-
-$client->connect('opc.tcp://server:4840');
+$client = ClientBuilder::create()
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->setClientCertificate(
+        '/path/to/client.pem',   // PEM or DER, auto-detected
+        '/path/to/client.key',
+        '/path/to/ca.pem'        // optional: appended to the certificate chain
+    )
+    ->connect('opc.tcp://server:4840');
 ```
 
 If you skip `setClientCertificate()`, the library auto-generates a self-signed RSA 2048 certificate in memory with proper OPC UA extensions. This works for testing or servers configured with auto-accept trust.

@@ -48,7 +48,10 @@ All Type classes and result DTOs use public readonly properties. Access is $ref-
 
 ## Architecture
 
-- Client (src/Client.php): main entry point, implements OpcUaClientInterface, uses 14 traits
+- ClientBuilder (src/ClientBuilder.php): builder / entry point, implements ClientBuilderInterface, uses 8 config traits in src/ClientBuilder/
+- Client (src/Client.php): connected client (operations), implements OpcUaClientInterface, uses 14 runtime traits in src/Client/
+- ClientBuilder/ (src/ClientBuilder/): builder traits for configuration (cache, events, timeout, trust store, batching, etc.)
+- Client/ (src/Client/): client traits for runtime operations (browse, read/write, subscriptions, history, etc.)
 - Transport (src/Transport/): TCP socket communication
 - Protocol (src/Protocol/): OPC UA service encoding/decoding, AbstractProtocolService base class, ServiceTypeId constants
 - Encoding (src/Encoding/): binary serialization (BinaryEncoder, BinaryDecoder)
@@ -71,11 +74,11 @@ composer require gianfriaur/opcua-php-client
 ## Quick example
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 
-$client = new Client();
-$client->connect('opc.tcp://localhost:4840');
+$client = ClientBuilder::create()
+    ->connect('opc.tcp://localhost:4840');
 
 // String format — all methods accept NodeId|string
 $value = $client->read('i=2259');
@@ -129,22 +132,24 @@ $results = $client->translateBrowsePaths()
 ## Secure connection example
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Client;
+use Gianfriaur\OpcuaPhpClient\ClientBuilder;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
 use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
 
-$client = new Client();
-$client->setSecurityPolicy(SecurityPolicy::Basic256Sha256);
-$client->setSecurityMode(SecurityMode::SignAndEncrypt);
-$client->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem');
-$client->setUserCredentials('operator', 'secret');
-$client->connect('opc.tcp://192.168.1.100:4840');
+$client = ClientBuilder::create()
+    ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
+    ->setSecurityMode(SecurityMode::SignAndEncrypt)
+    ->setClientCertificate('/certs/client.pem', '/certs/client.key', '/certs/ca.pem')
+    ->setUserCredentials('operator', 'secret')
+    ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
 ## Main classes
 
-- Gianfriaur\OpcuaPhpClient\Client — main client class, accepts optional ExtensionObjectRepository
-- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract
+- Gianfriaur\OpcuaPhpClient\ClientBuilder — builder / entry point, implements ClientBuilderInterface, static create() factory
+- Gianfriaur\OpcuaPhpClient\ClientBuilderInterface — builder interface (configuration methods + connect)
+- Gianfriaur\OpcuaPhpClient\Client — connected client (operations), implements OpcUaClientInterface
+- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract (operations on a connected client)
 - Gianfriaur\OpcuaPhpClient\Types\NodeId — node identifier (public readonly: namespaceIndex, identifier, type)
 - Gianfriaur\OpcuaPhpClient\Types\Variant — typed value (public readonly: type, value, dimensions)
 - Gianfriaur\OpcuaPhpClient\Types\DataValue — value with metadata (public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue())

@@ -96,11 +96,7 @@ class MockClient implements OpcUaClientInterface
 
     private ?TrustPolicy $trustPolicy = null;
 
-    private bool $autoAcceptEnabled = false;
-
     private bool $autoDetectWriteType = true;
-
-    private bool $readMetadataCache = false;
 
     private ExtensionObjectRepository $repository;
 
@@ -181,6 +177,17 @@ class MockClient implements OpcUaClientInterface
     }
 
     /**
+     * @param callable(string $endpointUrl): EndpointDescription[] $handler
+     * @return $this
+     */
+    public function onGetEndpoints(callable $handler): self
+    {
+        $this->endpointsHandler = $handler;
+
+        return $this;
+    }
+
+    /**
      * @return array<array{method: string, args: array}>
      */
     public function getCalls(): array
@@ -214,6 +221,10 @@ class MockClient implements OpcUaClientInterface
         $this->calls = [];
     }
 
+    /**
+     * @param string $endpointUrl
+     * @return void
+     */
     public function connect(string $endpointUrl): void
     {
         $this->record('connect', [$endpointUrl]);
@@ -221,12 +232,18 @@ class MockClient implements OpcUaClientInterface
         $this->state = ConnectionState::Connected;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function reconnect(): void
     {
         $this->record('reconnect', []);
         $this->state = ConnectionState::Connected;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function disconnect(): void
     {
         $this->record('disconnect', []);
@@ -234,182 +251,131 @@ class MockClient implements OpcUaClientInterface
         $this->endpointUrl = null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function isConnected(): bool
     {
         return $this->state === ConnectionState::Connected;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getConnectionState(): ConnectionState
     {
         return $this->state;
     }
 
-    public function setLogger(LoggerInterface $logger): self
-    {
-        $this->logger = $logger;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self
-    {
-        $this->eventDispatcher = $eventDispatcher;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }
 
-    public function setTrustStore(?TrustStoreInterface $trustStore): self
-    {
-        $this->trustStore = $trustStore;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getTrustStore(): ?TrustStoreInterface
     {
         return $this->trustStore;
     }
 
-    public function setTrustPolicy(?TrustPolicy $policy): self
-    {
-        $this->trustPolicy = $policy;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getTrustPolicy(): ?TrustPolicy
     {
         return $this->trustPolicy;
     }
 
-    public function autoAccept(bool $enabled = true, bool $force = false): self
-    {
-        $this->autoAcceptEnabled = $enabled;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function trustCertificate(string $certDer): void
     {
         $this->record('trustCertificate', [$certDer]);
         $this->trustStore?->trust($certDer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function untrustCertificate(string $fingerprint): void
     {
         $this->record('untrustCertificate', [$fingerprint]);
         $this->trustStore?->untrust($fingerprint);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getExtensionObjectRepository(): ExtensionObjectRepository
     {
         return $this->repository;
     }
 
-    public function setTimeout(float $timeout): self
-    {
-        $this->timeout = $timeout;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getTimeout(): float
     {
         return $this->timeout;
     }
 
-    public function setAutoRetry(int $maxRetries): self
-    {
-        $this->autoRetry = $maxRetries;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getAutoRetry(): int
     {
         return $this->autoRetry;
     }
 
-    public function setBatchSize(int $batchSize): self
-    {
-        $this->batchSize = $batchSize;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getBatchSize(): ?int
     {
         return $this->batchSize;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getServerMaxNodesPerRead(): ?int
     {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getServerMaxNodesPerWrite(): ?int
     {
         return null;
     }
 
-    public function setAutoDetectWriteType(bool $enabled): self
-    {
-        $this->autoDetectWriteType = $enabled;
-
-        return $this;
-    }
-
-    public function setReadMetadataCache(bool $enabled): self
-    {
-        $this->readMetadataCache = $enabled;
-
-        return $this;
-    }
-
-    public function loadGeneratedTypes(GeneratedTypeRegistrar $registrar): self
-    {
-        if (! property_exists($registrar, 'only') || ! $registrar->only) {
-            foreach ($registrar->dependencyRegistrars() as $dependency) {
-                $this->loadGeneratedTypes($dependency);
-            }
-        }
-
-        $registrar->registerCodecs($this->repository);
-        $this->record('loadGeneratedTypes', [$registrar]);
-
-        return $this;
-    }
-
-    public function setDefaultBrowseMaxDepth(int $maxDepth): self
-    {
-        $this->browseMaxDepth = $maxDepth;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getDefaultBrowseMaxDepth(): int
     {
         return $this->browseMaxDepth;
     }
 
-    public function setCache(?CacheInterface $cache): self
-    {
-        $this->cache = $cache;
-        $this->cacheInitialized = true;
-
-        return $this;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public function getCache(): ?CacheInterface
     {
         if (! $this->cacheInitialized) {
@@ -420,17 +386,26 @@ class MockClient implements OpcUaClientInterface
         return $this->cache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function invalidateCache(NodeId|string $nodeId): void
     {
         $this->record('invalidateCache', [$nodeId]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function flushCache(): void
     {
         $this->record('flushCache', []);
         $this->getCache()?->clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function read(NodeId|string $nodeId, int $attributeId = AttributeId::Value, bool $refresh = false): DataValue
     {
         $this->record('read', [$nodeId, $attributeId]);
@@ -442,6 +417,9 @@ class MockClient implements OpcUaClientInterface
         return new DataValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function readMulti(?array $readItems = null): array|ReadMultiBuilder
     {
         if ($readItems === null) {
@@ -457,6 +435,9 @@ class MockClient implements OpcUaClientInterface
         return $results;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function write(NodeId|string $nodeId, mixed $value, ?BuiltinType $type = null): int
     {
         if ($type === null && $this->autoDetectWriteType) {
@@ -472,6 +453,9 @@ class MockClient implements OpcUaClientInterface
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function writeMulti(?array $writeItems = null): array|WriteMultiBuilder
     {
         if ($writeItems === null) {
@@ -486,6 +470,9 @@ class MockClient implements OpcUaClientInterface
         return $results;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function browse(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = [], bool $useCache = true): array
     {
         $this->record('browse', [$nodeId, $direction]);
@@ -497,6 +484,9 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function browseWithContinuation(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = []): BrowseResultSet
     {
         $this->record('browseWithContinuation', [$nodeId]);
@@ -504,6 +494,9 @@ class MockClient implements OpcUaClientInterface
         return new BrowseResultSet($this->browse($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses), null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function browseNext(string $continuationPoint): BrowseResultSet
     {
         $this->record('browseNext', [$continuationPoint]);
@@ -511,6 +504,9 @@ class MockClient implements OpcUaClientInterface
         return new BrowseResultSet([], null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function browseAll(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = [], bool $useCache = true): array
     {
         $this->record('browseAll', [$nodeId]);
@@ -518,6 +514,9 @@ class MockClient implements OpcUaClientInterface
         return $this->browse($nodeId, $direction, $referenceTypeId, $includeSubtypes, $nodeClasses);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function browseRecursive(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?int $maxDepth = null, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = []): array
     {
         $this->record('browseRecursive', [$nodeId, $maxDepth]);
@@ -525,6 +524,9 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function call(NodeId|string $objectId, NodeId|string $methodId, array $inputArguments = []): CallResult
     {
         $this->record('call', [$objectId, $methodId, $inputArguments]);
@@ -537,16 +539,8 @@ class MockClient implements OpcUaClientInterface
     }
 
     /**
-     * @param callable(string $endpointUrl): EndpointDescription[] $handler
-     * @return $this
+     * {@inheritDoc}
      */
-    public function onGetEndpoints(callable $handler): self
-    {
-        $this->endpointsHandler = $handler;
-
-        return $this;
-    }
-
     public function getEndpoints(string $endpointUrl, bool $useCache = true): array
     {
         $this->record('getEndpoints', [$endpointUrl]);
@@ -558,6 +552,9 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function translateBrowsePaths(?array $browsePaths = null): array|BrowsePathsBuilder
     {
         if ($browsePaths === null) {
@@ -568,6 +565,9 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function resolveNodeId(string $path, NodeId|string|null $startingNodeId = null, bool $useCache = true): NodeId
     {
         $this->record('resolveNodeId', [$path, $startingNodeId]);
@@ -579,6 +579,9 @@ class MockClient implements OpcUaClientInterface
         return NodeId::numeric(0, 0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function discoverDataTypes(?int $namespaceIndex = null, bool $useCache = true): int
     {
         $this->record('discoverDataTypes', [$namespaceIndex]);
@@ -586,6 +589,9 @@ class MockClient implements OpcUaClientInterface
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function createSubscription(float $publishingInterval = 500.0, int $lifetimeCount = 2400, int $maxKeepAliveCount = 10, int $maxNotificationsPerPublish = 0, bool $publishingEnabled = true, int $priority = 0): SubscriptionResult
     {
         $this->record('createSubscription', [$publishingInterval]);
@@ -593,6 +599,9 @@ class MockClient implements OpcUaClientInterface
         return new SubscriptionResult(1, $publishingInterval, $lifetimeCount, $maxKeepAliveCount);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function createMonitoredItems(int $subscriptionId, ?array $monitoredItems = null): array|MonitoredItemsBuilder
     {
         if ($monitoredItems === null) {
@@ -603,6 +612,9 @@ class MockClient implements OpcUaClientInterface
         return array_map(fn ($i, $item) => new MonitoredItemResult(0, $i + 1, 0, 1), array_keys($monitoredItems), $monitoredItems);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function createEventMonitoredItem(int $subscriptionId, NodeId|string $nodeId, array $selectFields = ['EventId', 'EventType', 'SourceName', 'Time', 'Message', 'Severity'], int $clientHandle = 1): MonitoredItemResult
     {
         $this->record('createEventMonitoredItem', [$subscriptionId, $nodeId]);
@@ -610,6 +622,9 @@ class MockClient implements OpcUaClientInterface
         return new MonitoredItemResult(0, 1, 0, 1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function deleteMonitoredItems(int $subscriptionId, array $monitoredItemIds): array
     {
         $this->record('deleteMonitoredItems', [$subscriptionId, $monitoredItemIds]);
@@ -617,6 +632,9 @@ class MockClient implements OpcUaClientInterface
         return array_fill(0, count($monitoredItemIds), 0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function modifyMonitoredItems(int $subscriptionId, array $itemsToModify): array
     {
         $this->record('modifyMonitoredItems', [$subscriptionId, $itemsToModify]);
@@ -627,6 +645,9 @@ class MockClient implements OpcUaClientInterface
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setTriggering(int $subscriptionId, int $triggeringItemId, array $linksToAdd = [], array $linksToRemove = []): SetTriggeringResult
     {
         $this->record('setTriggering', [$subscriptionId, $triggeringItemId, $linksToAdd, $linksToRemove]);
@@ -637,6 +658,9 @@ class MockClient implements OpcUaClientInterface
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function deleteSubscription(int $subscriptionId): int
     {
         $this->record('deleteSubscription', [$subscriptionId]);
@@ -644,6 +668,9 @@ class MockClient implements OpcUaClientInterface
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function publish(array $acknowledgements = []): PublishResult
     {
         $this->record('publish', [$acknowledgements]);
@@ -651,6 +678,9 @@ class MockClient implements OpcUaClientInterface
         return new PublishResult(1, 1, false, [], []);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function transferSubscriptions(array $subscriptionIds, bool $sendInitialValues = false): array
     {
         $this->record('transferSubscriptions', [$subscriptionIds, $sendInitialValues]);
@@ -658,6 +688,9 @@ class MockClient implements OpcUaClientInterface
         return array_map(fn ($id) => new TransferResult(0, []), $subscriptionIds);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function republish(int $subscriptionId, int $retransmitSequenceNumber): array
     {
         $this->record('republish', [$subscriptionId, $retransmitSequenceNumber]);
@@ -665,6 +698,9 @@ class MockClient implements OpcUaClientInterface
         return ['sequenceNumber' => $retransmitSequenceNumber, 'publishTime' => null, 'notifications' => []];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function historyReadRaw(NodeId|string $nodeId, ?DateTimeImmutable $startTime = null, ?DateTimeImmutable $endTime = null, int $numValuesPerNode = 0, bool $returnBounds = false): array
     {
         $this->record('historyReadRaw', [$nodeId]);
@@ -672,6 +708,9 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function historyReadProcessed(NodeId|string $nodeId, DateTimeImmutable $startTime, DateTimeImmutable $endTime, float $processingInterval, NodeId $aggregateType): array
     {
         $this->record('historyReadProcessed', [$nodeId]);
@@ -679,11 +718,148 @@ class MockClient implements OpcUaClientInterface
         return [];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function historyReadAtTime(NodeId|string $nodeId, array $timestamps): array
     {
         $this->record('historyReadAtTime', [$nodeId]);
 
         return [];
+    }
+
+    /**
+     * @param ?TrustStoreInterface $trustStore
+     * @return $this
+     */
+    public function setTrustStore(?TrustStoreInterface $trustStore): self
+    {
+        $this->trustStore = $trustStore;
+
+        return $this;
+    }
+
+    /**
+     * @param ?TrustPolicy $policy
+     * @return $this
+     */
+    public function setTrustPolicy(?TrustPolicy $policy): self
+    {
+        $this->trustPolicy = $policy;
+
+        return $this;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger): self
+    {
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): self
+    {
+        $this->eventDispatcher = $eventDispatcher;
+
+        return $this;
+    }
+
+    /**
+     * @param float $timeout
+     * @return $this
+     */
+    public function setTimeout(float $timeout): self
+    {
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    /**
+     * @param int $maxRetries
+     * @return $this
+     */
+    public function setAutoRetry(int $maxRetries): self
+    {
+        $this->autoRetry = $maxRetries;
+
+        return $this;
+    }
+
+    /**
+     * @param int $batchSize
+     * @return $this
+     */
+    public function setBatchSize(int $batchSize): self
+    {
+        $this->batchSize = $batchSize;
+
+        return $this;
+    }
+
+    /**
+     * @param int $maxDepth
+     * @return $this
+     */
+    public function setDefaultBrowseMaxDepth(int $maxDepth): self
+    {
+        $this->browseMaxDepth = $maxDepth;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $enabled
+     * @return $this
+     */
+    public function setAutoDetectWriteType(bool $enabled): self
+    {
+        $this->autoDetectWriteType = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $enabled
+     * @return $this
+     */
+    public function setReadMetadataCache(bool $enabled): self
+    {
+        $this->record('setReadMetadataCache', [$enabled]);
+
+        return $this;
+    }
+
+    /**
+     * @param ?CacheInterface $cache
+     * @return $this
+     */
+    public function setCache(?CacheInterface $cache): self
+    {
+        $this->cache = $cache;
+        $this->cacheInitialized = true;
+
+        return $this;
+    }
+
+    /**
+     * @param GeneratedTypeRegistrar $registrar
+     * @return $this
+     */
+    public function loadGeneratedTypes(GeneratedTypeRegistrar $registrar): self
+    {
+        $this->record('loadGeneratedTypes', [$registrar]);
+        $registrar->registerCodecs($this->repository);
+
+        return $this;
     }
 
     private function record(string $method, array $args): void

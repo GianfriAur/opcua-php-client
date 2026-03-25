@@ -4,27 +4,36 @@
 
 ```
 src/
-├── Client.php                           # Main entry point
+├── ClientBuilder.php                    # Builder / entry point
+├── ClientBuilderInterface.php           # Builder interface
+├── Client.php                           # Connected client (operations)
 ├── OpcUaClientInterface.php             # Public API interface
 │
-├── Client/
-│   ├── ManagesAutoRetryTrait.php        # Auto-retry on connection loss
-│   ├── ManagesBatchingTrait.php         # Batch read/write operations
-│   ├── ManagesBrowseDepthTrait.php      # Recursive browse depth control
+├── ClientBuilder/                       # Builder traits (configuration)
+│   ├── ManagesAutoRetryTrait.php        # Auto-retry configuration
+│   ├── ManagesBatchingTrait.php         # Batch size configuration
+│   ├── ManagesBrowseDepthTrait.php      # Recursive browse depth config
+│   ├── ManagesCacheTrait.php            # PSR-16 cache configuration
+│   ├── ManagesEventDispatcherTrait.php  # PSR-14 event dispatcher config
+│   ├── ManagesReadWriteConfigTrait.php  # Read/write config (auto-detect, metadata cache)
+│   ├── ManagesTimeoutTrait.php          # Timeout configuration
+│   └── ManagesTrustStoreTrait.php       # Trust store configuration
+│
+├── Client/                              # Connected client traits (operations, runtime)
+│   ├── ManagesBatchingRuntimeTrait.php  # Runtime batch splitting
 │   ├── ManagesBrowseTrait.php           # Browse operations
+│   ├── ManagesCacheRuntimeTrait.php     # Runtime cache operations
 │   ├── ManagesConnectionTrait.php       # Connect / disconnect / reconnect
+│   ├── ManagesEventDispatchTrait.php    # Runtime event dispatching
 │   ├── ManagesHandshakeTrait.php        # HEL/ACK handshake
 │   ├── ManagesHistoryTrait.php          # History read operations
 │   ├── ManagesReadWriteTrait.php        # Read / write operations
 │   ├── ManagesSecureChannelTrait.php    # Secure channel lifecycle
 │   ├── ManagesSessionTrait.php          # Session create / activate
 │   ├── ManagesSubscriptionsTrait.php    # Subscriptions and monitored items
-│   ├── ManagesCacheTrait.php             # PSR-16 cache management
-│   ├── ManagesEventDispatcherTrait.php  # PSR-14 event dispatching
-│   ├── ManagesTrustStoreTrait.php      # Server certificate trust validation
-│   ├── ManagesTimeoutTrait.php          # Timeout configuration
 │   ├── ManagesTranslateBrowsePathTrait.php # Browse path translation
-│   └── ManagesTypeDiscoveryTrait.php     # Automatic DataType discovery
+│   ├── ManagesTrustStoreRuntimeTrait.php # Runtime trust store validation
+│   └── ManagesTypeDiscoveryTrait.php    # Automatic DataType discovery
 │
 ├── Transport/
 │   └── TcpTransport.php                # TCP socket I/O
@@ -171,8 +180,11 @@ src/
 
 ```
 ┌─────────────────────────────────┐
-│           Client                │  Public API
-│     (+ Client/*Trait.php)       │  Feature-specific traits
+│       ClientBuilder             │  Configuration & entry point
+│  (+ ClientBuilder/*Trait.php)   │  Config traits (cache, events, etc.)
+├─────────────────────────────────┤
+│           Client                │  Connected client (operations)
+│     (+ Client/*Trait.php)       │  Runtime traits (browse, read, etc.)
 ├─────────────────────────────────┤
 │     Protocol/*Service           │  OPC UA service encoding/decoding
 ├──────────────┬──────────────────┤
@@ -187,7 +199,7 @@ src/
 └─────────────────────────────────┘
 ```
 
-Each layer only talks to the one directly below it. The `Client` is the sole public entry point -- everything else is internal.
+`ClientBuilder` is the entry point for configuration. Calling `connect()` returns a `Client` for operations. Each layer only talks to the one directly below it.
 
 ## Dependencies
 

@@ -16,7 +16,7 @@
   - No server connection required — works entirely from the local XML file.
   - See [Code Generation](doc/17-code-generation.md) for full documentation.
 - **Generated Type Loading and Automatic Dependency Resolution.**
-  - `loadGeneratedTypes(GeneratedTypeRegistrar $registrar)` — registers codecs and enum mappings with the client. After loading, `read()` on enum nodes returns PHP `BackedEnum` instances instead of raw `int`, and structured types return typed DTO objects with property access (`$snapshot->Temperature_C` instead of `$data['Temperature_C']`).
+  - `loadGeneratedTypes(GeneratedTypeRegistrar $registrar)` — registers codecs and enum mappings with the builder (called before `connect()`). After loading, `read()` on enum nodes returns PHP `BackedEnum` instances instead of raw `int`, and structured types return typed DTO objects with property access (`$snapshot->Temperature_C` instead of `$data['Temperature_C']`).
   - **Automatic dependency resolution**: each Registrar declares its NodeSet dependencies via `dependencyRegistrars()`. When loaded, dependencies are resolved recursively — e.g. loading `MachineToolRegistrar` automatically loads Machinery, DI, and IA.
   - **`only: true`**: skip dependency loading when you need only the specification itself: `new MachineToolRegistrar(only: true)`.
   - Stackable — call `loadGeneratedTypes()` multiple times for different NodeSet files. Duplicate registrations are handled gracefully.
@@ -33,7 +33,7 @@
   - Two new events: `WriteTypeDetecting` (before detection), `WriteTypeDetected` (after detection, with `$detectedType` and `$fromCache`).
   - `WriteMultiBuilder::value(mixed)` — new builder method for writing without specifying a type.
   - `invalidateCache()` now also clears cached write types.
-- **PSR-14 Event Dispatcher.** The client now dispatches 38 granular events at every key lifecycle point. Inject any PSR-14 `EventDispatcherInterface` via `$client->setEventDispatcher($dispatcher)`. Events cover:
+- **PSR-14 Event Dispatcher.** The client now dispatches 38 granular events at every key lifecycle point. Inject any PSR-14 `EventDispatcherInterface` via `$builder->setEventDispatcher($dispatcher)` on the `ClientBuilder`. Events cover:
   - **Connection** (6): `ClientConnecting`, `ClientConnected`, `ConnectionFailed`, `ClientReconnecting`, `ClientDisconnecting`, `ClientDisconnected`
   - **Session** (3): `SessionCreated`, `SessionActivated`, `SessionClosed`
   - **Secure Channel** (2): `SecureChannelOpened`, `SecureChannelClosed`
@@ -74,6 +74,7 @@
 
 ### Refactored
 
+- **ClientBuilder/Client split.** The `Client` class has been split into `ClientBuilder` (configuration, entry point) and `Client` (connected operations). `ClientBuilder::create()` is the new preferred entry point. Configuration setters (`setSecurityPolicy`, `setEventDispatcher`, `setTrustStore`, `loadGeneratedTypes`, etc.) live on `ClientBuilder`; operation methods (`read`, `write`, `browse`, etc.) live on `Client`. `connect()` on the builder returns a `Client`. `ClientBuilder` implements `ClientBuilderInterface`, `Client` implements `OpcUaClientInterface`. Builder traits live in `src/ClientBuilder/`, client traits in `src/Client/`.
 - **`discoverServerCertificate()`** (72 lines) split into `discoverServerCertificate()`, `performDiscoveryHandshake()`, `extractServerCertificateFromEndpoints()`, and `extractTokenPolicies()`.
 - **`openSecureChannelWithSecurity()`** (68 lines) split into `openSecureChannelWithSecurity()`, `loadClientCertificateAndKey()`, and `buildCertificateChain()`.
 - **`createAndActivateSession()`** (56 lines) split into `createAndActivateSession()`, `createSession()`, `activateSession()`, and `loadUserCertificate()`.
@@ -84,6 +85,7 @@
 
 ### Breaking Changes
 
+- **ClientBuilder/Client split.** `new Client()` is replaced by `ClientBuilder::create()` (or `new ClientBuilder()`). Configuration methods (`setSecurityPolicy`, `setSecurityMode`, `setClientCertificate`, `setUserCredentials`, `setEventDispatcher`, `setTrustStore`, `setTrustPolicy`, `autoAccept`, `loadGeneratedTypes`, `setTimeout`, `setAutoRetry`, `setBatchSize`, `setCache`, `setAutoDetectWriteType`, `setReadMetadataCache`, `setDefaultBrowseMaxDepth`) are on `ClientBuilder`, not `Client`. `connect()` now returns a `Client` instance: `$client = ClientBuilder::create()->connect('...')`. `Client` constructor is no longer public.
 - `BinaryDecoder::readExtensionObject()` returns `ExtensionObject` instead of `array`. Code accessing `$result['typeId']` must change to `$result->typeId`, `$result['body']` to `$result->body`.
 - `BinaryEncoder::writeExtensionObject()` no longer accepts `array` — pass `ExtensionObject` instances.
 - `DataValue::getValue()` for raw ExtensionObjects (no codec) now returns `ExtensionObject` DTO instead of `array`. Decoded ExtensionObjects (with codec) are unchanged — auto-extracted.
