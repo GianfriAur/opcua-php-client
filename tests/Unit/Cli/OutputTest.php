@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\JsonOutput;
+use PhpOpcua\Client\Cli\Output\ConsoleOutput;
+use PhpOpcua\Client\Cli\Output\JsonOutput;
 
 describe('ConsoleOutput', function () {
 

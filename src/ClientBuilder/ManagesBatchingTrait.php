@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
 /**
  * Provides batch size configuration for multi-read and multi-write operations.

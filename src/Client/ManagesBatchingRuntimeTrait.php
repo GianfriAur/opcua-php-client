@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 use Throwable;
 
 /**

@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Helpers/SecurityTestHelpers.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
-use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\HistoryReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\MonitoredItemService;
-use Gianfriaur\OpcuaPhpClient\Protocol\PublishService;
-use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\TranslateBrowsePathService;
-use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\BrowseService;
+use PhpOpcua\Client\Protocol\CallService;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\HistoryReadService;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\MonitoredItemService;
+use PhpOpcua\Client\Protocol\PublishService;
+use PhpOpcua\Client\Protocol\ReadService;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\TranslateBrowsePathService;
+use PhpOpcua\Client\Protocol\WriteService;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
 
 function pfcPrefix(BinaryEncoder $e): void
 {
@@ -513,7 +513,7 @@ describe('Protocol services secure encoding', function () {
 
     it('WriteService encodes secure request', function () {
         $service = new WriteService($this->session);
-        $dv = new Gianfriaur\OpcuaPhpClient\Types\DataValue(new Gianfriaur\OpcuaPhpClient\Types\Variant(BuiltinType::Int32, 42));
+        $dv = new PhpOpcua\Client\Types\DataValue(new PhpOpcua\Client\Types\Variant(BuiltinType::Int32, 42));
         $bytes = $service->encodeWriteRequest(1, NodeId::numeric(2, 1001), $dv, NodeId::numeric(0, 0));
         expect(substr($bytes, 0, 3))->toBe('MSG');
     });

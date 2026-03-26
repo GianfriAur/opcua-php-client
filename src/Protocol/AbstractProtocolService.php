@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Base class for OPC UA protocol services, providing shared encoding and decoding helpers.

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after a subscription has been deleted from the server.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::deleteSubscription()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::deleteSubscription()
  */
 readonly class SubscriptionDeleted
 {

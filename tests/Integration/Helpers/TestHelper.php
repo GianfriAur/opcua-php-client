@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers;
+namespace PhpOpcua\Client\Tests\Integration\Helpers;
 
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
+use PhpOpcua\Client\Client;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\ReferenceDescription;
 use RuntimeException;
 use Throwable;
 
@@ -35,7 +35,7 @@ final class TestHelper
     // ── Certificate paths (overridable via OPCUA_CERTS_DIR env var) ────
     public static function getCertsDir(): string
     {
-        return getenv('OPCUA_CERTS_DIR') ?: __DIR__ . '/../../../../opcua-test-server-suite/certs';
+        return getenv('OPCUA_CERTS_DIR') ?: __DIR__ . '/../../../../opcua-test-suite/certs';
     }
 
     public static function getClientCertPath(): string

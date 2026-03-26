@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Exception\InvalidNodeIdException;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('NodeId::parse', function () {
 

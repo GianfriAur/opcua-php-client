@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Tests;
+namespace PhpOpcua\Client\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

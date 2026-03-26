@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched after a successful write operation on a node.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait::write()
+ * @see \PhpOpcua\Client\Client\ManagesReadWriteTrait::write()
  */
 readonly class NodeValueWritten
 {

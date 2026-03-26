@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
-use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
+use PhpOpcua\Client\Tests\Integration\Helpers\TestHelper;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
+use PhpOpcua\Client\Types\TransferResult;
 
 describe('TransferSubscriptions', function () {
 
@@ -83,7 +83,7 @@ describe('Republish', function () {
 
                 expect($result)->toHaveKeys(['sequenceNumber', 'publishTime', 'notifications']);
                 expect($result['sequenceNumber'])->toBe($response->sequenceNumber);
-            } catch (Gianfriaur\OpcuaPhpClient\Exception\ServiceException $e) {
+            } catch (PhpOpcua\Client\Exception\ServiceException $e) {
                 expect(StatusCode::isBad($e->getStatusCode()))->toBeTrue();
             }
         } finally {
@@ -101,7 +101,7 @@ describe('Republish', function () {
             try {
                 $result = $client->republish($sub->subscriptionId, 99999);
                 expect($result)->toHaveKey('sequenceNumber');
-            } catch (Gianfriaur\OpcuaPhpClient\Exception\OpcUaException) {
+            } catch (PhpOpcua\Client\Exception\OpcUaException) {
                 expect(true)->toBeTrue();
             }
         } finally {

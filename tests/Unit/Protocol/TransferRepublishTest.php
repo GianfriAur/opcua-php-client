@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\SubscriptionService;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\TransferResult;
 
 function trPrefix(BinaryEncoder $e): void
 {

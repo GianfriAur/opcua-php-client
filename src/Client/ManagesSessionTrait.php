@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Event\SessionActivated;
-use Gianfriaur\OpcuaPhpClient\Event\SessionClosed;
-use Gianfriaur\OpcuaPhpClient\Event\SessionCreated;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Event\SessionActivated;
+use PhpOpcua\Client\Event\SessionClosed;
+use PhpOpcua\Client\Event\SessionCreated;
+use PhpOpcua\Client\Exception\OpcUaException;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Provides session creation, activation, and teardown for the connected client.

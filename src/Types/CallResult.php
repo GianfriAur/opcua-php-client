@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA method Call operation.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcuaClient::call()
+ * @see \PhpOpcua\Client\OpcuaClient::call()
  */
 readonly class CallResult
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Exception;
+namespace PhpOpcua\Client\Exception;
 
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Thrown when the explicit type passed to write() does not match the type detected on the node.

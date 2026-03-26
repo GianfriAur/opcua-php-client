@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\TrustStore;
+namespace PhpOpcua\Client\TrustStore;
 
 /**
  * Defines the level of certificate validation performed by the trust store.

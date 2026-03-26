@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Security;
+namespace PhpOpcua\Client\Security;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use OpenSSLAsymmetricKey;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Types\NodeId;
 
 class SecureChannel
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Represents a node in a hierarchical browse tree, wrapping a ReferenceDescription with child nodes.

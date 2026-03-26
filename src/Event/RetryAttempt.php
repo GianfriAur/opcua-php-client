@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched before each automatic retry attempt after a connection loss.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait::executeWithRetry()
+ * @see \PhpOpcua\Client\Client\ManagesConnectionTrait::executeWithRetry()
  */
 readonly class RetryAttempt
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+use PhpOpcua\Client\Event\NullEventDispatcher;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**

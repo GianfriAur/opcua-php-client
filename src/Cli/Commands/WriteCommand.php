@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
+namespace PhpOpcua\Client\Cli\Commands;
 
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\StatusCode;
 
 /**
  * Writes a value to a node and displays the result.

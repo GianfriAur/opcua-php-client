@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Represents an OPC UA QualifiedName, consisting of a namespace index and a name string.

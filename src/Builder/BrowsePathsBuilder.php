@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Builder;
+namespace PhpOpcua\Client\Builder;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\BrowsePathResult;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
 
 /**
  * Fluent builder for translating browse paths to NodeIds.

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
-use Gianfriaur\OpcuaPhpClient\Types\StructureField;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\DynamicCodec;
+use PhpOpcua\Client\Types\ExtensionObject;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StructureDefinition;
+use PhpOpcua\Client\Types\StructureField;
 
 describe('DynamicCodec encode paths', function () {
 
@@ -175,7 +175,7 @@ describe('StructureDefinitionParser with arrayDimensions', function () {
         $encoder->writeInt32(1);
 
         $encoder->writeString('matrix');
-        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 11));
         $encoder->writeInt32(2);
         $encoder->writeInt32(2);
@@ -185,7 +185,7 @@ describe('StructureDefinitionParser with arrayDimensions', function () {
         $encoder->writeBoolean(false);
 
         $decoder = new BinaryDecoder($encoder->getBuffer());
-        $def = Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser::parse($decoder);
+        $def = PhpOpcua\Client\Encoding\StructureDefinitionParser::parse($decoder);
 
         expect($def->fields)->toHaveCount(1);
         expect($def->fields[0]->name)->toBe('matrix');

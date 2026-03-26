@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Represents a single target node resolved from a browse path translation.

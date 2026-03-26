@@ -7,7 +7,7 @@ OPC UA `ExtensionObject` is a container for custom structures -- alarm details, 
 Without a codec, you get an `ExtensionObject` DTO with raw binary data:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
+use PhpOpcua\Client\Types\ExtensionObject;
 
 $result = $client->read($nodeId);
 $value = $result->getValue();
@@ -23,9 +23,9 @@ The codec system lets you register decoders that turn these blobs into PHP array
 Implement `ExtensionObjectCodec` with `decode()` and `encode()`:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\ExtensionObjectCodec;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
 
 class MyPointCodec implements ExtensionObjectCodec
 {
@@ -79,9 +79,9 @@ The decoder is positioned at the start of the ExtensionObject body. Read fields 
 Create an `ExtensionObjectRepository`, register your codecs, and pass it to the `ClientBuilder`:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Types\NodeId;
 
 $repo = new ExtensionObjectRepository();
 

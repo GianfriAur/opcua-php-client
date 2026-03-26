@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\ClientBuilderInterface;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\ClientBuilderInterface;
+use PhpOpcua\Client\Transport\TcpTransport;
 
 describe('Client timeout configuration', function () {
 
@@ -29,8 +29,8 @@ describe('Client timeout configuration', function () {
         $builder = new ClientBuilder();
         $result = $builder
             ->setTimeout(10.0)
-            ->setSecurityPolicy(Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None)
-            ->setSecurityMode(Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+            ->setSecurityPolicy(PhpOpcua\Client\Security\SecurityPolicy::None)
+            ->setSecurityMode(PhpOpcua\Client\Security\SecurityMode::None);
         expect($result)->toBe($builder);
         expect($builder->getTimeout())->toBe(10.0);
     });

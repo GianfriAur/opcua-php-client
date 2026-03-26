@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\BrowseCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\DumpNodesetCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\EndpointsCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\GenerateNodesetCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\ReadCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\WatchCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\WriteCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\JsonOutput;
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
-use Gianfriaur\OpcuaPhpClient\Types\UserTokenPolicy;
+use PhpOpcua\Client\Cli\Commands\BrowseCommand;
+use PhpOpcua\Client\Cli\Commands\DumpNodesetCommand;
+use PhpOpcua\Client\Cli\Commands\EndpointsCommand;
+use PhpOpcua\Client\Cli\Commands\GenerateNodesetCommand;
+use PhpOpcua\Client\Cli\Commands\ReadCommand;
+use PhpOpcua\Client\Cli\Commands\WatchCommand;
+use PhpOpcua\Client\Cli\Commands\WriteCommand;
+use PhpOpcua\Client\Cli\Output\ConsoleOutput;
+use PhpOpcua\Client\Cli\Output\JsonOutput;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\BrowseNode;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\EndpointDescription;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\ReferenceDescription;
+use PhpOpcua\Client\Types\UserTokenPolicy;
 
 function createMockRef(string $name, int $ns, int $id, NodeClass $class = NodeClass::Object): ReferenceDescription
 {
@@ -445,7 +445,7 @@ describe('WatchCommand', function () {
         $cmd = new WatchCommand();
         $cmd->setMaxIterations(1);
         $client = MockClient::create()
-            ->onRead('i=1', fn () => DataValue::of([1, 2], Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32));
+            ->onRead('i=1', fn () => DataValue::of([1, 2], PhpOpcua\Client\Types\BuiltinType::Int32));
 
         [$stdout, $stderr] = createOutputStream();
         $output = new ConsoleOutput($stdout, $stderr);

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
+namespace PhpOpcua\Client\Cli\Commands;
 
-use Gianfriaur\OpcuaPhpClient\Cli\NodeSetXmlBuilder;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Cli\NodeSetXmlBuilder;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\AttributeId;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 /**
  * Dumps the server address space to a NodeSet2.xml file.
@@ -278,12 +278,12 @@ class DumpNodesetCommand implements CommandInterface
             if (! StatusCode::isBad($dv->statusCode)) {
                 $value = $dv->getVariant()?->value;
 
-                if ($value instanceof \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition) {
+                if ($value instanceof \PhpOpcua\Client\Types\StructureDefinition) {
                     return $this->structureDefinitionToArray($value);
                 }
 
                 if (is_object($value) && isset($value->body)) {
-                    $decoder = new \Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder($value->body);
+                    $decoder = new \PhpOpcua\Client\Encoding\BinaryDecoder($value->body);
                     $parsed = $this->parseRawDefinition($decoder);
                     if ($parsed !== null) {
                         return $parsed;
@@ -308,10 +308,10 @@ class DumpNodesetCommand implements CommandInterface
             foreach ($refs as $ref) {
                 if ($ref->displayName->text === 'Default Binary' || $ref->browseName->name === 'Default Binary') {
                     $codec = $client->getExtensionObjectRepository()->get($ref->nodeId);
-                    if ($codec instanceof \Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec) {
+                    if ($codec instanceof \PhpOpcua\Client\Encoding\DynamicCodec) {
                         $defRef = new \ReflectionProperty($codec, 'definition');
                         $def = $defRef->getValue($codec);
-                        if ($def instanceof \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition) {
+                        if ($def instanceof \PhpOpcua\Client\Types\StructureDefinition) {
                             return $this->structureDefinitionToArray($def);
                         }
                     }
@@ -428,10 +428,10 @@ class DumpNodesetCommand implements CommandInterface
     }
 
     /**
-     * @param \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition $def
+     * @param \PhpOpcua\Client\Types\StructureDefinition $def
      * @return array
      */
-    private function structureDefinitionToArray(\Gianfriaur\OpcuaPhpClient\Types\StructureDefinition $def): array
+    private function structureDefinitionToArray(\PhpOpcua\Client\Types\StructureDefinition $def): array
     {
         $fields = [];
         foreach ($def->fields as $field) {
@@ -447,13 +447,13 @@ class DumpNodesetCommand implements CommandInterface
     }
 
     /**
-     * @param \Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder $decoder
+     * @param \PhpOpcua\Client\Encoding\BinaryDecoder $decoder
      * @return ?array
      */
-    private function parseRawDefinition(\Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder $decoder): ?array
+    private function parseRawDefinition(\PhpOpcua\Client\Encoding\BinaryDecoder $decoder): ?array
     {
         try {
-            $parsed = \Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser::parse($decoder);
+            $parsed = \PhpOpcua\Client\Encoding\StructureDefinitionParser::parse($decoder);
 
             return $this->structureDefinitionToArray($parsed);
         } catch (\Throwable) {

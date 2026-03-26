@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Security;
+namespace PhpOpcua\Client\Security;
 
 /**
  * OPC UA message security mode.

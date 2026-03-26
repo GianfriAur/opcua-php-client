@@ -9,12 +9,12 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/GianfriAur/opcua-php-client/actions/workflows/integration-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/GianfriAur/opcua-php-client/integration-tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
-  <a href="https://codecov.io/gh/GianfriAur/opcua-php-client"><img src="https://img.shields.io/codecov/c/github/GianfriAur/opcua-php-client?style=flat-square&logo=codecov" alt="Coverage"></a>
-  <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/v/gianfriaur/opcua-php-client?style=flat-square&label=packagist" alt="Latest Version"></a>
-  <!-- <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/dt/gianfriaur/opcua-php-client?style=flat-square" alt="Total Downloads"></a> -->
-  <a href="https://packagist.org/packages/gianfriaur/opcua-php-client"><img src="https://img.shields.io/packagist/php-v/gianfriaur/opcua-php-client?style=flat-square" alt="PHP Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/GianfriAur/opcua-php-client?style=flat-square" alt="License"></a>
+  <a href="https://github.com/php-opcua/opcua-client/actions/workflows/integration-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/php-opcua/opcua-client/integration-tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
+  <a href="https://codecov.io/gh/php-opcua/opcua-client"><img src="https://img.shields.io/codecov/c/github/php-opcua/opcua-client?style=flat-square&logo=codecov" alt="Coverage"></a>
+  <a href="https://packagist.org/packages/php-opcua/opcua-client"><img src="https://img.shields.io/packagist/v/php-opcua/opcua-client?style=flat-square&label=packagist" alt="Latest Version"></a>
+  <!-- <a href="https://packagist.org/packages/php-opcua/opcua-client"><img src="https://img.shields.io/packagist/dt/php-opcua/opcua-client?style=flat-square" alt="Total Downloads"></a> -->
+  <a href="https://packagist.org/packages/php-opcua/opcua-client"><img src="https://img.shields.io/packagist/php-v/php-opcua/opcua-client?style=flat-square" alt="PHP Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/php-opcua/opcua-client?style=flat-square" alt="License"></a>
 </p>
 
 ---
@@ -34,7 +34,7 @@ This library implements the full OPC UA binary protocol stack in pure PHP: TCP t
 
 All of this with zero external dependencies beyond `ext-openssl`, and full support for PHP 8.2 through 8.5.
 
-> **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager) to persist sessions across requests — or use it in a long-running worker process.
+> **Note:** OPC UA relies on persistent sessions and long-lived connections. PHP's request/response model means connections are short-lived by default. For use cases like continuous monitoring or subscription polling, pair this with [`opcua-session-manager`](https://github.com/php-opcua/opcua-session-manager) to persist sessions across requests — or use it in a long-running worker process.
 >
 > The session manager is a **separate package by design** — it runs as a daemon process using ReactPHP and Unix sockets, which would break this library's zero-dependency, cross-platform philosophy if bundled here. See the [Ecosystem](#ecosystem) section for details.
 
@@ -46,12 +46,12 @@ All of this with zero external dependencies beyond `ext-openssl`, and full suppo
 ## Quick Start
 
 ```bash
-composer require gianfriaur/opcua-php-client
+composer require php-opcua/opcua-client
 ```
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Types\NodeId;
 
 $client = ClientBuilder::create()
     ->connect('opc.tcp://localhost:4840');
@@ -114,7 +114,7 @@ echo $value->sourceTimestamp;    // DateTimeImmutable
 ### Write to a PLC
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\BuiltinType;
 
 // Auto-detect type (reads the node first, caches the type)
 $client->write('ns=2;i=1001', 42);
@@ -126,7 +126,7 @@ $client->write('ns=2;i=1001', 42, BuiltinType::Int32);
 ### Call a method on the server
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Types\Variant;
 
 $result = $client->call(
     'i=2253',   // Server object
@@ -170,9 +170,9 @@ foreach ($values as $dv) {
 ### Connect with full security
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityMode;
 
 $client = ClientBuilder::create()
     ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
@@ -187,8 +187,8 @@ $client = ClientBuilder::create()
 ### Decode custom structures with codecs
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
 
 $repo = new ExtensionObjectRepository();
 $repo->register(NodeId::numeric(2, 5001), MyPointCodec::class);
@@ -205,8 +205,8 @@ Each client gets its own isolated codec registry — no global state, no cross-c
 ### Test without a real server
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\DataValue;
 
 $client = MockClient::create();
 
@@ -228,7 +228,7 @@ echo $client->callCount('read'); // 1
 ### Add structured logging
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -246,9 +246,9 @@ Any [PSR-3](https://www.php-fig.org/psr/psr-3/) logger works — Monolog, Larave
 ### React to events (PSR-14)
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Event\DataChangeReceived;
+use PhpOpcua\Client\Event\AlarmActivated;
 
 // Set any PSR-14 event dispatcher on the builder
 $client = ClientBuilder::create()
@@ -269,8 +269,8 @@ class HandleDataChange {
 ### Monitor alarms in real time
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmSeverityChanged;
+use PhpOpcua\Client\Event\AlarmActivated;
+use PhpOpcua\Client\Event\AlarmSeverityChanged;
 
 // Listen for alarm activation
 class AlarmHandler {
@@ -320,9 +320,9 @@ Zero additional dependencies. Full security support, JSON output (`--json`), deb
 ### Trust server certificates
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
 
 $client = ClientBuilder::create()
     ->setTrustStore(new FileTrustStore())           // ~/.opcua/trusted/
@@ -369,17 +369,17 @@ $point = $client->read($pointNodeId)->getValue();
 
 ### Use pre-built OPC UA companion types
 
-Instead of writing codecs by hand or relying on runtime discovery, install [`opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) to get pre-generated PHP types for 51 OPC Foundation companion specifications — DI, Robotics, Machinery, MachineTool, ISA-95, CNC, MTConnect, and many more:
+Instead of writing codecs by hand or relying on runtime discovery, install [`opcua-client-nodeset`](https://github.com/php-opcua/opcua-client-nodeset) to get pre-generated PHP types for 51 OPC Foundation companion specifications — DI, Robotics, Machinery, MachineTool, ISA-95, CNC, MTConnect, and many more:
 
 ```bash
-composer require gianfriaur/opcua-php-client-nodeset
+composer require php-opcua/opcua-client-nodeset
 ```
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaNodeset\Robotics\RoboticsRegistrar;
-use Gianfriaur\OpcuaNodeset\Robotics\RoboticsNodeIds;
-use Gianfriaur\OpcuaNodeset\Robotics\Enums\OperationalModeEnumeration;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Nodeset\Robotics\RoboticsRegistrar;
+use PhpOpcua\Nodeset\Robotics\RoboticsNodeIds;
+use PhpOpcua\Nodeset\Robotics\Enums\OperationalModeEnumeration;
 
 $client = ClientBuilder::create()
     ->loadGeneratedTypes(new RoboticsRegistrar())  // loads DI + IA dependencies automatically
@@ -410,8 +410,8 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 - **Cross-platform** — Linux, macOS, Windows. No FFI, no COM.
 - **Thoroughly tested** — 1290+ tests, 99%+ code coverage across PHP 8.2, 8.3, 8.4, and 8.5.
 - **Typed everywhere** — all service responses return `public readonly` DTOs, not arrays.
-- **Session persistence** — keep OPC UA connections alive across PHP requests via [`opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager).
-- **Laravel-ready** — drop-in via [`opcua-laravel-client`](https://github.com/GianfriAur/opcua-laravel-client).
+- **Session persistence** — keep OPC UA connections alive across PHP requests via [`opcua-session-manager`](https://github.com/php-opcua/opcua-session-manager).
+- **Laravel-ready** — drop-in via [`opcua-laravel-client`](https://github.com/php-opcua/laravel-opcua).
 
 ## Features
 
@@ -463,7 +463,7 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 
 ## Testing
 
-1290+ tests with **99%+ code coverage**. Unit tests cover encoding, crypto, protocol services, and error paths. Integration tests run against [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) — a Docker-based OPC UA environment with multiple security configs, custom types, and real-world scenarios.
+1290+ tests with **99%+ code coverage**. Unit tests cover encoding, crypto, protocol services, and error paths. Integration tests run against [opcua-test-suite](https://github.com/php-opcua/opcua-test-suite) — a Docker-based OPC UA environment with multiple security configs, custom types, and real-world scenarios.
 
 ```bash
 ./vendor/bin/pest                                          # everything
@@ -479,7 +479,7 @@ CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 
 | Library | PHP | Dependencies | Security Policies | History Read | Auto-Batching | Notes |
 |---------|-----|-------------|-------------------|-------------|---------------|-------|
-| **gianfriaur/opcua-php-client** | 8.2+ | `ext-openssl` only | 6 (None → Aes256Sha256RsaPss) | Yes | Yes | Zero external deps, full binary protocol |
+| **php-opcua/opcua-client** | 8.2+ | `ext-openssl` only | 6 (None → Aes256Sha256RsaPss) | Yes | Yes | Zero external deps, full binary protocol |
 | [techdock/opcua](https://github.com/TECHDOCK-CH/php-opc-ua) | 8.4+ | phpseclib, symfony/cache, monolog, ... | Basic256Sha256 | No | Yes | Heavier dependency tree, still v0.2 |
 | [techdock/opcua-webapi-client](https://packagist.org/packages/techdock/opcua-webapi-client) | 8.1+ | Guzzle | N/A (HTTP) | No | No | Needs an OPC UA WebAPI gateway, not binary protocol |
 | [QuickOPC](https://opclabs.com/products/quickopc) | COM | Windows + COM | Yes | Yes | N/A | Commercial, Windows-only, not a real PHP package |
@@ -488,11 +488,11 @@ CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 
 | Package | Description |
 |---------|-------------|
-| [opcua-php-client](https://github.com/GianfriAur/opcua-php-client) | Pure PHP OPC UA client (this package) |
-| [opcua-php-client-session-manager](https://github.com/GianfriAur/opcua-php-client-session-manager) | Daemon-based session persistence across PHP requests. Keeps OPC UA connections alive between short-lived PHP processes via a ReactPHP daemon and Unix sockets. Separate package by design — see [ROADMAP.md](ROADMAP.md#session-manager-integration-here) for rationale. |
-| [opcua-php-client-nodeset](https://github.com/GianfriAur/opcua-php-client-nodeset) | Pre-generated PHP types from 51 OPC Foundation companion specifications (DI, Robotics, Machinery, MachineTool, ISA-95, CNC, MTConnect, and more). 807 PHP files — NodeId constants, enums, typed DTOs, codecs, registrars with automatic dependency resolution. Just `composer require` and `loadGeneratedTypes()`. |
-| [opcua-laravel-client](https://github.com/GianfriAur/opcua-laravel-client) | Laravel integration — service provider, facade, config |
-| [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) | Docker-based OPC UA test servers for integration testing |
+| [opcua-client](https://github.com/php-opcua/opcua-client) | Pure PHP OPC UA client (this package) |
+| [opcua-session-manager](https://github.com/php-opcua/opcua-session-manager) | Daemon-based session persistence across PHP requests. Keeps OPC UA connections alive between short-lived PHP processes via a ReactPHP daemon and Unix sockets. Separate package by design — see [ROADMAP.md](ROADMAP.md#session-manager-integration-here) for rationale. |
+| [opcua-client-nodeset](https://github.com/php-opcua/opcua-client-nodeset) | Pre-generated PHP types from 51 OPC Foundation companion specifications (DI, Robotics, Machinery, MachineTool, ISA-95, CNC, MTConnect, and more). 807 PHP files — NodeId constants, enums, typed DTOs, codecs, registrars with automatic dependency resolution. Just `composer require` and `loadGeneratedTypes()`. |
+| [laravel-opcua](https://github.com/php-opcua/laravel-opcua) | Laravel integration — service provider, facade, config |
+| [opcua-test-suite](https://github.com/php-opcua/opcua-test-suite) | Docker-based OPC UA test servers for integration testing |
 
 ## Roadmap
 

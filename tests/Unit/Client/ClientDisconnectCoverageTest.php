@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Client;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Transport\TcpTransport;
+use PhpOpcua\Client\Types\ConnectionState;
+use PhpOpcua\Client\Types\NodeId;
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 require_once __DIR__ . '/../Helpers/SecurityTestHelpers.php';
@@ -142,7 +142,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         $cert = openssl_csr_sign($csr, null, $privKey, 365);
         openssl_x509_export($cert, $certPem);
 
-        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new PhpOpcua\Client\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem(writeTmpFile($certPem));
         $derPath = writeTmpFile($certDer);
 
@@ -183,7 +183,7 @@ describe('ManagesSecureChannelTrait error paths', function () {
         $keyPath = writeTmpFile($keyPem);
         $caPath = writeTmpFile($certPem);
 
-        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new PhpOpcua\Client\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem($certPath);
 
         $mock = new MockTransport();
@@ -266,7 +266,7 @@ describe('ManagesSessionTrait coverage', function () {
         openssl_x509_export($cert, $certPem);
         openssl_pkey_export($privKey, $keyPem);
 
-        $cm = new Gianfriaur\OpcuaPhpClient\Security\CertificateManager();
+        $cm = new PhpOpcua\Client\Security\CertificateManager();
         $certDer = $cm->loadCertificatePem(writeTmpFile($certPem));
         $derPath = writeTmpFile($certDer);
         $keyPath = writeTmpFile($keyPem);

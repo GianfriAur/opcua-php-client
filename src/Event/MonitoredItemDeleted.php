@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after a monitored item has been deleted from a subscription.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::deleteMonitoredItems()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::deleteMonitoredItems()
  */
 readonly class MonitoredItemDeleted
 {

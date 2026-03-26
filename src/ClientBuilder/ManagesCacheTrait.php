@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
-use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
+use PhpOpcua\Client\Cache\InMemoryCache;
 use Psr\SimpleCache\CacheInterface;
 
 /**

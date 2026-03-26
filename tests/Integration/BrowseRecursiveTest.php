@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Tests\Integration\Helpers\TestHelper;
+use PhpOpcua\Client\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BrowseNode;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('browseAll', function () {
 

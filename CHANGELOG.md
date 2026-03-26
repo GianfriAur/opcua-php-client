@@ -12,7 +12,7 @@
   - **Binary codecs** — `ExtensionObjectCodec` implementations that decode into DTOs and encode from DTOs. Array fields use `readArray`/`writeArray` helpers. Enum fields cast via `::from()`.
   - **Registrar** — implements `GeneratedTypeRegistrar` with `registerCodecs()`, `getEnumMappings()`, and `dependencyRegistrars()`. Uses NodeId constants (not raw strings) for codec registration.
   - Parses `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>`, `<UAVariableType>`, `<UAReferenceType>`, `<UADataType>` with struct and enum `<Definition>`. Resolves `<Aliases>` and `HasEncoding` references. Sanitizes field names and class names (handles special characters and numeric prefixes).
-  - Usage: `opcua-cli generate:nodeset path/to/File.NodeSet2.xml --output=src/Generated/ --namespace=App\\OpcUa [--base-namespace=Gianfriaur\\OpcuaNodeset]`.
+  - Usage: `opcua-cli generate:nodeset path/to/File.NodeSet2.xml --output=src/Generated/ --namespace=App\\OpcUa [--base-namespace=PhpOpcua\\Nodeset]`.
   - No server connection required — works entirely from the local XML file.
   - See [Code Generation](doc/17-code-generation.md) for full documentation.
 - **Generated Type Loading and Automatic Dependency Resolution.**
@@ -21,7 +21,7 @@
   - **`only: true`**: skip dependency loading when you need only the specification itself: `new MachineToolRegistrar(only: true)`.
   - Stackable — call `loadGeneratedTypes()` multiple times for different NodeSet files. Duplicate registrations are handled gracefully.
   - Zero impact if not used — full backward compatibility, no changes to existing behavior.
-  - Companion package [`gianfriaur/opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) provides pre-generated types for all 51 OPC Foundation companion specifications (807 PHP files, 338 enums, 191 DTOs, 191 codecs).
+  - Companion package [`php-opcua/opcua-client-nodeset`](https://github.com/php-opcua/opcua-client-nodeset) provides pre-generated types for all 51 OPC Foundation companion specifications (807 PHP files, 338 enums, 191 DTOs, 191 codecs).
 - **ModifyMonitoredItems.** Change sampling interval, queue size, and other parameters on existing monitored items without recreating them. `$client->modifyMonitoredItems($subId, [...])` returns `MonitoredItemModifyResult[]` with revised parameters. Dispatches `MonitoredItemModified` event per item.
 - **SetTriggering.** Configure a monitored item as a trigger for other items — linked items are only sampled when the trigger changes. `$client->setTriggering($subId, $triggerId, $linksToAdd, $linksToRemove)` returns `SetTriggeringResult` with per-link status codes. Dispatches `TriggeringConfigured` event.
 - **Read Metadata Cache.** Non-Value attributes (DisplayName, BrowseName, DataType, NodeClass, Description, etc.) can now be cached via PSR-16 to avoid redundant server reads. Opt-in via `setReadMetadataCache(true)`. The Value attribute (id 13) is never cached. Use `read($nodeId, $attributeId, refresh: true)` to bypass the cache and re-read from the server. `invalidateCache($nodeId)` clears all cached metadata for a node.
@@ -222,7 +222,7 @@
 - Added "ExtensionObject Codecs" section to `doc/08-types.md` with interface, registry API, usage example, and notes.
 - Added "ExtensionObject Codecs" to the features list in `doc/01-introduction.md` and `README.md`.
 - Added `ExtensionObjectCodec.php` and `ExtensionObjectRepository.php` to the project structure in `doc/11-architecture.md`.
-- Updated `README.md` disclaimer to recommend `gianfriaur/opcua-php-client-session-manager` for session persistence across PHP requests.
+- Updated `README.md` disclaimer to recommend `php-opcua/opcua-session-manager` for session persistence across PHP requests.
 
 ### Fixed
 

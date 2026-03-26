@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
+use PhpOpcua\Client\TrustStore\TrustStoreInterface;
 
 /**
  * Provides server certificate trust store configuration for the OPC UA client.

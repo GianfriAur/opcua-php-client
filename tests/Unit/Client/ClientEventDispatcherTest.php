@@ -4,36 +4,36 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmAcknowledged;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmConfirmed;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmDeactivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmEventReceived;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmSeverityChanged;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmShelved;
-use Gianfriaur\OpcuaPhpClient\Event\CacheHit;
-use Gianfriaur\OpcuaPhpClient\Event\CacheMiss;
-use Gianfriaur\OpcuaPhpClient\Event\ClientDisconnected;
-use Gianfriaur\OpcuaPhpClient\Event\ClientDisconnecting;
-use Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived;
-use Gianfriaur\OpcuaPhpClient\Event\EventNotificationReceived;
-use Gianfriaur\OpcuaPhpClient\Event\LimitAlarmExceeded;
-use Gianfriaur\OpcuaPhpClient\Event\NodeBrowsed;
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueRead;
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueWriteFailed;
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
-use Gianfriaur\OpcuaPhpClient\Event\OffNormalAlarmTriggered;
-use Gianfriaur\OpcuaPhpClient\Event\PublishResponseReceived;
-use Gianfriaur\OpcuaPhpClient\Event\RetryExhausted;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionCreated;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionDeleted;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionKeepAlive;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Tests\Unit\Helpers\InMemoryEventDispatcher;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Event\AlarmAcknowledged;
+use PhpOpcua\Client\Event\AlarmActivated;
+use PhpOpcua\Client\Event\AlarmConfirmed;
+use PhpOpcua\Client\Event\AlarmDeactivated;
+use PhpOpcua\Client\Event\AlarmEventReceived;
+use PhpOpcua\Client\Event\AlarmSeverityChanged;
+use PhpOpcua\Client\Event\AlarmShelved;
+use PhpOpcua\Client\Event\CacheHit;
+use PhpOpcua\Client\Event\CacheMiss;
+use PhpOpcua\Client\Event\ClientDisconnected;
+use PhpOpcua\Client\Event\ClientDisconnecting;
+use PhpOpcua\Client\Event\DataChangeReceived;
+use PhpOpcua\Client\Event\EventNotificationReceived;
+use PhpOpcua\Client\Event\LimitAlarmExceeded;
+use PhpOpcua\Client\Event\NodeBrowsed;
+use PhpOpcua\Client\Event\NodeValueRead;
+use PhpOpcua\Client\Event\NodeValueWriteFailed;
+use PhpOpcua\Client\Event\NodeValueWritten;
+use PhpOpcua\Client\Event\NullEventDispatcher;
+use PhpOpcua\Client\Event\OffNormalAlarmTriggered;
+use PhpOpcua\Client\Event\PublishResponseReceived;
+use PhpOpcua\Client\Event\RetryExhausted;
+use PhpOpcua\Client\Event\SubscriptionCreated;
+use PhpOpcua\Client\Event\SubscriptionDeleted;
+use PhpOpcua\Client\Event\SubscriptionKeepAlive;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Tests\Unit\Helpers\InMemoryEventDispatcher;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('ManagesEventDispatcherTrait on Client', function () {
 
@@ -43,7 +43,7 @@ describe('ManagesEventDispatcherTrait on Client', function () {
     });
 
     it('setEventDispatcher is fluent on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $dispatcher = new InMemoryEventDispatcher();
         $result = $builder->setEventDispatcher($dispatcher);
         expect($result)->toBe($builder);

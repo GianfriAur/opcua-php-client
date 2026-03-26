@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Tests\Integration\Helpers\TestHelper;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('Automatic DataType discovery', function () {
 
@@ -52,14 +52,14 @@ describe('Automatic DataType discovery', function () {
     it('does not overwrite manually registered codecs', function () {
         $client = null;
         try {
-            $repo = new Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository();
-            $repo->register(NodeId::numeric(3, 3010), new class() implements Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec {
-                public function decode(Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder $decoder): array
+            $repo = new PhpOpcua\Client\Repository\ExtensionObjectRepository();
+            $repo->register(NodeId::numeric(3, 3010), new class() implements PhpOpcua\Client\Encoding\ExtensionObjectCodec {
+                public function decode(PhpOpcua\Client\Encoding\BinaryDecoder $decoder): array
                 {
                     return ['custom' => true, 'x' => $decoder->readDouble(), 'y' => $decoder->readDouble(), 'z' => $decoder->readDouble()];
                 }
 
-                public function encode(Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $encoder, mixed $value): void
+                public function encode(PhpOpcua\Client\Encoding\BinaryEncoder $encoder, mixed $value): void
                 {
                 }
             });
@@ -86,13 +86,13 @@ describe('Automatic DataType discovery', function () {
 
             $client1->getExtensionObjectRepository()->register(
                 NodeId::numeric(99, 9999),
-                new class() implements Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec {
-                    public function decode(Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder $d): array
+                new class() implements PhpOpcua\Client\Encoding\ExtensionObjectCodec {
+                    public function decode(PhpOpcua\Client\Encoding\BinaryDecoder $d): array
                     {
                         return [];
                     }
 
-                    public function encode(Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e, mixed $v): void
+                    public function encode(PhpOpcua\Client\Encoding\BinaryEncoder $e, mixed $v): void
                     {
                     }
                 },

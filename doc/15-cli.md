@@ -249,7 +249,7 @@ php vendor/bin/opcua-cli generate:nodeset MyPLC.NodeSet2.xml --output=src/Genera
 >
 > The `dump:nodeset` command reconstructs the address space by browsing and reading attributes at runtime. This works well for NodeId constants and enumerations, but **structured DataType definitions may be incomplete or missing** depending on the server's OPC UA version and capabilities. Servers that do not support the `DataTypeDefinition` attribute (OPC UA < 1.04) will produce DataType nodes without `<Definition>` fields — meaning no DTOs or codecs can be generated for those types.
 >
-> **Use this command only when the device manufacturer does not provide a NodeSet2.xml file.** If one is available (from the vendor documentation, the OPC Foundation repository, or the [`opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) package), always use `generate:nodeset` directly on that file instead.
+> **Use this command only when the device manufacturer does not provide a NodeSet2.xml file.** If one is available (from the vendor documentation, the OPC Foundation repository, or the [`opcua-client-nodeset`](https://github.com/php-opcua/opcua-client-nodeset) package), always use `generate:nodeset` directly on that file instead.
 >
 > This command is **not required and not mandatory** for using the library. It is a convenience tool for situations where no other source of type information is available.
 

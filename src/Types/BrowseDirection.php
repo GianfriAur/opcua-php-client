@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Browse direction for address space navigation.

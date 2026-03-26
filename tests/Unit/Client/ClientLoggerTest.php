@@ -66,13 +66,13 @@ describe('Client PSR-3 Logger', function () {
 
     it('accepts logger in builder constructor', function () {
         $logger = new TestLogger();
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder(logger: $logger);
+        $builder = new PhpOpcua\Client\ClientBuilder(logger: $logger);
 
         expect($builder->getLogger())->toBe($logger);
     });
 
     it('setLogger is fluent on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $logger = new TestLogger();
 
         $result = $builder->setLogger($logger);
@@ -119,7 +119,7 @@ describe('Client PSR-3 Logger', function () {
 
         try {
             $client->read('i=2259');
-        } catch (Gianfriaur\OpcuaPhpClient\Exception\ConnectionException) {
+        } catch (PhpOpcua\Client\Exception\ConnectionException) {
         }
 
         $levels = array_column($logger->logs, 0);
@@ -130,17 +130,17 @@ describe('Client PSR-3 Logger', function () {
         $logger = new TestLogger();
         $mock = new MockTransport();
 
-        $mock->addResponse(buildMsgResponse(634, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(634, function (PhpOpcua\Client\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeByte(0x01);
-            $e->writeByte(Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
+            $e->writeByte(PhpOpcua\Client\Types\BuiltinType::Int32->value);
             $e->writeInt32(1);
             $e->writeInt32(0);
         }));
-        $mock->addResponse(buildMsgResponse(634, function (Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder $e) {
+        $mock->addResponse(buildMsgResponse(634, function (PhpOpcua\Client\Encoding\BinaryEncoder $e) {
             $e->writeInt32(1);
             $e->writeByte(0x01);
-            $e->writeByte(Gianfriaur\OpcuaPhpClient\Types\BuiltinType::Int32->value);
+            $e->writeByte(PhpOpcua\Client\Types\BuiltinType::Int32->value);
             $e->writeInt32(2);
             $e->writeInt32(0);
         }));

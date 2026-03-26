@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when a publish response contains no notifications (keep-alive).
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::publish()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::publish()
  */
 readonly class SubscriptionKeepAlive
 {

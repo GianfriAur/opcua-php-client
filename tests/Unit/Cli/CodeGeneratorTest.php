@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\CodeGenerator;
+use PhpOpcua\Client\Cli\CodeGenerator;
 
 describe('CodeGenerator', function () {
 
@@ -118,15 +118,15 @@ describe('CodeGenerator', function () {
     it('generates Registrar with dependency registrars', function () {
         $gen = new CodeGenerator();
         $deps = [
-            'Gianfriaur\\OpcuaNodeset\\DI\\DIRegistrar',
-            'Gianfriaur\\OpcuaNodeset\\Machinery\\MachineryRegistrar',
+            'PhpOpcua\\Nodeset\\DI\\DIRegistrar',
+            'PhpOpcua\\Nodeset\\Machinery\\MachineryRegistrar',
         ];
 
         $code = $gen->generateRegistrarClass('TestRegistrar', [], [], 'NodeIds', 'App', $deps);
 
         expect($code)->toContain('function dependencyRegistrars()');
-        expect($code)->toContain('new \\Gianfriaur\\OpcuaNodeset\\DI\\DIRegistrar()');
-        expect($code)->toContain('new \\Gianfriaur\\OpcuaNodeset\\Machinery\\MachineryRegistrar()');
+        expect($code)->toContain('new \\PhpOpcua\\Nodeset\\DI\\DIRegistrar()');
+        expect($code)->toContain('new \\PhpOpcua\\Nodeset\\Machinery\\MachineryRegistrar()');
         expect($code)->toContain('public bool $only = false');
     });
 

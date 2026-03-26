@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Encoding;
+namespace PhpOpcua\Client\Encoding;
 
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Maps OPC UA DataType NodeIds (namespace 0) to their corresponding BuiltinType.

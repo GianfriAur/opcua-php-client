@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemModifyResult;
-use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\SetTriggeringResult;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\AttributeId;
+use PhpOpcua\Client\Types\MonitoredItemModifyResult;
+use PhpOpcua\Client\Types\MonitoredItemResult;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\SetTriggeringResult;
 
 class MonitoredItemService extends AbstractProtocolService
 {

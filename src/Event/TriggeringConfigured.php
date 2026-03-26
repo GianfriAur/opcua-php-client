@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after a SetTriggering operation completes.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::setTriggering()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::setTriggering()
  */
 readonly class TriggeringConfigured
 {

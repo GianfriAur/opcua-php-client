@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\StreamLogger;
+use PhpOpcua\Client\Cli\StreamLogger;
 
 describe('StreamLogger', function () {
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * Dispatched for every event notification that contains alarm-related fields.
@@ -15,7 +15,7 @@ use Gianfriaur\OpcuaPhpClient\Types\Variant;
  * This is the generic alarm event — specific alarm events ({@see AlarmActivated},
  * {@see AlarmDeactivated}, etc.) may also be dispatched based on field analysis.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::publish()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::publish()
  */
 readonly class AlarmEventReceived
 {

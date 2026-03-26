@@ -3,8 +3,8 @@
 ## Reading a Value
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 // Using string format
 $dataValue = $client->read('i=2259'); // ServerStatus_State
@@ -52,7 +52,7 @@ $name = $client->read('ns=2;i=1001', AttributeId::DisplayName, refresh: true);
 By default, `read()` targets the Value attribute (id 13). You can read any attribute:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
+use PhpOpcua\Client\Types\AttributeId;
 
 $displayName = $client->read(NodeId::numeric(0, 2259), AttributeId::DisplayName);
 $dataType = $client->read(NodeId::numeric(0, 2259), AttributeId::DataType);
@@ -110,7 +110,7 @@ $dataValue->serverTimestamp;      // ?DateTimeImmutable
 ## Writing a Value
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\BuiltinType;
 
 $statusCode = $client->write(
     'ns=2;i=1234',  // or NodeId::numeric(2, 1234)
@@ -234,8 +234,8 @@ $results = $client->writeMulti([
 ### Writing Arrays
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use PhpOpcua\Client\Types\Variant;
+use PhpOpcua\Client\Types\DataValue;
 
 // Using Variant directly
 $variant = new Variant(BuiltinType::Int32, [1, 2, 3, 4, 5]);
@@ -339,7 +339,7 @@ $client = ClientBuilder::create()
 ## Status Codes
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\StatusCode;
 
 $statusCode = $dataValue->statusCode;
 

@@ -145,7 +145,7 @@ class CentrifugalPumpRegistrar implements GeneratedTypeRegistrar
 Use `loadGeneratedTypes()` to register everything with the client:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use App\OpcUa\CentrifugalPump\CentrifugalPumpRegistrar;
 use App\OpcUa\CentrifugalPump\CentrifugalPumpNodeIds;
 use App\OpcUa\CentrifugalPump\Enums\OperatingStateEnum;
@@ -236,7 +236,7 @@ php vendor/bin/opcua-cli generate:nodeset MyPLC.NodeSet2.xml \
 ```
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use App\OpcUa\MyPLC\MyPLCRegistrar;
 use App\OpcUa\MyPLC\MyPLCNodeIds;
 
@@ -253,7 +253,7 @@ The `dump:nodeset` command browses the entire address space, reads all node attr
 ## Where to Find NodeSet2.xml Files
 
 - **Device manufacturers**: often ship NodeSet files with their OPC UA server documentation
-- **Pre-built package**: [`gianfriaur/opcua-php-client-nodeset`](https://github.com/GianfriAur/opcua-php-client-nodeset) — 51 specs already generated
+- **Pre-built package**: [`php-opcua/opcua-client-nodeset`](https://github.com/php-opcua/opcua-client-nodeset) — 51 specs already generated
 - **OPC Foundation**: [https://github.com/OPCFoundation/UA-Nodeset](https://github.com/OPCFoundation/UA-Nodeset) — all official companion specifications
 - **Live server**: use `dump:nodeset` to export from any OPC UA server
 

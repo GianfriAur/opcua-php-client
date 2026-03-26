@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Tests\Integration\Helpers\TestHelper;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 describe('Error Handling', function () {
 

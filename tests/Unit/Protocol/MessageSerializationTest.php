@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\AcknowledgeMessage;
-use Gianfriaur\OpcuaPhpClient\Protocol\HelloMessage;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\AcknowledgeMessage;
+use PhpOpcua\Client\Protocol\HelloMessage;
+use PhpOpcua\Client\Protocol\MessageHeader;
 
 describe('Message serialization', function () {
 

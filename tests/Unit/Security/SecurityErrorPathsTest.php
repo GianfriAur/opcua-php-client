@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\MessageSecurity;
+use PhpOpcua\Client\Security\SecurityPolicy;
 
 function generateErrorTestCert(): array
 {

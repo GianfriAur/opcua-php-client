@@ -19,20 +19,20 @@ RuntimeException
         └── WriteTypeMismatchException
 ```
 
-All live in `Gianfriaur\OpcuaPhpClient\Exception`.
+All live in `PhpOpcua\Client\Exception`.
 
 ## Recommended Try/Catch Pattern
 
 Start here. This covers the most common failure modes in order of likelihood:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Exception\OpcUaException;
+use PhpOpcua\Client\Types\ConnectionState;
+use PhpOpcua\Client\Types\StatusCode;
 
 $client = null;
 
@@ -82,8 +82,8 @@ try {
 Base class for all library exceptions. Catch this when you want a single catch-all:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Exception\OpcUaException;
 
 try {
     $client = ClientBuilder::create()
@@ -99,8 +99,8 @@ try {
 The server returned an error. This is the only exception that carries a status code:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Types\StatusCode;
 
 try {
     $client->read(NodeId::numeric(0, 99999));
@@ -170,8 +170,8 @@ Thrown when write type auto-detection fails. This happens when:
 - Auto-detect is disabled and no explicit `BuiltinType` was provided
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Exception\WriteTypeDetectionException;
 
 try {
     $client = ClientBuilder::create()

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Transport\TcpTransport;
 
 describe('TcpTransport additional coverage', function () {
 

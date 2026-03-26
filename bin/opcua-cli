@@ -16,5 +16,5 @@ foreach ($autoloadPaths as $path) {
     }
 }
 
-$app = new Gianfriaur\OpcuaPhpClient\Cli\Application();
+$app = new PhpOpcua\Client\Cli\Application();
 exit($app->run($argv));

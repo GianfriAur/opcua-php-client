@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\DynamicCodec;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StructureDefinition;
 
 function tdBrowseResponse(array $refs): string
 {
@@ -46,7 +46,7 @@ function tdReadDefResponse(NodeId $encodingId, array $fields): string
     $bodyEncoder->writeInt32(count($fields));
     foreach ($fields as $field) {
         $bodyEncoder->writeString($field['name']);
-        $bodyEncoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $bodyEncoder->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $bodyEncoder->writeNodeId($field['dataType']);
         $bodyEncoder->writeInt32($field['valueRank'] ?? -1);
         $bodyEncoder->writeInt32(0);
@@ -180,8 +180,8 @@ describe('ManagesTypeDiscoveryTrait via MockTransport', function () {
         $client = setupConnectedClient($mock);
         $client->getExtensionObjectRepository()->register(
             NodeId::numeric(2, 3010),
-            new class() implements Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec {
-                public function decode(Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder $d): array
+            new class() implements PhpOpcua\Client\Encoding\ExtensionObjectCodec {
+                public function decode(PhpOpcua\Client\Encoding\BinaryDecoder $d): array
                 {
                     return ['custom' => true];
                 }
@@ -211,11 +211,11 @@ describe('ManagesTypeDiscoveryTrait via MockTransport', function () {
         $enumBody = new BinaryEncoder();
         $enumBody->writeInt32(2);
         $enumBody->writeInt64(0);
-        $enumBody->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, 'Off'));
-        $enumBody->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $enumBody->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, 'Off'));
+        $enumBody->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $enumBody->writeInt64(1);
-        $enumBody->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, 'On'));
-        $enumBody->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $enumBody->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, 'On'));
+        $enumBody->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $body = $enumBody->getBuffer();
 
         $mock->addResponse(buildMsgResponse(634, function (BinaryEncoder $e) use ($body) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Exception;
+namespace PhpOpcua\Client\Exception;
 
 /**
  * Thrown when binary encoding or decoding of an OPC UA message fails.

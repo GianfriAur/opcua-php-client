@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustListCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustRemoveCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
-use Gianfriaur\OpcuaPhpClient\Types\UserTokenPolicy;
+use PhpOpcua\Client\Cli\Commands\TrustCommand;
+use PhpOpcua\Client\Cli\Commands\TrustListCommand;
+use PhpOpcua\Client\Cli\Commands\TrustRemoveCommand;
+use PhpOpcua\Client\Cli\Output\ConsoleOutput;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\Types\EndpointDescription;
+use PhpOpcua\Client\Types\UserTokenPolicy;
 
 function trustTestOutputStream(): array
 {

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\ClientBuilderInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\ClientBuilderInterface;
 
 describe('Auto-retry configuration', function () {
 

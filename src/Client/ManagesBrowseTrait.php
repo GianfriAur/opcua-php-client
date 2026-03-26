@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Event\NodeBrowsed;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet;
-use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Event\NodeBrowsed;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BrowseNode;
+use PhpOpcua\Client\Types\BrowseResultSet;
+use PhpOpcua\Client\Types\EndpointDescription;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\ReferenceDescription;
 
 /**
  * Provides browse and endpoint discovery operations for the OPC UA address space.
@@ -27,8 +27,8 @@ trait ManagesBrowseTrait
      * @param bool $useCache Whether to use cached results.
      * @return EndpointDescription[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function getEndpoints(string $endpointUrl, bool $useCache = true): array
     {
@@ -65,9 +65,9 @@ trait ManagesBrowseTrait
      * @param bool $useCache Whether to use cached results.
      * @return ReferenceDescription[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function browse(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = [], bool $useCache = true): array
     {
@@ -100,9 +100,9 @@ trait ManagesBrowseTrait
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseResultSet
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function browseWithContinuation(NodeId|string $nodeId, BrowseDirection $direction = BrowseDirection::Forward, ?NodeId $referenceTypeId = null, bool $includeSubtypes = true, array $nodeClasses = []): BrowseResultSet
     {
@@ -122,8 +122,8 @@ trait ManagesBrowseTrait
      * @param string $continuationPoint The opaque continuation point from a previous browse.
      * @return BrowseResultSet
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function browseNext(string $continuationPoint): BrowseResultSet
     {
@@ -153,9 +153,9 @@ trait ManagesBrowseTrait
      * @param bool $useCache Whether to use cached results.
      * @return ReferenceDescription[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function browseAll(
         NodeId|string $nodeId,
@@ -199,9 +199,9 @@ trait ManagesBrowseTrait
      * @param NodeClass[] $nodeClasses Filter by node classes. Empty array means all classes.
      * @return BrowseNode[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function browseRecursive(
         NodeId|string $nodeId,

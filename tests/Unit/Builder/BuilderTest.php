@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder;
-use Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder;
-use Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder;
-use Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Builder\BrowsePathsBuilder;
+use PhpOpcua\Client\Builder\MonitoredItemsBuilder;
+use PhpOpcua\Client\Builder\ReadMultiBuilder;
+use PhpOpcua\Client\Builder\WriteMultiBuilder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('ReadMultiBuilder', function () {
 
@@ -185,7 +185,7 @@ describe('BrowsePathsBuilder', function () {
         $builder = new BrowsePathsBuilder($mockClient);
 
         $builder->from('i=85')
-            ->segment(new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(2, 'Custom'))
+            ->segment(new PhpOpcua\Client\Types\QualifiedName(2, 'Custom'))
             ->execute();
 
         expect($mockClient->callCount('translateBrowsePaths'))->toBe(1);
@@ -242,7 +242,7 @@ describe('MonitoredItemsBuilder', function () {
 
         $client = setupConnectedClient($mock);
         $results = $client->translateBrowsePaths()
-            ->segment(new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server'))
+            ->segment(new PhpOpcua\Client\Types\QualifiedName(0, 'Server'))
             ->execute();
 
         expect($results)->toHaveCount(1);
@@ -262,7 +262,7 @@ describe('MonitoredItemsBuilder', function () {
         $client = setupConnectedClient($mock);
         $results = $client->translateBrowsePaths()
             ->from('i=85')
-            ->segment(new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server'))
+            ->segment(new PhpOpcua\Client\Types\QualifiedName(0, 'Server'))
             ->execute();
 
         expect($results)->toHaveCount(1);

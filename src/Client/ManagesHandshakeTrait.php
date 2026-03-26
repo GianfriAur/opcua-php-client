@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Protocol\AcknowledgeMessage;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\HelloMessage;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelRequest;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelResponse;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Protocol\AcknowledgeMessage;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\HelloMessage;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\SecureChannelRequest;
+use PhpOpcua\Client\Protocol\SecureChannelResponse;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Transport\TcpTransport;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Provides OPC UA handshake and server certificate discovery for the connected client.
@@ -128,7 +128,7 @@ trait ManagesHandshakeTrait
     /**
      * Extract the server certificate from discovered endpoints matching the configured security.
      *
-     * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription[] $endpoints
+     * @param \PhpOpcua\Client\Types\EndpointDescription[] $endpoints
      * @return void
      */
     private function extractServerCertificateFromEndpoints(array $endpoints): void
@@ -159,10 +159,10 @@ trait ManagesHandshakeTrait
     /**
      * Extract user identity token policy IDs from an endpoint description.
      *
-     * @param \Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint
+     * @param \PhpOpcua\Client\Types\EndpointDescription $endpoint
      * @return void
      */
-    private function extractTokenPolicies(\Gianfriaur\OpcuaPhpClient\Types\EndpointDescription $endpoint): void
+    private function extractTokenPolicies(\PhpOpcua\Client\Types\EndpointDescription $endpoint): void
     {
         foreach ($endpoint->getUserIdentityTokens() as $tokenPolicy) {
             match ($tokenPolicy->getTokenType()) {

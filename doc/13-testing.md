@@ -5,9 +5,9 @@
 The library ships with a `MockClient` that implements `OpcUaClientInterface` without any TCP connection. Use it to unit test your application code that depends on the OPC UA client.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\StatusCode;
 
 $mock = MockClient::create()
     ->onRead('i=2259', fn() => DataValue::ofInt32(0))
@@ -25,7 +25,7 @@ $this->assertEquals(23.5, $service->readTemperature());
 ### Read
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use PhpOpcua\Client\Types\DataValue;
 
 $mock->onRead('i=2259', fn() => DataValue::ofInt32(0));
 $mock->onRead('ns=2;i=1001', fn() => DataValue::ofDouble(23.5));
@@ -39,8 +39,8 @@ Unregistered reads return an empty `DataValue` (null value, status Good).
 ### Write
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\StatusCode;
 
 $mock->onWrite('ns=2;i=1001', function(mixed $value, BuiltinType $type): int {
     return $value > 100 ? StatusCode::BadTypeMismatch : StatusCode::Good;
@@ -55,7 +55,7 @@ Unregistered writes return `0` (Good).
 ### Browse
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
+use PhpOpcua\Client\Types\ReferenceDescription;
 
 $mock->onBrowse('i=85', fn() => [
     // return ReferenceDescription[] or any array
@@ -69,9 +69,9 @@ Unregistered browses return `[]`.
 ### Call
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\CallResult;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\CallResult;
+use PhpOpcua\Client\Types\Variant;
+use PhpOpcua\Client\Types\BuiltinType;
 
 $mock->onCall('i=2253', 'i=11492', function(array $args): CallResult {
     return new CallResult(0, [], [new Variant(BuiltinType::Int32, 42)]);
@@ -87,7 +87,7 @@ Unregistered calls return `CallResult(0, [], [])`.
 ### Resolve NodeId
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\NodeId;
 
 $mock->onResolveNodeId('/Objects/Server', fn() => NodeId::numeric(0, 2253));
 
@@ -164,8 +164,8 @@ Same for `writeMulti()`, `createMonitoredItems()`, and `translateBrowsePaths()`.
 For quick test fixture creation, `DataValue` provides static factory methods:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\StatusCode;
 
 DataValue::ofInt32(42);
 DataValue::ofDouble(3.14);
@@ -208,7 +208,7 @@ $mock->getDefaultBrowseMaxDepth();// 20
 The mock supports `setEventDispatcher()` / `getEventDispatcher()`. Use `NullEventDispatcher` (default) or inject a test dispatcher to verify event behavior:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+use PhpOpcua\Client\Event\NullEventDispatcher;
 
 $mock = MockClient::create();
 $mock->getEventDispatcher(); // NullEventDispatcher

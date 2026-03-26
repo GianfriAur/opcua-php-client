@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli;
+namespace PhpOpcua\Client\Cli;
 
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\BrowseCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\CommandInterface;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\DumpNodesetCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\EndpointsCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\GenerateNodesetCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\ReadCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustListCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\TrustRemoveCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\WatchCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\WriteCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\JsonOutput;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
-use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
+use PhpOpcua\Client\Cli\Commands\BrowseCommand;
+use PhpOpcua\Client\Cli\Commands\CommandInterface;
+use PhpOpcua\Client\Cli\Commands\DumpNodesetCommand;
+use PhpOpcua\Client\Cli\Commands\EndpointsCommand;
+use PhpOpcua\Client\Cli\Commands\GenerateNodesetCommand;
+use PhpOpcua\Client\Cli\Commands\ReadCommand;
+use PhpOpcua\Client\Cli\Commands\TrustCommand;
+use PhpOpcua\Client\Cli\Commands\TrustListCommand;
+use PhpOpcua\Client\Cli\Commands\TrustRemoveCommand;
+use PhpOpcua\Client\Cli\Commands\WatchCommand;
+use PhpOpcua\Client\Cli\Commands\WriteCommand;
+use PhpOpcua\Client\Cli\Output\ConsoleOutput;
+use PhpOpcua\Client\Cli\Output\JsonOutput;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\Exception\OpcUaException;
+use PhpOpcua\Client\Exception\UntrustedCertificateException;
 
 /**
  * Main CLI application. Parses argv, routes to the correct command, manages the client lifecycle.

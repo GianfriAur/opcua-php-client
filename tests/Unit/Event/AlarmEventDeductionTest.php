@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmDeactivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmEventReceived;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmSeverityChanged;
-use Gianfriaur\OpcuaPhpClient\Event\LimitAlarmExceeded;
-use Gianfriaur\OpcuaPhpClient\Event\OffNormalAlarmTriggered;
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Event\AlarmActivated;
+use PhpOpcua\Client\Event\AlarmDeactivated;
+use PhpOpcua\Client\Event\AlarmEventReceived;
+use PhpOpcua\Client\Event\AlarmSeverityChanged;
+use PhpOpcua\Client\Event\LimitAlarmExceeded;
+use PhpOpcua\Client\Event\OffNormalAlarmTriggered;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('Alarm Event Classes', function () {
 

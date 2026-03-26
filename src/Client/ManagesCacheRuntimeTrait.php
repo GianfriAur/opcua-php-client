@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
-use Gianfriaur\OpcuaPhpClient\Event\CacheHit;
-use Gianfriaur\OpcuaPhpClient\Event\CacheMiss;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Cache\InMemoryCache;
+use PhpOpcua\Client\Event\CacheHit;
+use PhpOpcua\Client\Event\CacheMiss;
+use PhpOpcua\Client\Types\NodeId;
 use Psr\SimpleCache\CacheInterface;
 
 /**

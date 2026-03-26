@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\CallResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\CallResult;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
 
 class CallService extends AbstractProtocolService
 {

@@ -5,6 +5,7 @@
 ## v4.0.0 - 2026-03-29
 
 ### Features
+- [x] Rebranding :) to `php-opcua/opcua-client`
 - [x] PSR-14 Event Dispatcher — 38 granular events (connection, session, subscription, data change, alarms, read/write, browse, cache, retry). NullEventDispatcher by default, zero overhead. Alarm deduction from event fields (ActiveState, AckedState, ConfirmedState, ShelvingState, LimitAlarm, OffNormalAlarm).
 - [x] Write Type Auto-Detection — automatic type resolution via read-before-write with PSR-16 caching, type mismatch validation, configurable via `setAutoDetectWriteType()`
 - [x] Cache for metadata `read()` (DisplayName, BrowseName, DataType, NodeClass, Description), **`not Value`** — opt-in via `setReadMetadataCache(true)`, `refresh: true` to bypass
@@ -106,13 +107,13 @@ Features that are ready to implement but blocked by external dependencies. This 
 ### NodeManagement Services
 `AddNodes`, `DeleteNodes`, `AddReferences`, `DeleteReferences` — for OPC UA servers that support dynamic address space modification at runtime.
 
-The test infrastructure ([opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite)) uses [node-opcua](https://github.com/node-opcua/node-opcua), which does not implement NodeManagement services. All four handlers (`_on_AddNodes`, `_on_DeleteNodes`, `_on_AddReferences`, `_on_DeleteReferences`) return `BadServiceUnsupported`. The NodeManagement server profile is explicitly commented out as unimplemented in the node-opcua source.
+The test infrastructure ([opcua-test-suite](https://github.com/php-opcua/opcua-test-suite)) uses [node-opcua](https://github.com/node-opcua/node-opcua), which does not implement NodeManagement services. All four handlers (`_on_AddNodes`, `_on_DeleteNodes`, `_on_AddReferences`, `_on_DeleteReferences`) return `BadServiceUnsupported`. The NodeManagement server profile is explicitly commented out as unimplemented in the node-opcua source.
 
 ---
 
 ## TODO — outside this repository
 
-- [ ] Symfony integration like Laravel — `gianfriaur/opcua-symfony-client` (right after v4.0.0 release)
+- [ ] Symfony integration like Laravel — `php-opcua/symfony-opcua` (right after v4.0.0 release)
 
 ---
 
@@ -125,7 +126,7 @@ The `ExtensionObjectCodec` system is intentionally limited to `ExtensionObject`.
 The OPC UA `ResultMask` controls which fields of `ReferenceDescription` are returned in browse results (ReferenceType, IsForward, NodeClass, BrowseName, DisplayName, TypeDefinition). Exposing this would require making most `ReferenceDescription` properties nullable, forcing null-checks on every consumer for a marginal bandwidth saving. The default (all fields) is what 99% of use cases need, and the few bytes saved per reference are irrelevant in typical PHP deployment scenarios (local/LAN connections). No mainstream OPC UA client library (node-opcua, opcua-asyncio) exposes this as a public parameter either.
 
 ### Session Manager Integration (here)
-The session manager ([`gianfriaur/opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager)) is intentionally kept as a separate package and will not be merged into this library. The reasons:
+The session manager ([`php-opcua/opcua-session-manager`](https://github.com/php-opcua/opcua-session-manager)) is intentionally kept as a separate package and will not be merged into this library. The reasons:
 
 - **Cross-platform compatibility.** This client works on Linux, macOS, and Windows. The session manager uses Unix domain sockets for IPC, which are not available on Windows. Integrating it would either break Windows support or leave dead code on that platform.
 - **Zero-dependency philosophy.** This library requires only `ext-openssl`. The session manager depends on `react/event-loop` and `react/socket` — pulling those into the client would force every user to install ReactPHP, even if they don't need session persistence.
@@ -141,17 +142,17 @@ I don't see a valid use case for it in this library.
 These would require `ext-redis` or `ext-memcached` (or `predis/predis`), breaking the zero-dependency philosophy. The cache system uses PSR-16 `CacheInterface`, so any Redis or Memcached adapter that implements PSR-16 works out of the box — including `illuminate/cache` (Laravel), `symfony/cache`, and `cache/redis-adapter`. There is no reason to bundle drivers that would force all users to install extensions they may not need.
 
 ### OpenTelemetry Integration (here)
-Telemetry (distributed tracing, metrics) belongs in the session manager ([`gianfriaur/opcua-php-client-session-manager`](https://github.com/GianfriAur/opcua-php-client-session-manager)), not in this library. The reasons:
+Telemetry (distributed tracing, metrics) belongs in the session manager ([`php-opcua/opcua-session-manager`](https://github.com/php-opcua/opcua-session-manager)), not in this library. The reasons:
 
 - **Short-lived connections make spans meaningless.** This client is synchronous — each PHP request opens a connection, performs a few operations, and disconnects. An OpenTelemetry span wrapping `connect → read → disconnect` in a 50ms request adds no insight you don't already get from APM tools already instrumenting your HTTP layer (Laravel Telescope, Datadog APM, New Relic, etc.).
 - **Telemetry shines on long-lived processes.** The session manager runs as a persistent daemon, maintaining connections across hundreds of PHP requests. That's where spans like `opcua.publish`, retry histograms, active session counts, and subscription latency distributions actually provide value — correlating OPC UA operations across time, not within a single request.
 
-Telemetry support will be implemented in `gianfriaur/opcua-php-client-session-manager` where persistent connections make it meaningful.
+Telemetry support will be implemented in `php-opcua/opcua-session-manager` where persistent connections make it meaningful.
 
 ### Full OPC UA Server Implementation (here)
 This library is a client-only implementation. Building a server requires a fundamentally different architecture (address space management, session handling, subscription engine, etc.).
 
 ---
 
-Have a suggestion? Open an [issue](https://github.com/gianfriaur/opcua-php-client/issues) or check the [contributing guide](CONTRIBUTING.md).
+Have a suggestion? Open an [issue](https://github.com/php-opcua/opcua-client/issues) or check the [contributing guide](CONTRIBUTING.md).
 

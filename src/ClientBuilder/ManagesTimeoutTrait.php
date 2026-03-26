@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
 /**
  * Provides network timeout configuration for transport operations.

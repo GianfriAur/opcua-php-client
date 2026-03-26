@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA ModifyMonitoredItems operation for a single item.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::modifyMonitoredItems()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::modifyMonitoredItems()
  */
 readonly class MonitoredItemModifyResult
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Provides historical data access operations for reading raw, processed, and at-time node values.
@@ -23,9 +23,9 @@ trait ManagesHistoryTrait
      * @param bool $returnBounds Whether to include bounding values.
      * @return DataValue[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadRaw(
         NodeId|string $nodeId,
@@ -69,9 +69,9 @@ trait ManagesHistoryTrait
      * @param NodeId $aggregateType The aggregate function NodeId (e.g. Average, Count).
      * @return DataValue[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadProcessed(
         NodeId|string $nodeId,
@@ -112,9 +112,9 @@ trait ManagesHistoryTrait
      * @param DateTimeImmutable[] $timestamps The exact timestamps to retrieve values for.
      * @return DataValue[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function historyReadAtTime(
         NodeId|string $nodeId,

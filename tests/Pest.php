@@ -13,7 +13,7 @@ declare(strict_types=1);
 |
 */
 
-pest()->extend(Gianfriaur\OpcuaPhpClient\Tests\TestCase::class)->in('Feature');
+pest()->extend(PhpOpcua\Client\Tests\TestCase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------

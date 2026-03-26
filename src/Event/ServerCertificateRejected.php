@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when a server certificate is rejected by the trust store.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesTrustStoreTrait::validateServerCertificate()
+ * @see \PhpOpcua\Client\Client\ManagesTrustStoreTrait::validateServerCertificate()
  */
 readonly class ServerCertificateRejected
 {

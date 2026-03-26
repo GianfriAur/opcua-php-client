@@ -2,34 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Event\SecureChannelClosed;
-use Gianfriaur\OpcuaPhpClient\Event\SecureChannelOpened;
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
-use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\HistoryReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\MonitoredItemService;
-use Gianfriaur\OpcuaPhpClient\Protocol\PublishService;
-use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelRequest;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelResponse;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\TranslateBrowsePathService;
-use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Event\SecureChannelClosed;
+use PhpOpcua\Client\Event\SecureChannelOpened;
+use PhpOpcua\Client\Exception\ConfigurationException;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Protocol\BrowseService;
+use PhpOpcua\Client\Protocol\CallService;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\HistoryReadService;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\MonitoredItemService;
+use PhpOpcua\Client\Protocol\PublishService;
+use PhpOpcua\Client\Protocol\ReadService;
+use PhpOpcua\Client\Protocol\SecureChannelRequest;
+use PhpOpcua\Client\Protocol\SecureChannelResponse;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\SubscriptionService;
+use PhpOpcua\Client\Protocol\TranslateBrowsePathService;
+use PhpOpcua\Client\Protocol\WriteService;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Provides secure channel opening and closing for the connected client.

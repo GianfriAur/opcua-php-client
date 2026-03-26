@@ -2,9 +2,9 @@
 
 > Pure PHP OPC UA client library. Communicates directly over TCP using the OPC UA binary protocol. No external C/C++ dependencies — only ext-openssl required. All types use public readonly properties.
 
-Package: gianfriaur/opcua-php-client
-Repository: https://github.com/GianfriAur/opcua-php-client
-Packagist: https://packagist.org/packages/gianfriaur/opcua-php-client
+Package: php-opcua/opcua-client
+Repository: https://github.com/php-opcua/opcua-client
+Packagist: https://packagist.org/packages/php-opcua/opcua-client
 License: MIT
 PHP: >= 8.2
 Dependencies: ext-openssl, psr/log ^3.0, psr/simple-cache ^3.0, psr/event-dispatcher ^1.0 (all interface-only, zero runtime code)
@@ -13,12 +13,12 @@ Dependencies: ext-openssl, psr/log ^3.0, psr/simple-cache ^3.0, psr/event-dispat
 
 ## 1. Introduction
 
-`gianfriaur/opcua-php-client` is an OPC UA client written entirely in PHP. It speaks the OPC UA binary protocol over TCP, handles secure channels, sessions, and crypto — all without external C/C++ extensions.
+`php-opcua/opcua-client` is an OPC UA client written entirely in PHP. It speaks the OPC UA binary protocol over TCP, handles secure channels, sessions, and crypto — all without external C/C++ extensions.
 
 ### Installation
 
 ```
-composer require gianfriaur/opcua-php-client
+composer require php-opcua/opcua-client
 ```
 
 ### Features
@@ -77,8 +77,8 @@ Client (connected client, 14 runtime traits in Client/)
 ### Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Types\NodeId;
 
 $client = ClientBuilder::create()
     ->connect('opc.tcp://localhost:4840');
@@ -140,9 +140,9 @@ $builder->setAutoRetry(3); // retry up to 3 times on connection failure
 ### Security Configuration
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityMode;
 
 $client = ClientBuilder::create()
     ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
@@ -169,7 +169,7 @@ $builder->setUserCertificate('/certs/user.pem', '/certs/user.key'); // X.509
 The builder accepts any PSR-3 logger. Without one, a NullLogger is used (zero overhead).
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -304,8 +304,8 @@ $results = $client->translateBrowsePaths([
 Browse, browseAll, and resolveNodeId results are cached by default (InMemoryCache, 300s TTL).
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
-use Gianfriaur\OpcuaPhpClient\Cache\FileCache;
+use PhpOpcua\Client\Cache\InMemoryCache;
+use PhpOpcua\Client\Cache\FileCache;
 
 // Default: InMemoryCache with 300s TTL (active out of the box)
 
@@ -362,7 +362,7 @@ $results = $client->readMulti([
 ### Write
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\BuiltinType;
 
 $statusCode = $client->write('ns=2;i=1234', 42, BuiltinType::Int32);
 ```
@@ -390,7 +390,7 @@ StatusCode::getName($code);     // e.g. "BadNodeIdUnknown"
 ## 5. Method Calling
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Types\Variant;
 
 $result = $client->call(
     'i=2253',   // or NodeId::numeric(0, 2253)
@@ -721,12 +721,12 @@ Limitations: binary encoding only (not XML), no built-in codecs shipped. Each Cl
 
 ## 13. MockClient (Testing)
 
-`Gianfriaur\OpcuaPhpClient\Testing\MockClient` implements `OpcUaClientInterface` without any TCP connection. Use it to test code that depends on an OPC UA client without needing a real server.
+`PhpOpcua\Client\Testing\MockClient` implements `OpcUaClientInterface` without any TCP connection. Use it to test code that depends on an OPC UA client without needing a real server.
 
 ### Creating a MockClient
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
+use PhpOpcua\Client\Testing\MockClient;
 
 $client = MockClient::create();
 ```
@@ -734,8 +734,8 @@ $client = MockClient::create();
 ### Registering Handlers
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
 
 // Read handler — receives the NodeId, returns a DataValue
 $client->onRead(function (NodeId $nodeId) {
@@ -821,7 +821,7 @@ Type Discovery (1): DataTypesDiscovered
 Cache (2): CacheHit, CacheMiss
 Retry (2): RetryAttempt, RetryExhausted
 
-All events are readonly classes in Gianfriaur\OpcuaPhpClient\Event\. All carry a $client property (OpcUaClientInterface).
+All events are readonly classes in PhpOpcua\Client\Event\. All carry a $client property (OpcUaClientInterface).
 
 ### Alarm Deduction
 
@@ -836,53 +836,53 @@ Alarm-specific events are deduced from event notification fields:
 
 ### Key Classes
 
-- Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default)
-- Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesEventDispatcherTrait — builder trait with setEventDispatcher(), getEventDispatcher()
-- Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatchTrait — client trait with runtime dispatch() helper
+- PhpOpcua\Client\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default)
+- PhpOpcua\Client\ClientBuilder\ManagesEventDispatcherTrait — builder trait with setEventDispatcher(), getEventDispatcher()
+- PhpOpcua\Client\Client\ManagesEventDispatchTrait — client trait with runtime dispatch() helper
 
 ---
 
 ## Main Classes
 
-- Gianfriaur\OpcuaPhpClient\ClientBuilder — builder / entry point, implements ClientBuilderInterface, static create() factory
-- Gianfriaur\OpcuaPhpClient\ClientBuilderInterface — builder interface (configuration methods + connect)
-- Gianfriaur\OpcuaPhpClient\Client — connected client (operations), implements OpcUaClientInterface
-- Gianfriaur\OpcuaPhpClient\OpcUaClientInterface — public API contract (operations on a connected client)
-- Gianfriaur\OpcuaPhpClient\Types\NodeId — public readonly: namespaceIndex, identifier, type
-- Gianfriaur\OpcuaPhpClient\Types\Variant — public readonly: type, value, dimensions
-- Gianfriaur\OpcuaPhpClient\Types\DataValue — public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue()
-- Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription — public readonly: referenceTypeId, isForward, nodeId, browseName, displayName, nodeClass, typeDefinition
-- Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult — public readonly: subscriptionId, revisedPublishingInterval, revisedLifetimeCount, revisedMaxKeepAliveCount
-- Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
-- Gianfriaur\OpcuaPhpClient\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
-- Gianfriaur\OpcuaPhpClient\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
-- Gianfriaur\OpcuaPhpClient\Types\TransferResult — public readonly: statusCode, availableSequenceNumbers
-- Gianfriaur\OpcuaPhpClient\Types\BrowseResultSet — public readonly: references, continuationPoint
-- Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult — public readonly: statusCode, targets
-- Gianfriaur\OpcuaPhpClient\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex
-- Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default, zero overhead)
-- Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException — thrown when write type cannot be auto-detected
-- Gianfriaur\OpcuaPhpClient\Exception\WriteTypeMismatchException — thrown when explicit write type mismatches detected type (public readonly: nodeId, expectedType, givenType)
-- Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetecting — dispatched before write type detection starts (public readonly: client, nodeId)
-- Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected — dispatched after write type detection (public readonly: client, nodeId, detectedType, fromCache)
-- Gianfriaur\OpcuaPhpClient\Event\* — 42 readonly event classes with $client property (ClientConnecting, ClientConnected, ConnectionFailed, SessionCreated, SessionActivated, SubscriptionCreated, DataChangeReceived, EventNotificationReceived, AlarmEventReceived, AlarmActivated, AlarmDeactivated, NodeValueRead, NodeValueWritten, NodeBrowsed, WriteTypeDetecting, WriteTypeDetected, CacheHit, CacheMiss, RetryAttempt, etc.)
-- Gianfriaur\OpcuaPhpClient\Testing\MockClient — in-memory test double (static create(), onRead/onWrite/onBrowse/onCall/onResolveNodeId, getCalls/getCallsFor/callCount/resetCalls)
-- Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository — per-client codec registry (instance-level)
-- Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec — auto-generated codec from StructureDefinition
-- Gianfriaur\OpcuaPhpClient\Encoding\DataTypeMapping — maps DataType NodeIds to BuiltinTypes
-- Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser — parses DataTypeDefinition attributes
-- Gianfriaur\OpcuaPhpClient\Types\StructureField — public readonly: name, dataType, valueRank, builtinType, isOptional
-- Gianfriaur\OpcuaPhpClient\Types\StructureDefinition — public readonly: defaultEncodingId, baseDataType, structureType, fields
-- Gianfriaur\OpcuaPhpClient\Types\ExtensionObject — typed DTO for OPC UA ExtensionObject (public readonly: typeId, encoding, body, value; methods: isDecoded(), isRaw()). DataValue::getValue() auto-extracts decoded value.
-- Gianfriaur\OpcuaPhpClient\Protocol\AbstractProtocolService — shared base class for protocol services (encodeRequestAuto, writeRequestHeader, readResponseMetadata, wrapInMessage)
-- Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId — final class with named constants for all OPC UA service NodeIds (35 constants)
+- PhpOpcua\Client\ClientBuilder — builder / entry point, implements ClientBuilderInterface, static create() factory
+- PhpOpcua\Client\ClientBuilderInterface — builder interface (configuration methods + connect)
+- PhpOpcua\Client\Client — connected client (operations), implements OpcUaClientInterface
+- PhpOpcua\Client\OpcUaClientInterface — public API contract (operations on a connected client)
+- PhpOpcua\Client\Types\NodeId — public readonly: namespaceIndex, identifier, type
+- PhpOpcua\Client\Types\Variant — public readonly: type, value, dimensions
+- PhpOpcua\Client\Types\DataValue — public readonly: statusCode, sourceTimestamp, serverTimestamp; method: getValue()
+- PhpOpcua\Client\Types\ReferenceDescription — public readonly: referenceTypeId, isForward, nodeId, browseName, displayName, nodeClass, typeDefinition
+- PhpOpcua\Client\Types\SubscriptionResult — public readonly: subscriptionId, revisedPublishingInterval, revisedLifetimeCount, revisedMaxKeepAliveCount
+- PhpOpcua\Client\Types\MonitoredItemResult — public readonly: statusCode, monitoredItemId, revisedSamplingInterval, revisedQueueSize
+- PhpOpcua\Client\Types\CallResult — public readonly: statusCode, inputArgumentResults, outputArguments
+- PhpOpcua\Client\Types\PublishResult — public readonly: subscriptionId, sequenceNumber, moreNotifications, notifications
+- PhpOpcua\Client\Types\TransferResult — public readonly: statusCode, availableSequenceNumbers
+- PhpOpcua\Client\Types\BrowseResultSet — public readonly: references, continuationPoint
+- PhpOpcua\Client\Types\BrowsePathResult — public readonly: statusCode, targets
+- PhpOpcua\Client\Types\BrowsePathTarget — public readonly: targetId, remainingPathIndex
+- PhpOpcua\Client\Event\NullEventDispatcher — no-op PSR-14 dispatcher (default, zero overhead)
+- PhpOpcua\Client\Exception\WriteTypeDetectionException — thrown when write type cannot be auto-detected
+- PhpOpcua\Client\Exception\WriteTypeMismatchException — thrown when explicit write type mismatches detected type (public readonly: nodeId, expectedType, givenType)
+- PhpOpcua\Client\Event\WriteTypeDetecting — dispatched before write type detection starts (public readonly: client, nodeId)
+- PhpOpcua\Client\Event\WriteTypeDetected — dispatched after write type detection (public readonly: client, nodeId, detectedType, fromCache)
+- PhpOpcua\Client\Event\* — 42 readonly event classes with $client property (ClientConnecting, ClientConnected, ConnectionFailed, SessionCreated, SessionActivated, SubscriptionCreated, DataChangeReceived, EventNotificationReceived, AlarmEventReceived, AlarmActivated, AlarmDeactivated, NodeValueRead, NodeValueWritten, NodeBrowsed, WriteTypeDetecting, WriteTypeDetected, CacheHit, CacheMiss, RetryAttempt, etc.)
+- PhpOpcua\Client\Testing\MockClient — in-memory test double (static create(), onRead/onWrite/onBrowse/onCall/onResolveNodeId, getCalls/getCallsFor/callCount/resetCalls)
+- PhpOpcua\Client\Repository\ExtensionObjectRepository — per-client codec registry (instance-level)
+- PhpOpcua\Client\Encoding\DynamicCodec — auto-generated codec from StructureDefinition
+- PhpOpcua\Client\Encoding\DataTypeMapping — maps DataType NodeIds to BuiltinTypes
+- PhpOpcua\Client\Encoding\StructureDefinitionParser — parses DataTypeDefinition attributes
+- PhpOpcua\Client\Types\StructureField — public readonly: name, dataType, valueRank, builtinType, isOptional
+- PhpOpcua\Client\Types\StructureDefinition — public readonly: defaultEncodingId, baseDataType, structureType, fields
+- PhpOpcua\Client\Types\ExtensionObject — typed DTO for OPC UA ExtensionObject (public readonly: typeId, encoding, body, value; methods: isDecoded(), isRaw()). DataValue::getValue() auto-extracts decoded value.
+- PhpOpcua\Client\Protocol\AbstractProtocolService — shared base class for protocol services (encodeRequestAuto, writeRequestHeader, readResponseMetadata, wrapInMessage)
+- PhpOpcua\Client\Protocol\ServiceTypeId — final class with named constants for all OPC UA service NodeIds (35 constants)
 
 ## Related Packages
 
-- gianfriaur/opcua-php-client-nodeset: pre-generated PHP types from 51 OPC Foundation companion specifications — 807 files, 338 enums, 191 DTOs, 191 codecs, registrars with automatic dependency resolution
-- gianfriaur/opcua-php-client-session-manager: session persistence across PHP requests
-- gianfriaur/opcua-laravel-client: Laravel integration (service provider, facade, config)
-- GianfriAur/opcua-test-server-suite: Docker-based OPC UA test servers
+- php-opcua/opcua-client-nodeset: pre-generated PHP types from 51 OPC Foundation companion specifications — 807 files, 338 enums, 191 DTOs, 191 codecs, registrars with automatic dependency resolution
+- php-opcua/opcua-session-manager: session persistence across PHP requests
+- php-opcua/laravel-opcua: Laravel integration (service provider, facade, config)
+- php-opcua/opcua-test-suite: Docker-based OPC UA test servers
 
 ## Alternatives
 
@@ -891,8 +891,8 @@ Cross-language: node-opcua (TS), opcua-asyncio (Python), UA-.NETStandard (C#), g
 
 ## Links
 
-- Repository: https://github.com/GianfriAur/opcua-php-client
-- Documentation: https://github.com/GianfriAur/opcua-php-client/tree/master/doc
-- Issues: https://github.com/GianfriAur/opcua-php-client/issues
-- Packagist: https://packagist.org/packages/gianfriaur/opcua-php-client
-- Changelog: https://github.com/GianfriAur/opcua-php-client/blob/master/CHANGELOG.md
+- Repository: https://github.com/php-opcua/opcua-client
+- Documentation: https://github.com/php-opcua/opcua-client/tree/master/doc
+- Issues: https://github.com/php-opcua/opcua-client/issues
+- Packagist: https://packagist.org/packages/php-opcua/opcua-client
+- Changelog: https://github.com/php-opcua/opcua-client/blob/master/CHANGELOG.md

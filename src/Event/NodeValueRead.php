@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched after a single node attribute has been read.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait::read()
+ * @see \PhpOpcua\Client\Client\ManagesReadWriteTrait::read()
  */
 readonly class NodeValueRead
 {

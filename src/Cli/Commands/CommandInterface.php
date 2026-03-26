@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
+namespace PhpOpcua\Client\Cli\Commands;
 
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Contract for CLI commands.

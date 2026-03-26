@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\EncodingException;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\ExtensionObject;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
 
 describe('BinaryDecoder skip()', function () {
 

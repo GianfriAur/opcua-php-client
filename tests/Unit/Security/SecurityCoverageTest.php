@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\MessageSecurity;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\NodeId;
 
 require_once __DIR__ . '/SecureChannelTest.php';
 

@@ -13,13 +13,13 @@ If you have any questions or need help getting started, don't hesitate to open a
 - PHP >= 8.2
 - `ext-openssl`
 - Composer
-- [opcua-test-server-suite](https://github.com/GianfriAur/opcua-test-server-suite) (for integration tests)
+- [opcua-test-suite](https://github.com/php-opcua/opcua-test-suite) (for integration tests)
 
 ### Installation
 
 ```bash
-git clone https://github.com/gianfriaur/opcua-php-client.git
-cd opcua-php-client
+git clone https://github.com/php-opcua/opcua-client.git
+cd opcua-client
 composer install
 ```
 
@@ -28,8 +28,8 @@ composer install
 Integration tests require the OPC UA test server suite running locally:
 
 ```bash
-git clone https://github.com/GianfriAur/opcua-test-server-suite.git
-cd opcua-test-server-suite
+git clone https://github.com/php-opcua/opcua-test-suite.git
+cd opcua-test-suite
 docker compose up -d
 ```
 
@@ -181,4 +181,4 @@ composer format:check
 
 ## Reporting Issues
 
-Use the [issue templates](https://github.com/gianfriaur/opcua-php-client/issues/new/choose) to report bugs, request features, or ask questions.
+Use the [issue templates](https://github.com/php-opcua/opcua-client/issues/new/choose) to report bugs, request features, or ask questions.

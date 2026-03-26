@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * Dispatched for each event notification received from a publish response.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::publish()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::publish()
  */
 readonly class EventNotificationReceived
 {

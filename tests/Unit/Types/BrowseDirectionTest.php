@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BrowseDirection;
 
 describe('BrowseDirection enum', function () {
 

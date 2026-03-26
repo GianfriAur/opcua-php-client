@@ -3,7 +3,7 @@
 ## Connecting
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 
 $client = ClientBuilder::create()
     ->connect('opc.tcp://localhost:4840');
@@ -44,8 +44,8 @@ This applies to every operation: handshake, secure channel, browse, read, write,
 The client tracks its lifecycle through `ConnectionState`:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Types\ConnectionState;
 
 $client = ClientBuilder::create()
     ->connect('opc.tcp://localhost:4840');
@@ -119,9 +119,9 @@ $client = ClientBuilder::create()
 ### Security Policy & Mode
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityMode;
 
 $client = ClientBuilder::create()
     ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
@@ -191,9 +191,9 @@ $builder = ClientBuilder::create()
 ## Full Secure Connection Example
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityMode;
 
 $client = ClientBuilder::create()
     ->setTimeout(10.0)
@@ -217,9 +217,9 @@ $client->disconnect();
 By default the client accepts any server certificate. For industrial deployments, enable trust validation:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
 
 $client = ClientBuilder::create()
     ->setTrustStore(new FileTrustStore())           // ~/.opcua/trusted/
@@ -264,7 +264,7 @@ The client supports [PSR-3](https://www.php-fig.org/psr/psr-3/) logging. Pass an
 Pass a logger to the builder:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -310,7 +310,7 @@ $builder->setLogger(new NullLogger());
 The client dispatches [PSR-14](https://www.php-fig.org/psr/psr-14/) events at every lifecycle point. Inject any compatible dispatcher to react to connections, disconnections, retries, and more.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 // Via builder

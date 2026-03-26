@@ -1,18 +1,18 @@
 {
-  "name": "php-opcua/opcua-php-client",
+  "name": "php-opcua/opcua-client",
   "description": "Pure PHP OPC UA client — binary protocol over TCP, 6 security policies, browse/read/write/subscribe/history, zero external dependencies",
-  "homepage": "https://github.com/GianfriAur/opcua-php-client",
+  "homepage": "https://github.com/php-opcua/opcua-client",
   "support": {
-    "issues": "https://github.com/GianfriAur/opcua-php-client/issues",
-    "source": "https://github.com/GianfriAur/opcua-php-client",
-    "docs": "https://github.com/GianfriAur/opcua-php-client/tree/master/doc"
+    "issues": "https://github.com/php-opcua/opcua-client/issues",
+    "source": "https://github.com/php-opcua/opcua-client",
+    "docs": "https://github.com/php-opcua/opcua-client/tree/master/doc"
   },
   "type": "library",
   "bin": ["bin/opcua-cli"],
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Gianfriaur\\OpcuaPhpClient\\": "src/"
+      "PhpOpcua\\Client\\": "src/"
     }
   },
   "authors": [
@@ -23,7 +23,7 @@
   ],
   "autoload-dev": {
     "psr-4": {
-      "Gianfriaur\\OpcuaPhpClient\\Tests\\": "tests/"
+      "PhpOpcua\\Client\\Tests\\": "tests/"
     }
   },
   "keywords": [

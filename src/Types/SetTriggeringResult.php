@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA SetTriggering operation.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::setTriggering()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::setTriggering()
  */
 readonly class SetTriggeringResult
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Protocol\MessageHeader;
 
 function startMockServer(Closure $handler): array
 {
@@ -114,6 +114,6 @@ describe('Client disconnect error suppression', function () {
     it('disconnect does not throw when never connected', function () {
         $client = createClientWithoutConnect();
         $client->disconnect();
-        expect($client->getConnectionState())->toBe(Gianfriaur\OpcuaPhpClient\Types\ConnectionState::Disconnected);
+        expect($client->getConnectionState())->toBe(PhpOpcua\Client\Types\ConnectionState::Disconnected);
     });
 });

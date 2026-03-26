@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('Client operations that exercise error paths', function () {
 
@@ -52,7 +52,7 @@ describe('Client operations that exercise error paths', function () {
             [
                 'startingNodeId' => NodeId::numeric(0, 85),
                 'relativePath' => [
-                    ['targetName' => new Gianfriaur\OpcuaPhpClient\Types\QualifiedName(0, 'Server')],
+                    ['targetName' => new PhpOpcua\Client\Types\QualifiedName(0, 'Server')],
                 ],
             ],
         ]))->toThrow(ConnectionException::class, 'Not connected: call connect() first');

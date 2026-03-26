@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched after a monitored item has been created within a subscription.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::createMonitoredItems()
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::createEventMonitoredItem()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::createMonitoredItems()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::createEventMonitoredItem()
  */
 readonly class MonitoredItemCreated
 {

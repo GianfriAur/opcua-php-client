@@ -2,7 +2,7 @@
 
 ## What is it?
 
-`gianfriaur/opcua-php-client` is a pure PHP client for OPC UA. It speaks the binary protocol over TCP, handles secure channels, sessions, and cryptography — no C/C++ extensions required. Just PHP and `ext-openssl`.
+`php-opcua/opcua-client` is a pure PHP client for OPC UA. It speaks the binary protocol over TCP, handles secure channels, sessions, and cryptography — no C/C++ extensions required. Just PHP and `ext-openssl`.
 
 ## Requirements
 
@@ -12,15 +12,15 @@
 ## Installation
 
 ```bash
-composer require gianfriaur/opcua-php-client
+composer require php-opcua/opcua-client
 ```
 
 ## Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 $client = ClientBuilder::create()
     ->connect('opc.tcp://localhost:4840');

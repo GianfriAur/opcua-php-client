@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Security;
+namespace PhpOpcua\Client\Security;
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
 use OpenSSLAsymmetricKey;
+use PhpOpcua\Client\Exception\ConfigurationException;
+use PhpOpcua\Client\Exception\SecurityException;
 
 /**
  * Utilities for loading, parsing, and generating X.509 certificates and private keys.
@@ -150,7 +150,7 @@ class CertificateManager
      * @return array{certDer: string, privateKey: OpenSSLAsymmetricKey}
      * @throws SecurityException
      */
-    public function generateSelfSignedCertificate(string $applicationUri = 'urn:opcua-php-client'): array
+    public function generateSelfSignedCertificate(string $applicationUri = 'urn:opcua-client'): array
     {
         $hostname = gethostname() ?: 'localhost';
 

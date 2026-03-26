@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
 use OpenSSLAsymmetricKey;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeId;
 
 class SessionService
 {
@@ -405,10 +405,10 @@ class SessionService
 
         $applicationUri = $this->secureChannel->getCertificateManager()->getApplicationUri(
             $this->secureChannel->getClientCertDer(),
-        ) ?? 'urn:opcua-php-client:client';
+        ) ?? 'urn:opcua-client:client';
         $innerBody->writeString($applicationUri);
         $innerBody->writeString(null);
-        $innerBody->writeLocalizedText(new LocalizedText(null, 'opcua-php-client'));
+        $innerBody->writeLocalizedText(new LocalizedText(null, 'opcua-client'));
         $innerBody->writeUInt32(1);
         $innerBody->writeString(null);
         $innerBody->writeString(null);
@@ -416,7 +416,7 @@ class SessionService
 
         $innerBody->writeString(null);
         $innerBody->writeString($endpointUrl);
-        $innerBody->writeString('opcua-php-client-session');
+        $innerBody->writeString('opcua-client-session');
 
         $nonce = random_bytes(32);
         $innerBody->writeByteString($nonce);
@@ -656,9 +656,9 @@ class SessionService
      */
     private function writeCreateSessionBody(BinaryEncoder $body, string $endpointUrl): void
     {
-        $body->writeString('urn:opcua-php-client:client');
+        $body->writeString('urn:opcua-client:client');
         $body->writeString(null);
-        $body->writeLocalizedText(new LocalizedText(null, 'opcua-php-client'));
+        $body->writeLocalizedText(new LocalizedText(null, 'opcua-client'));
         $body->writeUInt32(1);
         $body->writeString(null);
         $body->writeString(null);
@@ -667,7 +667,7 @@ class SessionService
         $body->writeString(null);
         $body->writeString($endpointUrl);
 
-        $body->writeString('opcua-php-client-session');
+        $body->writeString('opcua-client-session');
 
         $nonce = random_bytes(32);
         $body->writeByteString($nonce);

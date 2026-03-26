@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Exception;
+namespace PhpOpcua\Client\Exception;
 
 /**
  * Thrown when a server certificate is not trusted by the configured trust store.

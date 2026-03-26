@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityPolicy;
 
 describe('SecurityPolicy', function () {
 

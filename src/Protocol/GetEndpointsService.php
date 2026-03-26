@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\UserTokenPolicy;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\EndpointDescription;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\UserTokenPolicy;
 
 class GetEndpointsService extends AbstractProtocolService
 {

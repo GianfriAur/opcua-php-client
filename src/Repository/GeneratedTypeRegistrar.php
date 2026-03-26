@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Repository;
+namespace PhpOpcua\Client\Repository;
 
 /**
  * Contract for generated type registrars produced by the NodeSet2.xml code generator.
@@ -10,7 +10,7 @@ namespace Gianfriaur\OpcuaPhpClient\Repository;
  * Implementations register ExtensionObject codecs and provide enum mappings
  * for automatic value casting when reading nodes.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait::loadGeneratedTypes()
+ * @see \PhpOpcua\Client\Client\ManagesReadWriteTrait::loadGeneratedTypes()
  */
 interface GeneratedTypeRegistrar
 {

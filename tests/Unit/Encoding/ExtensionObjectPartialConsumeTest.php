@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\ExtensionObjectCodec;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Types\ExtensionObject;
+use PhpOpcua\Client\Types\NodeId;
 
 class PartialConsumeCodec implements ExtensionObjectCodec
 {

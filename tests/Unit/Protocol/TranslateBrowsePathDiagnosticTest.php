@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\TranslateBrowsePathService;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\TranslateBrowsePathService;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
 
 function writeTBPResponseHeader(BinaryEncoder $encoder, int $statusCode = 0): void
 {
@@ -123,7 +123,7 @@ describe('TranslateBrowsePathService diagnostic info handling', function () {
         );
 
         $decoder = new BinaryDecoder($bytes);
-        $header = Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
+        $header = PhpOpcua\Client\Protocol\MessageHeader::decode($decoder);
         expect($header->getMessageType())->toBe('MSG');
         expect(strlen($bytes))->toBeGreaterThan(40);
     });

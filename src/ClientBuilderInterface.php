@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient;
+namespace PhpOpcua\Client;
 
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Repository\GeneratedTypeRegistrar;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
+use PhpOpcua\Client\TrustStore\TrustStoreInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
-use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
-use Gianfriaur\OpcuaPhpClient\Event\DataTypesDiscovered;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\DynamicCodec;
+use PhpOpcua\Client\Encoding\StructureDefinitionParser;
+use PhpOpcua\Client\Event\DataTypesDiscovered;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Types\AttributeId;
+use PhpOpcua\Client\Types\BrowseDirection;
+use PhpOpcua\Client\Types\ExtensionObject;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 use Throwable;
 
 /**
@@ -32,8 +32,8 @@ trait ManagesTypeDiscoveryTrait
      * @param bool $useCache Whether to use cached discovery results.
      * @return int The number of types successfully discovered and registered.
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error.
      */
     public function discoverDataTypes(?int $namespaceIndex = null, bool $useCache = true): int
     {
@@ -84,10 +84,10 @@ trait ManagesTypeDiscoveryTrait
     /**
      * Recursively discover data types from a browse tree.
      *
-     * @param \Gianfriaur\OpcuaPhpClient\Types\BrowseNode[] $nodes The browse tree nodes.
+     * @param \PhpOpcua\Client\Types\BrowseNode[] $nodes The browse tree nodes.
      * @param ?int $namespaceIndex Filter by namespace index, or null for all.
      * @param int $registered Counter for registered types (passed by reference).
-     * @param array<array{encodingId: NodeId, definition: \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition}> $discoveredEntries Accumulated entries (passed by reference).
+     * @param array<array{encodingId: NodeId, definition: \PhpOpcua\Client\Types\StructureDefinition}> $discoveredEntries Accumulated entries (passed by reference).
      * @return void
      */
     private function discoverFromTree(array $nodes, ?int $namespaceIndex, int &$registered, array &$discoveredEntries): void
@@ -118,7 +118,7 @@ trait ManagesTypeDiscoveryTrait
      * Discover a single data type by its NodeId.
      *
      * @param NodeId $dataTypeNodeId The data type NodeId.
-     * @return ?array{encodingId: NodeId, definition: \Gianfriaur\OpcuaPhpClient\Types\StructureDefinition}
+     * @return ?array{encodingId: NodeId, definition: \PhpOpcua\Client\Types\StructureDefinition}
      */
     private function discoverSingleDataType(NodeId $dataTypeNodeId): ?array
     {

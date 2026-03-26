@@ -4,12 +4,12 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\ExtensionObjectCodec;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Types\ExtensionObject;
+use PhpOpcua\Client\Types\NodeId;
 
 class TestPointCodec implements ExtensionObjectCodec
 {
@@ -87,20 +87,20 @@ describe('ExtensionObjectRepository', function () {
         $repo = new ExtensionObjectRepository();
         $repo->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder($repo);
+        $builder = new PhpOpcua\Client\ClientBuilder($repo);
         expect($builder->getExtensionObjectRepository())->toBe($repo);
         expect($builder->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();
     });
 
     it('ClientBuilder creates empty repository when none provided', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $repo = $builder->getExtensionObjectRepository();
         expect($repo)->toBeInstanceOf(ExtensionObjectRepository::class);
         expect($repo->has(NodeId::numeric(0, 100)))->toBeFalse();
     });
 
     it('codecs registered via getExtensionObjectRepository are used by the builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $builder->getExtensionObjectRepository()->register(NodeId::numeric(0, 100), TestPointCodec::class);
 
         expect($builder->getExtensionObjectRepository()->has(NodeId::numeric(0, 100)))->toBeTrue();

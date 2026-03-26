@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Types\BrowsePathResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Types\BrowsePathResult;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\StatusCode;
 
 /**
  * Provides browse path translation and NodeId resolution from human-readable paths.
@@ -20,18 +20,18 @@ trait ManagesTranslateBrowsePathTrait
      * Translate one or more browse paths to their target NodeIds.
      *
      * @param ?array<array{startingNodeId: NodeId|string, relativePath: array<array{referenceTypeId?: NodeId, isInverse?: bool, includeSubtypes?: bool, targetName: QualifiedName}>}> $browsePaths Paths to translate, or null to get a fluent builder.
-     * @return ($browsePaths is null ? \Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder : BrowsePathResult[])
+     * @return ($browsePaths is null ? \PhpOpcua\Client\Builder\BrowsePathsBuilder : BrowsePathResult[])
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
      * @throws ServiceException If the server returns an error response.
      *
      * @see BrowsePathResult
      */
-    public function translateBrowsePaths(?array $browsePaths = null): array|\Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder
+    public function translateBrowsePaths(?array $browsePaths = null): array|\PhpOpcua\Client\Builder\BrowsePathsBuilder
     {
         if ($browsePaths === null) {
-            return new \Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder($this);
+            return new \PhpOpcua\Client\Builder\BrowsePathsBuilder($this);
         }
 
         $this->resolveNodeIdArrayParam($browsePaths, 'startingNodeId');
@@ -59,9 +59,9 @@ trait ManagesTranslateBrowsePathTrait
      * @param bool $useCache Whether to use cached results.
      * @return NodeId
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
      * @throws ServiceException If the path cannot be resolved, yields no targets, or the server returns a bad status code.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
      */
     public function resolveNodeId(string $path, NodeId|string|null $startingNodeId = null, bool $useCache = true): NodeId
     {

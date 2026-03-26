@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Exception;
+namespace PhpOpcua\Client\Exception;
 
 use Throwable;
 

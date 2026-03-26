@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
+use PhpOpcua\Client\Exception\ConfigurationException;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Security\CertificateManager;
 
 describe('CertificateManager', function () {
 
@@ -196,7 +196,7 @@ describe('CertificateManager', function () {
             $result = $cm->generateSelfSignedCertificate();
 
             $applicationUri = $cm->getApplicationUri($result['certDer']);
-            expect($applicationUri)->toBe('urn:opcua-php-client');
+            expect($applicationUri)->toBe('urn:opcua-client');
         });
 
         it('generates a valid thumbprint from the certificate', function () {

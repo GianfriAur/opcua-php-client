@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 
@@ -12,7 +12,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  * Used as the default dispatcher when no custom implementation is configured,
  * ensuring zero overhead when event dispatching is not needed.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesEventDispatcherTrait
+ * @see \PhpOpcua\Client\Client\ManagesEventDispatcherTrait
  */
 readonly class NullEventDispatcher implements EventDispatcherInterface
 {

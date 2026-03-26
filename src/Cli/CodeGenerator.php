@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli;
+namespace PhpOpcua\Client\Cli;
 
 /**
  * Generates PHP class files from parsed NodeSet2.xml data.
@@ -196,9 +196,9 @@ class CodeGenerator
 
         namespace {$namespace}\\Codecs;
 
-        use Gianfriaur\\OpcuaPhpClient\\Encoding\\BinaryDecoder;
-        use Gianfriaur\\OpcuaPhpClient\\Encoding\\BinaryEncoder;
-        use Gianfriaur\\OpcuaPhpClient\\Encoding\\ExtensionObjectCodec;
+        use PhpOpcua\\Client\\Encoding\\BinaryDecoder;
+        use PhpOpcua\\Client\\Encoding\\BinaryEncoder;
+        use PhpOpcua\\Client\\Encoding\\ExtensionObjectCodec;
         use {$namespace}\\Types\\{$dtoName};
 
         /**
@@ -248,7 +248,7 @@ class CodeGenerator
             $nodeIdRef = $codec['constName'] !== null
                 ? "{$nodeIdClassName}::{$codec['constName']}"
                 : "'{$codec['encodingId']}'";
-            $codecRegistrations .= "        \$repository->register(\\Gianfriaur\\OpcuaPhpClient\\Types\\NodeId::parse({$nodeIdRef}), new Codecs\\{$codec['codecClass']}());\n";
+            $codecRegistrations .= "        \$repository->register(\\PhpOpcua\\Client\\Types\\NodeId::parse({$nodeIdRef}), new Codecs\\{$codec['codecClass']}());\n";
         }
 
         $enumEntries = '';
@@ -271,8 +271,8 @@ class CodeGenerator
 
         namespace {$namespace};
 
-        use Gianfriaur\\OpcuaPhpClient\\Repository\\ExtensionObjectRepository;
-        use Gianfriaur\\OpcuaPhpClient\\Repository\\GeneratedTypeRegistrar;
+        use PhpOpcua\\Client\\Repository\\ExtensionObjectRepository;
+        use PhpOpcua\\Client\\Repository\\GeneratedTypeRegistrar;
 
         /**
          * Registers all generated codecs and enum mappings.

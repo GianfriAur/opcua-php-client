@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\NodeSetXmlBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+use PhpOpcua\Client\Cli\NodeSetXmlBuilder;
+use PhpOpcua\Client\Types\NodeClass;
 
 describe('NodeSetXmlBuilder', function () {
 

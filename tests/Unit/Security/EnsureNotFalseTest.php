@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\MessageSecurity;
 
 function callEnsureNotFalse(string $class, mixed $result, string $message): mixed
 {

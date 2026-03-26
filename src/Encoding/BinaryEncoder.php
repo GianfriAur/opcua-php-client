@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Encoding;
+namespace PhpOpcua\Client\Encoding;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Exception\EncodingException;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * OPC UA binary protocol serializer. Writes typed values to a byte buffer.
@@ -327,9 +327,9 @@ class BinaryEncoder
     }
 
     /**
-     * @param \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject $value
+     * @param \PhpOpcua\Client\Types\ExtensionObject $value
      */
-    public function writeExtensionObject(\Gianfriaur\OpcuaPhpClient\Types\ExtensionObject $value): void
+    public function writeExtensionObject(\PhpOpcua\Client\Types\ExtensionObject $value): void
     {
         $this->writeNodeId($value->typeId);
         $this->writeByte($value->encoding);

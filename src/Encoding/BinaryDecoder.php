@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Encoding;
+namespace PhpOpcua\Client\Encoding;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Exception\EncodingException;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\ReferenceDescription;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * OPC UA binary protocol deserializer. Reads typed values from a byte buffer.
@@ -348,9 +348,9 @@ class BinaryDecoder
     }
 
     /**
-     * @return \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject
+     * @return \PhpOpcua\Client\Types\ExtensionObject
      */
-    public function readExtensionObject(): \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject
+    public function readExtensionObject(): \PhpOpcua\Client\Types\ExtensionObject
     {
         $typeId = $this->readNodeId();
         $encoding = $this->readByte();
@@ -366,7 +366,7 @@ class BinaryDecoder
                     $this->skip($bodyLength - $consumed);
                 }
 
-                return new \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject($typeId, $encoding, value: $decoded);
+                return new \PhpOpcua\Client\Types\ExtensionObject($typeId, $encoding, value: $decoded);
             }
 
             $body = $this->readByteString();
@@ -376,7 +376,7 @@ class BinaryDecoder
             $body = null;
         }
 
-        return new \Gianfriaur\OpcuaPhpClient\Types\ExtensionObject($typeId, $encoding, body: $body);
+        return new \PhpOpcua\Client\Types\ExtensionObject($typeId, $encoding, body: $body);
     }
 
     public function readDiagnosticInfo(): array

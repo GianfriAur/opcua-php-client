@@ -29,7 +29,7 @@ openssl req -x509 -new -key ca.key -days 365 -out ca.pem \
 openssl genpkey -algorithm RSA -out client.key -pkeyopt rsa_keygen_bits:2048
 openssl req -new -key client.key -out client.csr \
   -subj "/CN=OPC UA Client" \
-  -addext "subjectAltName=URI:urn:opcua-php-client:client"
+  -addext "subjectAltName=URI:urn:opcua-client:client"
 openssl x509 -req -in client.csr -CA ca.pem -CAkey ca.key \
   -CAcreateserial -days 365 -out client.pem \
   -copy_extensions copy
@@ -43,9 +43,9 @@ openssl x509 -in client.pem -outform der -out client.der
 ## Client Configuration
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\SecurityMode;
 
 $client = ClientBuilder::create()
     ->setSecurityPolicy(SecurityPolicy::Basic256Sha256)
@@ -67,7 +67,7 @@ If you skip `setClientCertificate()`, the library auto-generates a self-signed R
 Utilities for loading and inspecting X.509 certificates:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
+use PhpOpcua\Client\Security\CertificateManager;
 
 $cm = new CertificateManager();
 
@@ -90,7 +90,7 @@ $appUri     = $cm->getApplicationUri($derBytes);      // from SAN extension
 Low-level cryptographic operations. You rarely need these directly -- the `SecureChannel` handles them -- but they are available:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
+use PhpOpcua\Client\Security\MessageSecurity;
 
 $ms = new MessageSecurity();
 

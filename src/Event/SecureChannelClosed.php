@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after the secure channel has been closed.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSecureChannelTrait::closeSecureChannel()
+ * @see \PhpOpcua\Client\Client\ManagesSecureChannelTrait::closeSecureChannel()
  */
 readonly class SecureChannelClosed
 {

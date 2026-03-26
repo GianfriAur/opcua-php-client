@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
 use Closure;
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
+use PhpOpcua\Client\Event\NullEventDispatcher;
 
 /**
  * Provides lazy event dispatching for the connected client.

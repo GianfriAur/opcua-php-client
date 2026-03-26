@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\EncodingException;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ConfigurationException;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\EncodingException;
+use PhpOpcua\Client\Exception\OpcUaException;
+use PhpOpcua\Client\Exception\ProtocolException;
+use PhpOpcua\Client\Exception\SecurityException;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('Exception hierarchy', function () {
 
@@ -77,13 +77,13 @@ describe('Exception thrown in correct context', function () {
     });
 
     it('throws ConfigurationException for invalid endpoint URL', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         expect(fn () => $builder->connect('not-a-valid-url'))
             ->toThrow(ConfigurationException::class);
     });
 
     it('throws ConnectionException for unreachable host', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $builder->setTimeout(1.0);
         expect(fn () => $builder->connect('opc.tcp://192.0.2.1:4840/UA/TestServer'))
             ->toThrow(ConnectionException::class);

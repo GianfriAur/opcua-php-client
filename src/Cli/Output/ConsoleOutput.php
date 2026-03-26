@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Output;
+namespace PhpOpcua\Client\Cli\Output;
 
 /**
  * Human-readable console output with ANSI colors and tree rendering.

@@ -5,7 +5,7 @@
 `browse()` returns the references (children) of a node:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\NodeId;
 
 // Using string format
 $references = $client->browse('i=85'); // Objects folder
@@ -28,9 +28,9 @@ foreach ($references as $ref) {
 ### Browse Parameters
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BrowseDirection;
 
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeClass;
 
 $references = $client->browse(
     nodeId: NodeId::numeric(0, 85),
@@ -64,7 +64,7 @@ $references = $client->browse(
 Pass an array of `NodeClass` enum values to filter results. Empty array (default) means all classes.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeClass;
 
 // Only objects and variables
 $refs = $client->browse($nodeId, nodeClasses: [NodeClass::Object, NodeClass::Variable]);
@@ -248,8 +248,8 @@ $nodeId = $client->resolveNodeId('Server', NodeId::numeric(0, 85));
 For full control over `TranslateBrowsePathsToNodeIds`, including resolving multiple paths in a single request:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\StatusCode;
 
 // Fluent builder
 $results = $client->translateBrowsePaths()
@@ -311,9 +311,9 @@ $nodeId = $client->resolveNodeId('/Objects/Server', useCache: false);
 Any PSR-16 `CacheInterface` implementation works — including Laravel's cache:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
-use Gianfriaur\OpcuaPhpClient\Cache\FileCache;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Cache\InMemoryCache;
+use PhpOpcua\Client\Cache\FileCache;
 
 // In-memory (default)
 $client = ClientBuilder::create()

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli;
+namespace PhpOpcua\Client\Cli;
 
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
 use Psr\Log\LoggerInterface;
 
 /**

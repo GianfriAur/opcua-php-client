@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
-use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelRequest;
-use Gianfriaur\OpcuaPhpClient\Protocol\SecureChannelResponse;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\BrowseService;
+use PhpOpcua\Client\Protocol\CallService;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\ReadService;
+use PhpOpcua\Client\Protocol\SecureChannelRequest;
+use PhpOpcua\Client\Protocol\SecureChannelResponse;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\SubscriptionService;
+use PhpOpcua\Client\Protocol\WriteService;
+use PhpOpcua\Client\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
 
 describe('SecureChannelRequest encoding', function () {
 

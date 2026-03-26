@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\TrustStore;
+namespace PhpOpcua\Client\TrustStore;
 
 /**
  * Contract for server certificate trust management.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\Application;
+use PhpOpcua\Client\Cli\Application;
 
 describe('Application', function () {
 

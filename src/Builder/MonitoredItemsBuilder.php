@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Builder;
+namespace PhpOpcua\Client\Builder;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\MonitoredItemResult;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Fluent builder for creating monitored items within a subscription.

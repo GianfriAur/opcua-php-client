@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
-use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Protocol\BrowseService;
+use PhpOpcua\Client\Protocol\CallService;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\ReadService;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\SubscriptionService;
+use PhpOpcua\Client\Protocol\WriteService;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Writes a minimal OPC UA ResponseHeader into the encoder.

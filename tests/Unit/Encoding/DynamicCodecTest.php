@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\DataTypeMapping;
-use Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec;
-use Gianfriaur\OpcuaPhpClient\Encoding\StructureDefinitionParser;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
-use Gianfriaur\OpcuaPhpClient\Types\StructureField;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Encoding\DataTypeMapping;
+use PhpOpcua\Client\Encoding\DynamicCodec;
+use PhpOpcua\Client\Encoding\StructureDefinitionParser;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StructureDefinition;
+use PhpOpcua\Client\Types\StructureField;
 
 describe('DataTypeMapping', function () {
 
@@ -43,7 +43,7 @@ describe('StructureDefinitionParser', function () {
 
         foreach (['x', 'y', 'z'] as $name) {
             $encoder->writeString($name);
-            $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+            $encoder->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
             $encoder->writeNodeId(NodeId::numeric(0, 11));
             $encoder->writeInt32(-1);
             $encoder->writeInt32(0);
@@ -71,7 +71,7 @@ describe('StructureDefinitionParser', function () {
         $encoder->writeInt32(2);
 
         $encoder->writeString('required');
-        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 6));
         $encoder->writeInt32(-1);
         $encoder->writeInt32(0);
@@ -79,7 +79,7 @@ describe('StructureDefinitionParser', function () {
         $encoder->writeBoolean(false);
 
         $encoder->writeString('optional');
-        $encoder->writeLocalizedText(new Gianfriaur\OpcuaPhpClient\Types\LocalizedText(null, null));
+        $encoder->writeLocalizedText(new PhpOpcua\Client\Types\LocalizedText(null, null));
         $encoder->writeNodeId(NodeId::numeric(0, 12));
         $encoder->writeInt32(-1);
         $encoder->writeInt32(0);

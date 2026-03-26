@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Types\ConnectionState;
 
 describe('ConnectionState enum', function () {
 

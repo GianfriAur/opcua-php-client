@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Protocol\BrowseService;
-use Gianfriaur\OpcuaPhpClient\Protocol\CallService;
-use Gianfriaur\OpcuaPhpClient\Protocol\GetEndpointsService;
-use Gianfriaur\OpcuaPhpClient\Protocol\HistoryReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\MonitoredItemService;
-use Gianfriaur\OpcuaPhpClient\Protocol\PublishService;
-use Gianfriaur\OpcuaPhpClient\Protocol\ReadService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\SubscriptionService;
-use Gianfriaur\OpcuaPhpClient\Protocol\WriteService;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\SecureChannel;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Protocol\BrowseService;
+use PhpOpcua\Client\Protocol\CallService;
+use PhpOpcua\Client\Protocol\GetEndpointsService;
+use PhpOpcua\Client\Protocol\HistoryReadService;
+use PhpOpcua\Client\Protocol\MonitoredItemService;
+use PhpOpcua\Client\Protocol\PublishService;
+use PhpOpcua\Client\Protocol\ReadService;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Protocol\SubscriptionService;
+use PhpOpcua\Client\Protocol\WriteService;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\SecureChannel;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * Creates a SessionService with an active SecureChannel (Sign mode, no encryption needed).

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\WriteTypeDetectionException;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\StatusCode;
 
 function writeResponseMsg(int $statusCode = 0): string
 {
@@ -110,7 +110,7 @@ describe('Write auto-detect type', function () {
 
     it('throws WriteTypeDetectionException when auto-detect is off and no type provided', function () {
         $client = createClientWithoutConnect();
-        setClientProperty($client, 'connectionState', Gianfriaur\OpcuaPhpClient\Types\ConnectionState::Connected);
+        setClientProperty($client, 'connectionState', PhpOpcua\Client\Types\ConnectionState::Connected);
         setClientProperty($client, 'autoDetectWriteType', false);
 
         expect(fn () => $client->write('i=1001', 42))
@@ -143,7 +143,7 @@ describe('Write auto-detect type', function () {
     });
 
     it('setAutoDetectWriteType returns self for fluent chaining on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $result = $builder->setAutoDetectWriteType(true);
 
         expect($result)->toBe($builder);
@@ -176,8 +176,8 @@ describe('Write auto-detect events', function () {
 
         $client->write('i=1001', 42);
 
-        $detecting = array_filter($events, fn ($e) => $e instanceof Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetecting);
-        $detected = array_filter($events, fn ($e) => $e instanceof Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected);
+        $detecting = array_filter($events, fn ($e) => $e instanceof PhpOpcua\Client\Event\WriteTypeDetecting);
+        $detected = array_filter($events, fn ($e) => $e instanceof PhpOpcua\Client\Event\WriteTypeDetected);
 
         expect($detecting)->toHaveCount(1);
         expect($detected)->toHaveCount(1);
@@ -213,7 +213,7 @@ describe('Write auto-detect events', function () {
         $client->write('i=1001', 42);
         $client->write('i=1001', 99);
 
-        $detected = array_values(array_filter($events, fn ($e) => $e instanceof Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected));
+        $detected = array_values(array_filter($events, fn ($e) => $e instanceof PhpOpcua\Client\Event\WriteTypeDetected));
         expect($detected)->toHaveCount(2);
         expect($detected[0]->fromCache)->toBeFalse();
         expect($detected[1]->fromCache)->toBeTrue();

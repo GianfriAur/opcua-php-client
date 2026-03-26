@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Tests\Unit\Helpers;
+namespace PhpOpcua\Client\Tests\Unit\Helpers;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\DataValue;
 
 /**
  * Dispatched for each data change notification received from a publish response.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::publish()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::publish()
  */
 readonly class DataChangeReceived
 {

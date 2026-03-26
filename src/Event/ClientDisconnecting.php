@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when the client begins disconnecting from the server.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait::disconnect()
+ * @see \PhpOpcua\Client\Client\ManagesConnectionTrait::disconnect()
  */
 readonly class ClientDisconnecting
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Repository;
+namespace PhpOpcua\Client\Repository;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\ExtensionObjectCodec;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Registry for ExtensionObjectCodec instances, keyed by their OPC UA type NodeId.

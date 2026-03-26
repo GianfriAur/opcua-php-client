@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\AttributeId;
+use PhpOpcua\Client\Types\BuiltinType;
 
 function readResponseMsgString(string $value): string
 {
@@ -106,7 +106,7 @@ describe('Read metadata cache', function () {
     });
 
     it('setReadMetadataCache returns self for fluent chaining on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $result = $builder->setReadMetadataCache(true);
 
         expect($result)->toBe($builder);

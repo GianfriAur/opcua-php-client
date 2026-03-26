@@ -5,10 +5,10 @@
 OPC UA methods live on object nodes. You need the object's NodeId and the method's NodeId:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\Variant;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\StatusCode;
 
 $result = $client->call(
     'i=2253',   // Server object (or NodeId::numeric(0, 2253))

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Represents an OPC UA ExtensionObject containing a typed binary or XML payload.
@@ -11,8 +11,8 @@ namespace Gianfriaur\OpcuaPhpClient\Types;
  * and {@see isDecoded()} returns true. When no codec is registered, the raw body is available
  * via {@see $body} and {@see isRaw()} returns true.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder::readExtensionObject()
- * @see \Gianfriaur\OpcuaPhpClient\Encoding\ExtensionObjectCodec
+ * @see \PhpOpcua\Client\Encoding\BinaryDecoder::readExtensionObject()
+ * @see \PhpOpcua\Client\Encoding\ExtensionObjectCodec
  */
 readonly class ExtensionObject
 {

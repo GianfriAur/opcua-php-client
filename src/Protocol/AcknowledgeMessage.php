@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Protocol;
+namespace PhpOpcua\Client\Protocol;
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
 
 /**
  * OPC UA ACK (Acknowledge) message received during TCP handshake.

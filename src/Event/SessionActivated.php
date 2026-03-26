@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after the OPC UA session has been activated with credentials.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait::createAndActivateSession()
+ * @see \PhpOpcua\Client\Client\ManagesSessionTrait::createAndActivateSession()
  */
 readonly class SessionActivated
 {

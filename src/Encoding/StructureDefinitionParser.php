@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Encoding;
+namespace PhpOpcua\Client\Encoding;
 
-use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
-use Gianfriaur\OpcuaPhpClient\Types\StructureField;
+use PhpOpcua\Client\Types\StructureDefinition;
+use PhpOpcua\Client\Types\StructureField;
 
 /**
  * Parses the binary body of an OPC UA StructureDefinition ExtensionObject (TypeId ns=0;i=122).

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Security;
+namespace PhpOpcua\Client\Security;
 
-use Gianfriaur\OpcuaPhpClient\Exception\SecurityException;
 use OpenSSLAsymmetricKey;
+use PhpOpcua\Client\Exception\SecurityException;
 
 /**
  * Low-level cryptographic operations for OPC UA message security.

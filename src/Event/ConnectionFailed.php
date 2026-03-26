@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when a connection attempt to an OPC UA server fails.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait::connect()
+ * @see \PhpOpcua\Client\Client\ManagesConnectionTrait::connect()
  */
 readonly class ConnectionFailed
 {

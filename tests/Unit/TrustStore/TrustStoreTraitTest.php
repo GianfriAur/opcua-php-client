@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateAutoAccepted;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateRejected;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateTrusted;
-use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Tests\Unit\Helpers\InMemoryEventDispatcher;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use PhpOpcua\Client\Event\ServerCertificateAutoAccepted;
+use PhpOpcua\Client\Event\ServerCertificateRejected;
+use PhpOpcua\Client\Event\ServerCertificateTrusted;
+use PhpOpcua\Client\Exception\UntrustedCertificateException;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Tests\Unit\Helpers\InMemoryEventDispatcher;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
 
 function createTestCertDer(): string
 {
@@ -43,7 +43,7 @@ describe('ManagesTrustStoreTrait on Client', function () {
     });
 
     it('setTrustStore is fluent on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $store = createTestTrustStore();
         $result = $builder->setTrustStore($store);
         expect($result)->toBe($builder);
@@ -52,21 +52,21 @@ describe('ManagesTrustStoreTrait on Client', function () {
     });
 
     it('setTrustPolicy is fluent on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $result = $builder->setTrustPolicy(TrustPolicy::Fingerprint);
         expect($result)->toBe($builder);
         expect($builder->getTrustPolicy())->toBe(TrustPolicy::Fingerprint);
     });
 
     it('setTrustPolicy(null) disables validation', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $builder->setTrustPolicy(TrustPolicy::Fingerprint);
         $builder->setTrustPolicy(null);
         expect($builder->getTrustPolicy())->toBeNull();
     });
 
     it('autoAccept is fluent on builder', function () {
-        $builder = new Gianfriaur\OpcuaPhpClient\ClientBuilder();
+        $builder = new PhpOpcua\Client\ClientBuilder();
         $result = $builder->autoAccept(true);
         expect($result)->toBe($builder);
     });
@@ -243,7 +243,7 @@ describe('ManagesTrustStoreTrait on Client', function () {
 describe('Trust Store Event classes', function () {
 
     it('creates ServerCertificateTrusted', function () {
-        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $client = PhpOpcua\Client\Testing\MockClient::create();
         $event = new ServerCertificateTrusted($client, 'aa:bb', 'CN=Server');
         expect($event->client)->toBe($client);
         expect($event->fingerprint)->toBe('aa:bb');
@@ -251,13 +251,13 @@ describe('Trust Store Event classes', function () {
     });
 
     it('creates ServerCertificateRejected', function () {
-        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $client = PhpOpcua\Client\Testing\MockClient::create();
         $event = new ServerCertificateRejected($client, 'aa:bb', 'Expired', 'CN=Server');
         expect($event->reason)->toBe('Expired');
     });
 
     it('creates ServerCertificateAutoAccepted', function () {
-        $client = Gianfriaur\OpcuaPhpClient\Testing\MockClient::create();
+        $client = PhpOpcua\Client\Testing\MockClient::create();
         $event = new ServerCertificateAutoAccepted($client, 'aa:bb', 'CN=Server');
         expect($event->fingerprint)->toBe('aa:bb');
     });

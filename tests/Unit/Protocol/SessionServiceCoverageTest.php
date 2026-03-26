@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryDecoder;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Encoding\BinaryDecoder;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Types\NodeId;
 
 function writeSessionResponsePrefix(BinaryEncoder $encoder, int $typeId): void
 {
@@ -56,7 +56,7 @@ describe('SessionService wrapWithSecureChannel (non-secure)', function () {
 
         expect(substr($result, 0, 3))->toBe('MSG');
         $decoder = new BinaryDecoder($result);
-        $header = Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader::decode($decoder);
+        $header = PhpOpcua\Client\Protocol\MessageHeader::decode($decoder);
         expect($header->getMessageSize())->toBe(strlen($result));
     });
 

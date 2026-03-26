@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\BrowseDirection;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched after a browse operation completes on a node.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesBrowseTrait::browse()
+ * @see \PhpOpcua\Client\Client\ManagesBrowseTrait::browse()
  */
 readonly class NodeBrowsed
 {

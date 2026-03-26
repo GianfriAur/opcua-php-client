@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli;
+namespace PhpOpcua\Client\Cli;
 
 use Psr\Log\AbstractLogger;
 use Stringable;

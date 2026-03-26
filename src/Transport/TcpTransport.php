@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Transport;
+namespace PhpOpcua\Client\Transport;
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\ProtocolException;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\ProtocolException;
 
 /**
  * TCP socket transport for OPC UA binary protocol communication.

@@ -2,37 +2,37 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
 use DateTimeImmutable;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmAcknowledged;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmActivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmConfirmed;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmDeactivated;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmEventReceived;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmSeverityChanged;
-use Gianfriaur\OpcuaPhpClient\Event\AlarmShelved;
-use Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived;
-use Gianfriaur\OpcuaPhpClient\Event\EventNotificationReceived;
-use Gianfriaur\OpcuaPhpClient\Event\LimitAlarmExceeded;
-use Gianfriaur\OpcuaPhpClient\Event\MonitoredItemCreated;
-use Gianfriaur\OpcuaPhpClient\Event\MonitoredItemDeleted;
-use Gianfriaur\OpcuaPhpClient\Event\MonitoredItemModified;
-use Gianfriaur\OpcuaPhpClient\Event\OffNormalAlarmTriggered;
-use Gianfriaur\OpcuaPhpClient\Event\PublishResponseReceived;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionCreated;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionDeleted;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionKeepAlive;
-use Gianfriaur\OpcuaPhpClient\Event\SubscriptionTransferred;
-use Gianfriaur\OpcuaPhpClient\Event\TriggeringConfigured;
-use Gianfriaur\OpcuaPhpClient\Protocol\ServiceTypeId;
-use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemModifyResult;
-use Gianfriaur\OpcuaPhpClient\Types\MonitoredItemResult;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\PublishResult;
-use Gianfriaur\OpcuaPhpClient\Types\SetTriggeringResult;
-use Gianfriaur\OpcuaPhpClient\Types\SubscriptionResult;
-use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
+use PhpOpcua\Client\Event\AlarmAcknowledged;
+use PhpOpcua\Client\Event\AlarmActivated;
+use PhpOpcua\Client\Event\AlarmConfirmed;
+use PhpOpcua\Client\Event\AlarmDeactivated;
+use PhpOpcua\Client\Event\AlarmEventReceived;
+use PhpOpcua\Client\Event\AlarmSeverityChanged;
+use PhpOpcua\Client\Event\AlarmShelved;
+use PhpOpcua\Client\Event\DataChangeReceived;
+use PhpOpcua\Client\Event\EventNotificationReceived;
+use PhpOpcua\Client\Event\LimitAlarmExceeded;
+use PhpOpcua\Client\Event\MonitoredItemCreated;
+use PhpOpcua\Client\Event\MonitoredItemDeleted;
+use PhpOpcua\Client\Event\MonitoredItemModified;
+use PhpOpcua\Client\Event\OffNormalAlarmTriggered;
+use PhpOpcua\Client\Event\PublishResponseReceived;
+use PhpOpcua\Client\Event\SubscriptionCreated;
+use PhpOpcua\Client\Event\SubscriptionDeleted;
+use PhpOpcua\Client\Event\SubscriptionKeepAlive;
+use PhpOpcua\Client\Event\SubscriptionTransferred;
+use PhpOpcua\Client\Event\TriggeringConfigured;
+use PhpOpcua\Client\Protocol\ServiceTypeId;
+use PhpOpcua\Client\Types\MonitoredItemModifyResult;
+use PhpOpcua\Client\Types\MonitoredItemResult;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\PublishResult;
+use PhpOpcua\Client\Types\SetTriggeringResult;
+use PhpOpcua\Client\Types\SubscriptionResult;
+use PhpOpcua\Client\Types\TransferResult;
 
 /**
  * Provides subscription and monitored item management for OPC UA data change and event notifications.
@@ -50,8 +50,8 @@ trait ManagesSubscriptionsTrait
      * @param int $priority Relative priority of the subscription.
      * @return SubscriptionResult
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see SubscriptionResult
      */
@@ -96,18 +96,18 @@ trait ManagesSubscriptionsTrait
      *
      * @param int $subscriptionId The subscription to add items to.
      * @param ?array<array{nodeId: NodeId|string, attributeId?: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, monitoringMode?: int}> $monitoredItems Items to monitor, or null to get a fluent builder.
-     * @return ($monitoredItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder : MonitoredItemResult[])
+     * @return ($monitoredItems is null ? \PhpOpcua\Client\Builder\MonitoredItemsBuilder : MonitoredItemResult[])
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see MonitoredItemResult
      */
-    public function createMonitoredItems(int $subscriptionId, ?array $monitoredItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder
+    public function createMonitoredItems(int $subscriptionId, ?array $monitoredItems = null): array|\PhpOpcua\Client\Builder\MonitoredItemsBuilder
     {
         if ($monitoredItems === null) {
-            return new \Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder($this, $subscriptionId);
+            return new \PhpOpcua\Client\Builder\MonitoredItemsBuilder($this, $subscriptionId);
         }
 
         $this->resolveNodeIdArrayParam($monitoredItems);
@@ -154,9 +154,9 @@ trait ManagesSubscriptionsTrait
      * @param int $clientHandle Client-assigned handle for correlating notifications.
      * @return MonitoredItemResult
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see MonitoredItemResult
      */
@@ -208,8 +208,8 @@ trait ManagesSubscriptionsTrait
      * @param int[] $monitoredItemIds IDs of the monitored items to delete.
      * @return int[] OPC UA status codes for each deletion.
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function deleteMonitoredItems(int $subscriptionId, array $monitoredItemIds): array
     {
@@ -247,8 +247,8 @@ trait ManagesSubscriptionsTrait
      * @param array<array{monitoredItemId: int, samplingInterval?: float, queueSize?: int, clientHandle?: int, discardOldest?: bool}> $itemsToModify Items to modify.
      * @return MonitoredItemModifyResult[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see MonitoredItemModifyResult
      */
@@ -293,8 +293,8 @@ trait ManagesSubscriptionsTrait
      * @param int[] $linksToRemove Monitored item IDs to unlink.
      * @return SetTriggeringResult
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see SetTriggeringResult
      */
@@ -338,8 +338,8 @@ trait ManagesSubscriptionsTrait
      * @param int $subscriptionId The subscription to delete.
      * @return int The OPC UA status code for the deletion.
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function deleteSubscription(int $subscriptionId): int
     {
@@ -373,8 +373,8 @@ trait ManagesSubscriptionsTrait
      * @param array<array{subscriptionId: int, sequenceNumber: int}> $acknowledgements Previously received notifications to acknowledge.
      * @return PublishResult
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see PublishResult
      */
@@ -410,8 +410,8 @@ trait ManagesSubscriptionsTrait
      * @param bool $sendInitialValues Whether the server should send initial values after transfer.
      * @return TransferResult[]
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see TransferResult
      */
@@ -451,8 +451,8 @@ trait ManagesSubscriptionsTrait
      * @param int $retransmitSequenceNumber The sequence number to retransmit.
      * @return array{sequenceNumber: int, publishTime: ?DateTimeImmutable, notifications: array}
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
     public function republish(int $subscriptionId, int $retransmitSequenceNumber): array
     {
@@ -541,7 +541,7 @@ trait ManagesSubscriptionsTrait
      *
      * @param int $subscriptionId The subscription ID.
      * @param int $clientHandle The client handle for the monitored item.
-     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields The event field values.
+     * @param \PhpOpcua\Client\Types\Variant[] $eventFields The event field values.
      * @return void
      */
     private function dispatchAlarmEvents(int $subscriptionId, int $clientHandle, array $eventFields): void
@@ -602,7 +602,7 @@ trait ManagesSubscriptionsTrait
      * @param ?string $sourceName The alarm source name.
      * @param ?int $severity The alarm severity.
      * @param ?string $message The alarm message.
-     * @param \Gianfriaur\OpcuaPhpClient\Types\Variant[] $eventFields The event field values.
+     * @param \PhpOpcua\Client\Types\Variant[] $eventFields The event field values.
      * @return void
      */
     private function dispatchStateAlarmEvents(

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after a subscription has been transferred from another session.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSubscriptionsTrait::transferSubscriptions()
+ * @see \PhpOpcua\Client\Client\ManagesSubscriptionsTrait::transferSubscriptions()
  */
 readonly class SubscriptionTransferred
 {

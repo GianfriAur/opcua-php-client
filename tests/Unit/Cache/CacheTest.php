@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cache\FileCache;
-use Gianfriaur\OpcuaPhpClient\Cache\InMemoryCache;
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Cache\FileCache;
+use PhpOpcua\Client\Cache\InMemoryCache;
+use PhpOpcua\Client\Client;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Transport\TcpTransport;
+use PhpOpcua\Client\Types\ConnectionState;
+use PhpOpcua\Client\Types\NodeId;
 
 class CacheMockTransport extends TcpTransport
 {
@@ -38,7 +38,7 @@ class CacheMockTransport extends TcpTransport
     public function receive(): string
     {
         if ($this->index >= count($this->responses)) {
-            throw new Gianfriaur\OpcuaPhpClient\Exception\ConnectionException('No more mock responses');
+            throw new PhpOpcua\Client\Exception\ConnectionException('No more mock responses');
         }
 
         return $this->responses[$this->index++];
@@ -73,8 +73,8 @@ function createCacheClientWithoutConnect(): Client
     $client = $ref->newInstanceWithoutConstructor();
 
     setCacheClientProperty($client, 'connectionState', ConnectionState::Disconnected);
-    setCacheClientProperty($client, 'securityPolicy', Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
-    setCacheClientProperty($client, 'securityMode', Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+    setCacheClientProperty($client, 'securityPolicy', PhpOpcua\Client\Security\SecurityPolicy::None);
+    setCacheClientProperty($client, 'securityMode', PhpOpcua\Client\Security\SecurityMode::None);
     setCacheClientProperty($client, 'clientCertPath', null);
     setCacheClientProperty($client, 'clientKeyPath', null);
     setCacheClientProperty($client, 'caCertPath', null);
@@ -83,7 +83,7 @@ function createCacheClientWithoutConnect(): Client
     setCacheClientProperty($client, 'userCertPath', null);
     setCacheClientProperty($client, 'userKeyPath', null);
     setCacheClientProperty($client, 'logger', new Psr\Log\NullLogger());
-    setCacheClientProperty($client, 'eventDispatcher', new Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher());
+    setCacheClientProperty($client, 'eventDispatcher', new PhpOpcua\Client\Event\NullEventDispatcher());
     setCacheClientProperty($client, 'trustStore', null);
     setCacheClientProperty($client, 'trustPolicy', null);
     setCacheClientProperty($client, 'autoAcceptEnabled', false);
@@ -98,7 +98,7 @@ function createCacheClientWithoutConnect(): Client
     setCacheClientProperty($client, 'defaultBrowseMaxDepth', 10);
     setCacheClientProperty($client, 'autoDetectWriteType', true);
     setCacheClientProperty($client, 'readMetadataCache', false);
-    setCacheClientProperty($client, 'extensionObjectRepository', new Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository());
+    setCacheClientProperty($client, 'extensionObjectRepository', new PhpOpcua\Client\Repository\ExtensionObjectRepository());
     setCacheClientProperty($client, 'enumMappings', []);
     setCacheClientProperty($client, 'transport', new TcpTransport());
     setCacheClientProperty($client, 'session', null);
@@ -632,11 +632,11 @@ describe('ManagesCacheTrait / Client integration', function () {
 describe('discoverDataTypes caching', function () {
 
     it('replays discovered types from cache on second call', function () {
-        $definition = new Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
-            Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
+        $definition = new PhpOpcua\Client\Types\StructureDefinition(
+            PhpOpcua\Client\Types\StructureDefinition::STRUCTURE,
             [
-                new Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false),
-                new Gianfriaur\OpcuaPhpClient\Types\StructureField('Y', NodeId::numeric(0, 11), -1, false),
+                new PhpOpcua\Client\Types\StructureField('X', NodeId::numeric(0, 11), -1, false),
+                new PhpOpcua\Client\Types\StructureField('Y', NodeId::numeric(0, 11), -1, false),
             ],
             NodeId::numeric(2, 5001),
         );
@@ -658,9 +658,9 @@ describe('discoverDataTypes caching', function () {
     });
 
     it('skips already registered codecs from cache replay', function () {
-        $definition = new Gianfriaur\OpcuaPhpClient\Types\StructureDefinition(
-            Gianfriaur\OpcuaPhpClient\Types\StructureDefinition::STRUCTURE,
-            [new Gianfriaur\OpcuaPhpClient\Types\StructureField('X', NodeId::numeric(0, 11), -1, false)],
+        $definition = new PhpOpcua\Client\Types\StructureDefinition(
+            PhpOpcua\Client\Types\StructureDefinition::STRUCTURE,
+            [new PhpOpcua\Client\Types\StructureField('X', NodeId::numeric(0, 11), -1, false)],
             NodeId::numeric(2, 5002),
         );
 
@@ -672,7 +672,7 @@ describe('discoverDataTypes caching', function () {
 
         $client->getExtensionObjectRepository()->register(
             $encodingId,
-            new Gianfriaur\OpcuaPhpClient\Encoding\DynamicCodec($definition),
+            new PhpOpcua\Client\Encoding\DynamicCodec($definition),
         );
 
         $cache = $client->getCache();
@@ -793,6 +793,6 @@ describe('MockClient cache', function () {
 
     it('getExtensionObjectRepository returns repository', function () {
         $mock = MockClient::create();
-        expect($mock->getExtensionObjectRepository())->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository::class);
+        expect($mock->getExtensionObjectRepository())->toBeInstanceOf(PhpOpcua\Client\Repository\ExtensionObjectRepository::class);
     });
 });

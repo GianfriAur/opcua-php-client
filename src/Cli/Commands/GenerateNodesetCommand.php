@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Commands;
+namespace PhpOpcua\Client\Cli\Commands;
 
-use Gianfriaur\OpcuaPhpClient\Cli\CodeGenerator;
-use Gianfriaur\OpcuaPhpClient\Cli\NodeSetParser;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\OutputInterface;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\Cli\CodeGenerator;
+use PhpOpcua\Client\Cli\NodeSetParser;
+use PhpOpcua\Client\Cli\Output\OutputInterface;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Generates PHP classes (NodeId constants, Codecs, Registrar) from a NodeSet2.xml file.
@@ -67,7 +67,7 @@ class GenerateNodesetCommand implements CommandInterface
 
         $outputDir = rtrim((string) ($options['output'] ?? './generated'), '/');
         $namespace = (string) ($options['namespace'] ?? 'Generated\\OpcUa');
-        $baseNamespace = (string) ($options['base-namespace'] ?? 'Gianfriaur\\OpcuaNodeset');
+        $baseNamespace = (string) ($options['base-namespace'] ?? 'PhpOpcua\\Nodeset');
 
         $parser = new NodeSetParser();
         $parser->parse($xmlFile);

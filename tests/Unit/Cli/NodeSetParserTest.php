@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\NodeSetParser;
+use PhpOpcua\Client\Cli\NodeSetParser;
 
 $fixturePath = __DIR__ . '/../../Fixtures/TestNodeSet2.xml';
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Types\BrowseNode;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
+use PhpOpcua\Client\Types\BrowseNode;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\ReferenceDescription;
 
 function makeRef(int $id, string $name, NodeClass $class = NodeClass::Object): ReferenceDescription
 {

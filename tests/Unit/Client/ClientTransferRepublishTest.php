@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Types\TransferResult;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Types\TransferResult;
 
 describe('TransferSubscriptions and Republish via MockTransport', function () {
 
@@ -50,12 +50,12 @@ describe('TransferSubscriptions and Republish via MockTransport', function () {
     it('transferSubscriptions throws ConnectionException when not connected', function () {
         $client = createClientWithoutConnect();
         expect(fn () => $client->transferSubscriptions([1]))
-            ->toThrow(Gianfriaur\OpcuaPhpClient\Exception\ConnectionException::class);
+            ->toThrow(PhpOpcua\Client\Exception\ConnectionException::class);
     });
 
     it('republish throws ConnectionException when not connected', function () {
         $client = createClientWithoutConnect();
         expect(fn () => $client->republish(1, 1))
-            ->toThrow(Gianfriaur\OpcuaPhpClient\Exception\ConnectionException::class);
+            ->toThrow(PhpOpcua\Client\Exception\ConnectionException::class);
     });
 });

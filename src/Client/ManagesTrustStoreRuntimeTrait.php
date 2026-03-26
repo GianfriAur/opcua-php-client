@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateAutoAccepted;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateManuallyTrusted;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateRejected;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateRemoved;
-use Gianfriaur\OpcuaPhpClient\Event\ServerCertificateTrusted;
-use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustStoreInterface;
+use PhpOpcua\Client\Event\ServerCertificateAutoAccepted;
+use PhpOpcua\Client\Event\ServerCertificateManuallyTrusted;
+use PhpOpcua\Client\Event\ServerCertificateRejected;
+use PhpOpcua\Client\Event\ServerCertificateRemoved;
+use PhpOpcua\Client\Event\ServerCertificateTrusted;
+use PhpOpcua\Client\Exception\UntrustedCertificateException;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
+use PhpOpcua\Client\TrustStore\TrustStoreInterface;
 
 /**
  * Provides runtime server certificate trust management for the connected client.

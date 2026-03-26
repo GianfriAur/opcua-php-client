@@ -34,8 +34,8 @@ Returns a [`SubscriptionResult`](08-types.md#subscriptionresult). The server may
 Add nodes to watch for value changes:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 // Fluent builder
 $results = $client->createMonitoredItems($sub->subscriptionId)
@@ -234,7 +234,7 @@ $status = $client->deleteSubscription($subscriptionId);
 
 ## Transfer & Recovery
 
-These two methods support subscription transfer and notification recovery. They are primarily useful when working with the [session manager package](https://github.com/GianfriAur/opcua-php-client-session-manager), which persists sessions across PHP requests, but they are exposed on the client for completeness.
+These two methods support subscription transfer and notification recovery. They are primarily useful when working with the [session manager package](https://github.com/php-opcua/opcua-session-manager), which persists sessions across PHP requests, but they are exposed on the client for completeness.
 
 ### Transferring Subscriptions
 

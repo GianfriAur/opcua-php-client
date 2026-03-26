@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\ClientBuilder;
+namespace PhpOpcua\Client\ClientBuilder;
 
-use Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar;
+use PhpOpcua\Client\Repository\GeneratedTypeRegistrar;
 
 /**
  * Provides read/write configuration: auto-detect write type, metadata caching, and generated type loading.

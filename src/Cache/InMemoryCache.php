@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cache;
+namespace PhpOpcua\Client\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 

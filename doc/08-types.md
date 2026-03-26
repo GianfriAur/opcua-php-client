@@ -7,7 +7,7 @@
 Identifies a node in the OPC UA address space.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\Types\NodeId;
 
 $nodeId = NodeId::numeric(0, 85);           // ns=0;i=85
 $nodeId = NodeId::string(2, 'Temperature'); // ns=2;s=Temperature
@@ -67,8 +67,8 @@ echo (string) $nodeId; // "ns=2;i=1001"
 Typed value container. Wraps any OPC UA value with its type information.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\Variant;
+use PhpOpcua\Client\Types\BuiltinType;
 
 $v = new Variant(BuiltinType::Int32, 42);
 $v = new Variant(BuiltinType::String, 'Hello');
@@ -102,7 +102,7 @@ $v = new Variant(BuiltinType::String, ['a', 'b', 'c']);
 A value with metadata. The inner `Variant` is private -- use `getValue()` to unwrap it.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
+use PhpOpcua\Client\Types\DataValue;
 
 $dv = new DataValue(
     value: new Variant(BuiltinType::Int32, 42),
@@ -135,9 +135,9 @@ $dv = new DataValue(
 `DataValue` provides static factory methods for creating instances with common types. Each returns a `DataValue` with status `Good`, no timestamps, and the appropriate `Variant` inside.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\StatusCode;
 
 // Typed factories
 DataValue::ofInt32(42);
@@ -182,7 +182,7 @@ DataValue::bad(StatusCode::BadNodeIdUnknown);
 All 25 OPC UA built-in data types:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Types\BuiltinType;
 ```
 
 | Case | Value | | Case | Value |
@@ -209,7 +209,7 @@ use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
 A name qualified by a namespace index.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\Types\QualifiedName;
 
 $qn = new QualifiedName(0, 'ServerStatus');
 ```
@@ -230,7 +230,7 @@ $qn = new QualifiedName(0, 'ServerStatus');
 A string with an optional locale.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
+use PhpOpcua\Client\Types\LocalizedText;
 
 $lt = new LocalizedText('en', 'Server Status');
 ```
@@ -251,7 +251,7 @@ $lt = new LocalizedText('en', 'Server Status');
 Utility class for OPC UA status codes. All methods are static.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\StatusCode;
 
 StatusCode::isGood(0x00000000);      // true
 StatusCode::isBad(0x80340000);       // true
@@ -345,7 +345,7 @@ See [Browsing](03-browsing.md#recursive-browse) for tree traversal examples.
 ### BrowseDirection (Enum)
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
+use PhpOpcua\Client\Types\BrowseDirection;
 ```
 
 | Case | Value | Description |
@@ -359,7 +359,7 @@ use Gianfriaur\OpcuaPhpClient\Types\BrowseDirection;
 ### NodeClass (Enum)
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeClass;
 ```
 
 | Case | Value |
@@ -415,7 +415,7 @@ Authentication method supported by an endpoint.
 ### ConnectionState (Enum)
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
+use PhpOpcua\Client\Types\ConnectionState;
 ```
 
 | Case | Description |
@@ -433,7 +433,7 @@ Used by `$client->getConnectionState()` and `$client->isConnected()`. See [Conne
 Constants for OPC UA node attributes.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
+use PhpOpcua\Client\Types\AttributeId;
 ```
 
 | Constant | Value | | Constant | Value |
@@ -564,7 +564,7 @@ Returned per subscription by `transferSubscriptions()`. See [Subscriptions](06-s
 Describes a single field within a structure definition. Returned as part of `StructureDefinition`.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\StructureField;
+use PhpOpcua\Client\Types\StructureField;
 ```
 
 **Properties** (`public readonly`):
@@ -584,7 +584,7 @@ use Gianfriaur\OpcuaPhpClient\Types\StructureField;
 Describes the layout of a custom structure type. Used by `discoverDataTypes()` to build dynamic codecs.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
+use PhpOpcua\Client\Types\StructureDefinition;
 ```
 
 **Properties** (`public readonly`):
@@ -603,7 +603,7 @@ use Gianfriaur\OpcuaPhpClient\Types\StructureDefinition;
 Represents an OPC UA ExtensionObject — a typed container for custom binary or XML structures.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\ExtensionObject;
+use PhpOpcua\Client\Types\ExtensionObject;
 ```
 
 **Properties** (`public readonly`):

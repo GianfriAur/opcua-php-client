@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched after a new OPC UA session has been created on the server.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait::createAndActivateSession()
+ * @see \PhpOpcua\Client\Client\ManagesSessionTrait::createAndActivateSession()
  */
 readonly class SessionCreated
 {

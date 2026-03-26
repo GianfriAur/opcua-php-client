@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustResult;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
+use PhpOpcua\Client\TrustStore\TrustResult;
 
 function generateTestCert(): string
 {

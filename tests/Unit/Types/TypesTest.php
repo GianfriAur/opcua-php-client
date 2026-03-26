@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\EndpointDescription;
-use Gianfriaur\OpcuaPhpClient\Types\LocalizedText;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
-use Gianfriaur\OpcuaPhpClient\Types\ReferenceDescription;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
-use Gianfriaur\OpcuaPhpClient\Types\UserTokenPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\EndpointDescription;
+use PhpOpcua\Client\Types\LocalizedText;
+use PhpOpcua\Client\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
+use PhpOpcua\Client\Types\ReferenceDescription;
+use PhpOpcua\Client\Types\StatusCode;
+use PhpOpcua\Client\Types\UserTokenPolicy;
+use PhpOpcua\Client\Types\Variant;
 
 describe('StatusCode', function () {
 

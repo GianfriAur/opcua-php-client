@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Result of transferring a single subscription to a new session.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcUaClientInterface::transferSubscriptions()
+ * @see \PhpOpcua\Client\OpcUaClientInterface::transferSubscriptions()
  */
 readonly class TransferResult
 {

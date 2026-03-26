@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\Client;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\QualifiedName;
 
 describe('resolveNodeId path parsing', function () {
 

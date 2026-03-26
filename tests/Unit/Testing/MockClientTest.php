@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Testing\MockClient;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\CallResult;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Testing\MockClient;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\CallResult;
+use PhpOpcua\Client\Types\ConnectionState;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
+use PhpOpcua\Client\Types\Variant;
 
 describe('MockClient', function () {
 
@@ -163,7 +163,7 @@ describe('MockClient', function () {
     it('writeMulti returns builder when no args', function () {
         $mock = MockClient::create();
         $builder = $mock->writeMulti();
-        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder::class);
+        expect($builder)->toBeInstanceOf(PhpOpcua\Client\Builder\WriteMultiBuilder::class);
     });
 
     it('createSubscription returns default result', function () {
@@ -188,7 +188,7 @@ describe('MockClient', function () {
     it('createMonitoredItems returns builder when no items', function () {
         $mock = MockClient::create();
         $builder = $mock->createMonitoredItems(1);
-        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\MonitoredItemsBuilder::class);
+        expect($builder)->toBeInstanceOf(PhpOpcua\Client\Builder\MonitoredItemsBuilder::class);
     });
 
     it('browseAll delegates to browse', function () {
@@ -210,7 +210,7 @@ describe('MockClient', function () {
     it('translateBrowsePaths returns builder when no args', function () {
         $mock = MockClient::create();
         $builder = $mock->translateBrowsePaths();
-        expect($builder)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Builder\BrowsePathsBuilder::class);
+        expect($builder)->toBeInstanceOf(PhpOpcua\Client\Builder\BrowsePathsBuilder::class);
     });
 
     it('config methods are fluent and store values', function () {
@@ -277,7 +277,7 @@ describe('MockClient', function () {
         ]);
 
         expect($results)->toHaveCount(2);
-        expect($results[0])->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Types\MonitoredItemModifyResult::class);
+        expect($results[0])->toBeInstanceOf(PhpOpcua\Client\Types\MonitoredItemModifyResult::class);
         expect($results[0]->statusCode)->toBe(0);
         expect($results[0]->revisedSamplingInterval)->toBe(1000.0);
         expect($results[1]->revisedQueueSize)->toBe(5);
@@ -287,15 +287,15 @@ describe('MockClient', function () {
         $mock = MockClient::create();
         $result = $mock->setTriggering(1, 1, [2, 3], [4]);
 
-        expect($result)->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Types\SetTriggeringResult::class);
+        expect($result)->toBeInstanceOf(PhpOpcua\Client\Types\SetTriggeringResult::class);
         expect($result->addResults)->toBe([0, 0]);
         expect($result->removeResults)->toBe([0]);
     });
 
     it('loadGeneratedTypes is fluent and records call', function () {
         $mock = MockClient::create();
-        $registrar = new class() implements Gianfriaur\OpcuaPhpClient\Repository\GeneratedTypeRegistrar {
-            public function registerCodecs(Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository $repository): void
+        $registrar = new class() implements PhpOpcua\Client\Repository\GeneratedTypeRegistrar {
+            public function registerCodecs(PhpOpcua\Client\Repository\ExtensionObjectRepository $repository): void
             {
             }
 
@@ -417,7 +417,7 @@ describe('MockClient', function () {
         $results = $mock->transferSubscriptions([1, 2]);
 
         expect($results)->toHaveCount(2);
-        expect($results[0])->toBeInstanceOf(Gianfriaur\OpcuaPhpClient\Types\TransferResult::class);
+        expect($results[0])->toBeInstanceOf(PhpOpcua\Client\Types\TransferResult::class);
         expect($results[0]->statusCode)->toBe(0);
         expect($results[1]->availableSequenceNumbers)->toBe([]);
     });

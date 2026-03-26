@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA CreateSubscription operation.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcuaClient::createSubscription()
+ * @see \PhpOpcua\Client\OpcuaClient::createSubscription()
  */
 readonly class SubscriptionResult
 {

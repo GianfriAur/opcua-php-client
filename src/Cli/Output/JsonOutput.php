@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli\Output;
+namespace PhpOpcua\Client\Cli\Output;
 
 /**
  * JSON output formatter for machine-readable CLI output.

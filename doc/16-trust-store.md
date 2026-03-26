@@ -9,9 +9,9 @@ By default, trust validation is **disabled** (`setTrustPolicy(null)`) — the cl
 ## Quick Start
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\TrustStore\TrustPolicy;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\TrustPolicy;
 
 $client = ClientBuilder::create()
     ->setTrustStore(new FileTrustStore())            // ~/.opcua/trusted/
@@ -41,7 +41,7 @@ $builder->setTrustPolicy(null);
 File-based implementation. Stores certificates as DER files.
 
 ```php
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
 
 // Default: ~/.opcua/
 $store = new FileTrustStore();
@@ -92,7 +92,7 @@ Both methods dispatch events and log the action.
 Thrown when a server certificate is not trusted:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Exception\UntrustedCertificateException;
+use PhpOpcua\Client\Exception\UntrustedCertificateException;
 
 try {
     $client = ClientBuilder::create()

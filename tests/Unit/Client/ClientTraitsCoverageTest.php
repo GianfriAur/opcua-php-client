@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Client;
-use Gianfriaur\OpcuaPhpClient\Encoding\BinaryEncoder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\ServiceException;
-use Gianfriaur\OpcuaPhpClient\Protocol\MessageHeader;
-use Gianfriaur\OpcuaPhpClient\Protocol\SessionService;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\QualifiedName;
+use PhpOpcua\Client\Client;
+use PhpOpcua\Client\Encoding\BinaryEncoder;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\ServiceException;
+use PhpOpcua\Client\Protocol\MessageHeader;
+use PhpOpcua\Client\Protocol\SessionService;
+use PhpOpcua\Client\Transport\TcpTransport;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\ConnectionState;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\QualifiedName;
 
 class MockTransport extends TcpTransport
 {
@@ -178,8 +178,8 @@ function createClientWithoutConnect(): Client
     $client = $ref->newInstanceWithoutConstructor();
 
     setClientProperty($client, 'connectionState', ConnectionState::Disconnected);
-    setClientProperty($client, 'securityPolicy', Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
-    setClientProperty($client, 'securityMode', Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+    setClientProperty($client, 'securityPolicy', PhpOpcua\Client\Security\SecurityPolicy::None);
+    setClientProperty($client, 'securityMode', PhpOpcua\Client\Security\SecurityMode::None);
     setClientProperty($client, 'clientCertPath', null);
     setClientProperty($client, 'clientKeyPath', null);
     setClientProperty($client, 'caCertPath', null);
@@ -188,7 +188,7 @@ function createClientWithoutConnect(): Client
     setClientProperty($client, 'userCertPath', null);
     setClientProperty($client, 'userKeyPath', null);
     setClientProperty($client, 'logger', new Psr\Log\NullLogger());
-    setClientProperty($client, 'eventDispatcher', new Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher());
+    setClientProperty($client, 'eventDispatcher', new PhpOpcua\Client\Event\NullEventDispatcher());
     setClientProperty($client, 'trustStore', null);
     setClientProperty($client, 'trustPolicy', null);
     setClientProperty($client, 'autoAcceptEnabled', false);
@@ -203,7 +203,7 @@ function createClientWithoutConnect(): Client
     setClientProperty($client, 'defaultBrowseMaxDepth', 10);
     setClientProperty($client, 'autoDetectWriteType', true);
     setClientProperty($client, 'readMetadataCache', false);
-    setClientProperty($client, 'extensionObjectRepository', new Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository());
+    setClientProperty($client, 'extensionObjectRepository', new PhpOpcua\Client\Repository\ExtensionObjectRepository());
     setClientProperty($client, 'enumMappings', []);
     setClientProperty($client, 'transport', new TcpTransport());
     setClientProperty($client, 'session', null);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Encoding;
+namespace PhpOpcua\Client\Encoding;
 
 /**
  * Interface for encoding and decoding OPC UA ExtensionObject payloads.

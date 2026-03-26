@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Cli;
+namespace PhpOpcua\Client\Cli;
 
 use DOMDocument;
 use DOMElement;
-use Gianfriaur\OpcuaPhpClient\Types\NodeClass;
+use PhpOpcua\Client\Types\NodeClass;
 
 /**
  * Builds a NodeSet2.xml document from a collection of discovered OPC UA nodes.

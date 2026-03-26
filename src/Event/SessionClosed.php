@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after the OPC UA session has been closed.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSessionTrait::closeSession()
+ * @see \PhpOpcua\Client\Client\ManagesSessionTrait::closeSession()
  */
 readonly class SessionClosed
 {

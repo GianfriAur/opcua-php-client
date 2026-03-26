@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Security\CertificateManager;
-use Gianfriaur\OpcuaPhpClient\Security\MessageSecurity;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use PhpOpcua\Client\Security\CertificateManager;
+use PhpOpcua\Client\Security\MessageSecurity;
+use PhpOpcua\Client\Security\SecurityPolicy;
 
 /**
  * Generates a self-signed certificate and private key for testing.

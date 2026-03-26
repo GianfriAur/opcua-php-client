@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA Publish operation containing subscription notifications.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcuaClient::publish()
+ * @see \PhpOpcua\Client\OpcuaClient::publish()
  */
 readonly class PublishResult
 {

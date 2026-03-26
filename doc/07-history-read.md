@@ -7,8 +7,8 @@ OPC UA servers with historizing enabled can store past values. This library supp
 Get stored values within a time range, exactly as recorded:
 
 ```php
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
 
 $now = new \DateTimeImmutable();
 $oneHourAgo = $now->modify('-1 hour');

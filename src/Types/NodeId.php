@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
-use Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException;
+use PhpOpcua\Client\Exception\InvalidNodeIdException;
 
 /**
  * Represents an OPC UA NodeId, uniquely identifying a node within a server address space.

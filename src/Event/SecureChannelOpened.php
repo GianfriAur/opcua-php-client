@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
 
 /**
  * Dispatched after a secure channel has been opened with the server.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesSecureChannelTrait::openSecureChannel()
+ * @see \PhpOpcua\Client\Client\ManagesSecureChannelTrait::openSecureChannel()
  */
 readonly class SecureChannelOpened
 {

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when a cache lookup finds a cached result.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesCacheTrait::cachedFetch()
+ * @see \PhpOpcua\Client\Client\ManagesCacheTrait::cachedFetch()
  */
 readonly class CacheHit
 {

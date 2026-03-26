@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched after data type discovery completes.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesTypeDiscoveryTrait::discoverDataTypes()
+ * @see \PhpOpcua\Client\Client\ManagesTypeDiscoveryTrait::discoverDataTypes()
  */
 readonly class DataTypesDiscovered
 {

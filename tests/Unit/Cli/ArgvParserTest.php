@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\ArgvParser;
+use PhpOpcua\Client\Cli\ArgvParser;
 
 describe('ArgvParser', function () {
 

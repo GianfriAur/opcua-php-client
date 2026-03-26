@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\OpcUaClientInterface;
+use PhpOpcua\Client\Types\NodeId;
 
 /**
  * Dispatched when the client begins detecting the write type for a node.
@@ -13,7 +13,7 @@ use Gianfriaur\OpcuaPhpClient\Types\NodeId;
  * This event fires before the cache lookup or server read used to determine
  * the node's BuiltinType for a write operation.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesReadWriteTrait::resolveWriteType()
+ * @see \PhpOpcua\Client\Client\ManagesReadWriteTrait::resolveWriteType()
  */
 readonly class WriteTypeDetecting
 {

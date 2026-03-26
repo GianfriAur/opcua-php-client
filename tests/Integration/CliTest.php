@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Cli\Application;
-use Gianfriaur\OpcuaPhpClient\Cli\Commands\WatchCommand;
-use Gianfriaur\OpcuaPhpClient\Cli\Output\ConsoleOutput;
-use Gianfriaur\OpcuaPhpClient\Tests\Integration\Helpers\TestHelper;
-use Gianfriaur\OpcuaPhpClient\TrustStore\FileTrustStore;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
+use PhpOpcua\Client\Cli\Application;
+use PhpOpcua\Client\Cli\Commands\WatchCommand;
+use PhpOpcua\Client\Cli\Output\ConsoleOutput;
+use PhpOpcua\Client\Tests\Integration\Helpers\TestHelper;
+use PhpOpcua\Client\TrustStore\FileTrustStore;
+use PhpOpcua\Client\Types\BuiltinType;
 
 describe('CLI Integration', function () {
 
@@ -227,7 +227,7 @@ describe('CLI Integration', function () {
     it('lists trusted certs via trust:list CLI command', function () {
         $storePath = sys_get_temp_dir() . '/opcua-cli-trustlist-integ-' . uniqid();
         $store = new FileTrustStore($storePath);
-        $cert = (new Gianfriaur\OpcuaPhpClient\Security\CertificateManager())->generateSelfSignedCertificate()['certDer'];
+        $cert = (new PhpOpcua\Client\Security\CertificateManager())->generateSelfSignedCertificate()['certDer'];
         $store->trust($cert);
 
         $app = new Application();

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Event;
+namespace PhpOpcua\Client\Event;
 
-use Gianfriaur\OpcuaPhpClient\OpcUaClientInterface;
+use PhpOpcua\Client\OpcUaClientInterface;
 
 /**
  * Dispatched when the client begins a reconnection attempt.
  *
- * @see \Gianfriaur\OpcuaPhpClient\Client\ManagesConnectionTrait::reconnect()
+ * @see \PhpOpcua\Client\Client\ManagesConnectionTrait::reconnect()
  */
 readonly class ClientReconnecting
 {

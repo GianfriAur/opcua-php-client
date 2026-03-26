@@ -9,7 +9,7 @@ A `NullEventDispatcher` is used by default, ensuring **zero overhead** when no d
 ## Configuration
 
 ```php
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
+use PhpOpcua\Client\ClientBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 $client = ClientBuilder::create()
@@ -42,10 +42,10 @@ Then listen with standard Laravel listeners:
 ```php
 // EventServiceProvider
 protected $listen = [
-    \Gianfriaur\OpcuaPhpClient\Event\DataChangeReceived::class => [
+    \PhpOpcua\Client\Event\DataChangeReceived::class => [
         \App\Listeners\HandleOpcUaDataChange::class,
     ],
-    \Gianfriaur\OpcuaPhpClient\Event\AlarmActivated::class => [
+    \PhpOpcua\Client\Event\AlarmActivated::class => [
         \App\Listeners\HandleOpcUaAlarm::class,
     ],
 ];
@@ -53,7 +53,7 @@ protected $listen = [
 
 ## Event Reference
 
-Every event is a `readonly` class in `Gianfriaur\OpcuaPhpClient\Event\`. All events carry a `$client` property referencing the `OpcUaClientInterface` that emitted them.
+Every event is a `readonly` class in `PhpOpcua\Client\Event\`. All events carry a `$client` property referencing the `OpcUaClientInterface` that emitted them.
 
 ### Connection Events
 

@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
 use Closure;
-use Gianfriaur\OpcuaPhpClient\Event\ClientConnected;
-use Gianfriaur\OpcuaPhpClient\Event\ClientConnecting;
-use Gianfriaur\OpcuaPhpClient\Event\ClientDisconnected;
-use Gianfriaur\OpcuaPhpClient\Event\ClientDisconnecting;
-use Gianfriaur\OpcuaPhpClient\Event\ClientReconnecting;
-use Gianfriaur\OpcuaPhpClient\Event\ConnectionFailed;
-use Gianfriaur\OpcuaPhpClient\Event\RetryAttempt;
-use Gianfriaur\OpcuaPhpClient\Event\RetryExhausted;
-use Gianfriaur\OpcuaPhpClient\Exception\ConfigurationException;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Exception\OpcUaException;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
-use Gianfriaur\OpcuaPhpClient\Types\ConnectionState;
+use PhpOpcua\Client\Event\ClientConnected;
+use PhpOpcua\Client\Event\ClientConnecting;
+use PhpOpcua\Client\Event\ClientDisconnected;
+use PhpOpcua\Client\Event\ClientDisconnecting;
+use PhpOpcua\Client\Event\ClientReconnecting;
+use PhpOpcua\Client\Event\ConnectionFailed;
+use PhpOpcua\Client\Event\RetryAttempt;
+use PhpOpcua\Client\Event\RetryExhausted;
+use PhpOpcua\Client\Exception\ConfigurationException;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Exception\OpcUaException;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
+use PhpOpcua\Client\Types\ConnectionState;
 
 /**
  * Provides connection lifecycle management including connect, reconnect, disconnect, and automatic retry logic.

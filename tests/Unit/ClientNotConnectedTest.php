@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/Client/ClientTraitsCoverageTest.php';
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder;
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
+use PhpOpcua\Client\ClientBuilder;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\NodeId;
 
 describe('Client throws ConnectionException when not connected', function () {
 
@@ -123,13 +123,13 @@ describe('ClientBuilder configuration methods', function () {
 
     it('setSecurityPolicy returns self for chaining', function () {
         $builder = new ClientBuilder();
-        $result = $builder->setSecurityPolicy(Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy::None);
+        $result = $builder->setSecurityPolicy(PhpOpcua\Client\Security\SecurityPolicy::None);
         expect($result)->toBe($builder);
     });
 
     it('setSecurityMode returns self for chaining', function () {
         $builder = new ClientBuilder();
-        $result = $builder->setSecurityMode(Gianfriaur\OpcuaPhpClient\Security\SecurityMode::None);
+        $result = $builder->setSecurityMode(PhpOpcua\Client\Security\SecurityMode::None);
         expect($result)->toBe($builder);
     });
 

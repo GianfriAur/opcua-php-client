@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient;
+namespace PhpOpcua\Client;
 
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesAutoRetryTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesBatchingTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesBrowseDepthTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesCacheTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesEventDispatcherTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesReadWriteConfigTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesTimeoutTrait;
-use Gianfriaur\OpcuaPhpClient\ClientBuilder\ManagesTrustStoreTrait;
-use Gianfriaur\OpcuaPhpClient\Event\NullEventDispatcher;
-use Gianfriaur\OpcuaPhpClient\Repository\ExtensionObjectRepository;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityMode;
-use Gianfriaur\OpcuaPhpClient\Security\SecurityPolicy;
+use PhpOpcua\Client\ClientBuilder\ManagesAutoRetryTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesBatchingTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesBrowseDepthTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesCacheTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesEventDispatcherTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesReadWriteConfigTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesTimeoutTrait;
+use PhpOpcua\Client\ClientBuilder\ManagesTrustStoreTrait;
+use PhpOpcua\Client\Event\NullEventDispatcher;
+use PhpOpcua\Client\Repository\ExtensionObjectRepository;
+use PhpOpcua\Client\Security\SecurityMode;
+use PhpOpcua\Client\Security\SecurityPolicy;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Client;
+namespace PhpOpcua\Client\Client;
 
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueRead;
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueWriteFailed;
-use Gianfriaur\OpcuaPhpClient\Event\NodeValueWritten;
-use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetected;
-use Gianfriaur\OpcuaPhpClient\Event\WriteTypeDetecting;
-use Gianfriaur\OpcuaPhpClient\Exception\WriteTypeDetectionException;
-use Gianfriaur\OpcuaPhpClient\Types\AttributeId;
-use Gianfriaur\OpcuaPhpClient\Types\BuiltinType;
-use Gianfriaur\OpcuaPhpClient\Types\CallResult;
-use Gianfriaur\OpcuaPhpClient\Types\DataValue;
-use Gianfriaur\OpcuaPhpClient\Types\NodeId;
-use Gianfriaur\OpcuaPhpClient\Types\StatusCode;
-use Gianfriaur\OpcuaPhpClient\Types\Variant;
+use PhpOpcua\Client\Event\NodeValueRead;
+use PhpOpcua\Client\Event\NodeValueWriteFailed;
+use PhpOpcua\Client\Event\NodeValueWritten;
+use PhpOpcua\Client\Event\WriteTypeDetected;
+use PhpOpcua\Client\Event\WriteTypeDetecting;
+use PhpOpcua\Client\Exception\WriteTypeDetectionException;
+use PhpOpcua\Client\Types\AttributeId;
+use PhpOpcua\Client\Types\BuiltinType;
+use PhpOpcua\Client\Types\CallResult;
+use PhpOpcua\Client\Types\DataValue;
+use PhpOpcua\Client\Types\NodeId;
+use PhpOpcua\Client\Types\StatusCode;
+use PhpOpcua\Client\Types\Variant;
 
 /**
  * Provides read, write, and method call operations for OPC UA node attributes.
@@ -35,9 +35,9 @@ trait ManagesReadWriteTrait
      * @param bool $refresh Force a server read even if the result is cached.
      * @return DataValue
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see DataValue
      */
@@ -147,16 +147,16 @@ trait ManagesReadWriteTrait
      * Results are automatically batched if the number of items exceeds the effective batch size.
      *
      * @param ?array<array{nodeId: NodeId|string, attributeId?: int}> $readItems Items to read, or null to get a fluent builder.
-     * @return ($readItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder : DataValue[])
+     * @return ($readItems is null ? \PhpOpcua\Client\Builder\ReadMultiBuilder : DataValue[])
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      */
-    public function readMulti(?array $readItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder
+    public function readMulti(?array $readItems = null): array|\PhpOpcua\Client\Builder\ReadMultiBuilder
     {
         if ($readItems === null) {
-            return new \Gianfriaur\OpcuaPhpClient\Builder\ReadMultiBuilder($this);
+            return new \PhpOpcua\Client\Builder\ReadMultiBuilder($this);
         }
 
         $this->resolveNodeIdArrayParam($readItems);
@@ -224,9 +224,9 @@ trait ManagesReadWriteTrait
      * @param ?BuiltinType $type The OPC UA built-in type, or null for auto-detection.
      * @return int The OPC UA status code for the write result.
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      * @throws WriteTypeDetectionException If the type cannot be determined.
      */
     public function write(NodeId|string $nodeId, mixed $value, ?BuiltinType $type = null): int
@@ -269,17 +269,17 @@ trait ManagesReadWriteTrait
      * automatically via a read (or cache).
      *
      * @param ?array<array{nodeId: NodeId|string, value: mixed, type?: ?BuiltinType, attributeId?: int}> $writeItems Items to write, or null to get a fluent builder.
-     * @return ($writeItems is null ? \Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder : int[])
+     * @return ($writeItems is null ? \PhpOpcua\Client\Builder\WriteMultiBuilder : int[])
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      * @throws WriteTypeDetectionException If a type cannot be determined for an item.
      */
-    public function writeMulti(?array $writeItems = null): array|\Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder
+    public function writeMulti(?array $writeItems = null): array|\PhpOpcua\Client\Builder\WriteMultiBuilder
     {
         if ($writeItems === null) {
-            return new \Gianfriaur\OpcuaPhpClient\Builder\WriteMultiBuilder($this);
+            return new \PhpOpcua\Client\Builder\WriteMultiBuilder($this);
         }
 
         $this->resolveNodeIdArrayParam($writeItems);
@@ -483,9 +483,9 @@ trait ManagesReadWriteTrait
      * @param Variant[] $inputArguments Input arguments for the method call.
      * @return CallResult
      *
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ConnectionException If the connection is lost during the request.
-     * @throws \Gianfriaur\OpcuaPhpClient\Exception\ServiceException If the server returns an error response.
+     * @throws \PhpOpcua\Client\Exception\InvalidNodeIdException If a string parameter cannot be parsed as a NodeId.
+     * @throws \PhpOpcua\Client\Exception\ConnectionException If the connection is lost during the request.
+     * @throws \PhpOpcua\Client\Exception\ServiceException If the server returns an error response.
      *
      * @see CallResult
      */

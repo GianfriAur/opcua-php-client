@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of an OPC UA CreateMonitoredItems operation for a single item.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcuaClient::createMonitoredItems()
+ * @see \PhpOpcua\Client\OpcuaClient::createMonitoredItems()
  */
 readonly class MonitoredItemResult
 {

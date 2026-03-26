@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Gianfriaur\OpcuaPhpClient\Exception\ConnectionException;
-use Gianfriaur\OpcuaPhpClient\Transport\TcpTransport;
+use PhpOpcua\Client\Exception\ConnectionException;
+use PhpOpcua\Client\Transport\TcpTransport;
 
 describe('TcpTransport', function () {
 

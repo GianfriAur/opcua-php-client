@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Types;
+namespace PhpOpcua\Client\Types;
 
 /**
  * Holds the result of a browse operation, including references and an optional continuation point.
  *
- * @see \Gianfriaur\OpcuaPhpClient\OpcuaClient::browseWithContinuation()
+ * @see \PhpOpcua\Client\OpcuaClient::browseWithContinuation()
  */
 readonly class BrowseResultSet
 {

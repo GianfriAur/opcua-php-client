@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gianfriaur\OpcuaPhpClient\Exception;
+namespace PhpOpcua\Client\Exception;
 
 /**
  * Thrown when the TCP connection to the OPC UA server fails or is lost during an operation.
