@@ -289,33 +289,24 @@ class AlarmHandler {
 ### Explore from the terminal
 
 ```bash
-# Browse the address space
-php vendor/bin/opcua-cli browse opc.tcp://192.168.1.10:4840 /Objects
-
-# Read a value
-php vendor/bin/opcua-cli read opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
-
-# Write a value
-php vendor/bin/opcua-cli write opc.tcp://192.168.1.10:4840 "ns=2;i=1001" 42 # auto-detected
-php vendor/bin/opcua-cli write opc.tcp://192.168.1.10:4840 "ns=2;i=1001" 42 --type=Int32 # with type
-
-# Dump address space to NodeSet2.xml (then generate PHP types)
-php vendor/bin/opcua-cli dump:nodeset opc.tcp://192.168.1.10:4840 --output=MyPLC.NodeSet2.xml
-
-# Watch a value in real time (subscription mode)
-php vendor/bin/opcua-cli watch opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
-
-# Discover endpoints
-php vendor/bin/opcua-cli endpoints opc.tcp://192.168.1.10:4840
-
-# With security and JSON output
-php vendor/bin/opcua-cli read opc.tcp://server:4840 "i=2259" \
-  -s Basic256Sha256 -m SignAndEncrypt \
-  --cert=/certs/client.pem --key=/certs/client.key \
-  -u operator -p secret --json
+composer require php-opcua/opcua-cli
 ```
 
-Zero additional dependencies. Full security support, JSON output (`--json`), debug logging (`--debug`). See [CLI documentation](doc/15-cli.md) for details.
+```bash
+# Browse the address space
+opcua-cli browse opc.tcp://192.168.1.10:4840 /Objects
+
+# Read a value
+opcua-cli read opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
+
+# Watch a value in real time
+opcua-cli watch opc.tcp://192.168.1.10:4840 "ns=2;i=1001"
+
+# Discover endpoints
+opcua-cli endpoints opc.tcp://192.168.1.10:4840
+```
+
+Full security support, JSON output, debug logging, NodeSet2.xml code generation, and more. See [`php-opcua/opcua-cli`](https://github.com/php-opcua/opcua-cli) for full documentation.
 
 ### Trust server certificates
 
@@ -344,16 +335,16 @@ Disable trust validation:
 
 ```php
 $client = ClientBuilder::create()
-    ->setTrustPolicy(null)                // behaves like before — accept everything
+    ->setTrustPolicy(null)                // no trust policy
     ->connect('opc.tcp://192.168.1.100:4840');
 ```
 
-Or manage from the CLI:
+Or manage from the CLI with [`php-opcua/opcua-cli`](https://github.com/php-opcua/opcua-cli):
 
 ```bash
-php vendor/bin/opcua-cli trust opc.tcp://server:4840          # download and trust
-php vendor/bin/opcua-cli trust:list                            # list trusted certs
-php vendor/bin/opcua-cli trust:remove AB:CD:12:34:...          # remove a cert
+opcua-cli trust opc.tcp://server:4840          # download and trust
+opcua-cli trust:list                            # list trusted certs
+opcua-cli trust:remove AB:CD:12:34:...          # remove a cert
 ```
 
 ### Auto-discover custom types
@@ -397,7 +388,7 @@ $data->Status;         // OperatingStateEnum — not a raw int
 
 Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to skip dependency loading if you manage them yourself.
 
-> **Tip:** You can also generate types from your own custom NodeSet2.xml files using `opcua-cli generate:nodeset`. See [Code Generation](doc/17-code-generation.md).
+> **Tip:** You can also generate types from your own custom NodeSet2.xml files using [`opcua-cli generate:nodeset`](https://github.com/php-opcua/opcua-cli).
 
 ## Why This Library?
 
@@ -437,7 +428,7 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 | **Cache** | Browse, resolve, and metadata read results cached (InMemoryCache, 300s TTL). Plug in any PSR-16 driver (FileCache, Laravel, Redis). Metadata cache opt-in via `setReadMetadataCache(true)` |
 | **Events** | 47 granular PSR-14 events — connection, session, subscription, data change, alarms, read/write, browse, cache, retry. Zero overhead when unused |
 | **Trust Store** | Persistent server certificate validation — file-based trust store, 3 policies (fingerprint/expiry/full CA chain), TOFU auto-accept, CLI management |
-| **CLI Tool** | `opcua-cli` — browse, read, write, watch, discover endpoints, manage trusted certificates, and generate code from NodeSet2.xml. Security, JSON output, and debug logging |
+| **CLI Tool** | [`opcua-cli`](https://github.com/php-opcua/opcua-cli) — browse, read, write, watch, discover endpoints, manage trusted certificates, and generate code from NodeSet2.xml (separate package) |
 
 ## Documentation
 
@@ -457,9 +448,7 @@ Each Registrar automatically loads its NodeSet dependencies. Use `only: true` to
 | 12 | [ExtensionObject Codecs](doc/12-extension-object-codecs.md) | Custom type decoding, codec interface, repository API |
 | 13 | [Testing](doc/13-testing.md) | MockClient, DataValue factories, call tracking, test examples |
 | 14 | [Events](doc/14-events.md) | PSR-14 event system, 47 events, alarm deduction, Laravel integration, examples |
-| 15 | [CLI Tool](doc/15-cli.md) | Browse, read, write, watch, endpoints, generate, dump — from the terminal with security and JSON |
-| 16 | [Trust Store](doc/16-trust-store.md) | Server certificate trust management, policies, TOFU, CLI commands |
-| 17 | [Code Generation](doc/17-code-generation.md) | Generate PHP classes from NodeSet2.xml — NodeId constants, enums, typed DTOs, codecs |
+| 15 | [Trust Store](doc/15-trust-store.md) | Server certificate trust management, policies, TOFU |
 
 ## Testing
 
@@ -489,6 +478,7 @@ CI runs on PHP 8.2, 8.3, 8.4, and 8.5 via GitHub Actions.
 | Package | Description |
 |---------|-------------|
 | [opcua-client](https://github.com/php-opcua/opcua-client) | Pure PHP OPC UA client (this package) |
+| [opcua-cli](https://github.com/php-opcua/opcua-cli) | CLI tool — browse, read, write, watch, discover endpoints, manage certificates, generate code from NodeSet2.xml |
 | [opcua-session-manager](https://github.com/php-opcua/opcua-session-manager) | Daemon-based session persistence across PHP requests. Keeps OPC UA connections alive between short-lived PHP processes via a ReactPHP daemon and Unix sockets. Separate package by design — see [ROADMAP.md](ROADMAP.md#session-manager-integration-here) for rationale. |
 | [opcua-client-nodeset](https://github.com/php-opcua/opcua-client-nodeset) | Pre-generated PHP types from 51 OPC Foundation companion specifications (DI, Robotics, Machinery, MachineTool, ISA-95, CNC, MTConnect, and more). 807 PHP files — NodeId constants, enums, typed DTOs, codecs, registrars with automatic dependency resolution. Just `composer require` and `loadGeneratedTypes()`. |
 | [laravel-opcua](https://github.com/php-opcua/laravel-opcua) | Laravel integration — service provider, facade, config |

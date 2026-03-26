@@ -2,6 +2,12 @@
 
 ## [v4.0.0] - 2026-03-29
 
+### Removed
+
+- **CLI tool extracted to [`php-opcua/opcua-cli`](https://github.com/php-opcua/opcua-cli).** The entire `src/Cli/` directory, `bin/opcua-cli`, CLI tests, `doc/15-cli.md`, and `https://github.com/php-opcua/opcua-cli/blob/master/doc/03-code-generation.md` have been moved to a standalone package. Install it with `composer require php-opcua/opcua-cli`. All 10 commands (`browse`, `read`, `write`, `endpoints`, `watch`, `generate:nodeset`, `dump:nodeset`, `trust`, `trust:list`, `trust:remove`), the NodeSet2.xml code generator, and all CLI documentation now live in the new repository.
+- Removed `"bin"` entry from `composer.json`.
+- Renamed `doc/16-trust-store.md` → `doc/15-trust-store.md` (CLI sections replaced with a link to the new package).
+
 ### Added
 
 - **CLI `dump:nodeset` command.** Export a live server's address space to a NodeSet2.xml file: `opcua-cli dump:nodeset opc.tcp://server:4840 --output=MyPLC.NodeSet2.xml [--namespace=2]`. Browses the entire address space recursively, reads node attributes (DataType, ValueRank, IsAbstract, Symmetric), discovers structured DataType definitions and enumerations, and produces a valid NodeSet2.xml that can be fed directly to `generate:nodeset`. Filters by namespace index (default: all non-zero). Full security support.
@@ -14,7 +20,7 @@
   - Parses `<UAObject>`, `<UAVariable>`, `<UAMethod>`, `<UAObjectType>`, `<UAVariableType>`, `<UAReferenceType>`, `<UADataType>` with struct and enum `<Definition>`. Resolves `<Aliases>` and `HasEncoding` references. Sanitizes field names and class names (handles special characters and numeric prefixes).
   - Usage: `opcua-cli generate:nodeset path/to/File.NodeSet2.xml --output=src/Generated/ --namespace=App\\OpcUa [--base-namespace=PhpOpcua\\Nodeset]`.
   - No server connection required — works entirely from the local XML file.
-  - See [Code Generation](doc/17-code-generation.md) for full documentation.
+  - See [Code Generation](https://github.com/php-opcua/opcua-cli/blob/master/doc/03-code-generation.md) for full documentation.
 - **Generated Type Loading and Automatic Dependency Resolution.**
   - `loadGeneratedTypes(GeneratedTypeRegistrar $registrar)` — registers codecs and enum mappings with the builder (called before `connect()`). After loading, `read()` on enum nodes returns PHP `BackedEnum` instances instead of raw `int`, and structured types return typed DTO objects with property access (`$snapshot->Temperature_C` instead of `$data['Temperature_C']`).
   - **Automatic dependency resolution**: each Registrar declares its NodeSet dependencies via `dependencyRegistrars()`. When loaded, dependencies are resolved recursively — e.g. loading `MachineToolRegistrar` automatically loads Machinery, DI, and IA.
@@ -54,7 +60,7 @@
 - Documentation: [Events](doc/14-events.md) chapter with full event reference, Laravel integration, and practical examples.
 - **Code style enforcement.** Added `friendsofphp/php-cs-fixer` with Laravel-style rules (PSR-12 + opinionated). Run `composer format` before committing. `.editorconfig` included for IDE support.
 - **CLI `write` command.** Write a value to a node from the terminal: `opcua-cli write <endpoint> <nodeId> <value> [--type=Int32]`. The `--type` flag is optional — when omitted, the type is auto-detected from the node. Supports all scalar types (Boolean, Int32, Double, String, etc.) with automatic value casting.
-- **CLI Tool** (`bin/opcua-cli`). Five commands: `browse` (flat + recursive tree), `read` (any attribute), `endpoints` (discover security), `watch` (subscription or polling). Full security, JSON output, debug logging. Zero additional dependencies. Documentation: [CLI Tool](doc/15-cli.md).
+- **CLI Tool** (`bin/opcua-cli`). Five commands: `browse` (flat + recursive tree), `read` (any attribute), `endpoints` (discover security), `watch` (subscription or polling). Full security, JSON output, debug logging. Zero additional dependencies. Documentation: [CLI Tool](https://github.com/php-opcua/opcua-cli).
 - `MockClient::onGetEndpoints()` handler for mocking endpoint discovery results.
 - **Server Trust Store.** Persistent server certificate validation for industrial-grade deployments.
   - `FileTrustStore` — file-based trust store (`~/.opcua/trusted/` default, configurable path). Stores trusted and rejected certificates as DER files.

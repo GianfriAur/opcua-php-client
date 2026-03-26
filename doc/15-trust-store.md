@@ -119,36 +119,10 @@ All events carry `$client`, `$fingerprint`, and optionally `$subject` and `$reas
 
 ## CLI Commands
 
-### `trust <endpoint>`
-
-Downloads the server certificate and adds it to the trust store:
+Trust management is also available from the terminal via [`php-opcua/opcua-cli`](https://github.com/php-opcua/opcua-cli):
 
 ```bash
-php vendor/bin/opcua-cli trust opc.tcp://server:4840 --trust-store=~/.opcua
+opcua-cli trust opc.tcp://server:4840          # download and trust
+opcua-cli trust:list                            # list trusted certs
+opcua-cli trust:remove ab:cd:12:34:...          # remove a cert
 ```
-
-### `trust:list`
-
-Lists all trusted certificates:
-
-```bash
-php vendor/bin/opcua-cli trust:list --trust-store=~/.opcua
-```
-
-### `trust:remove <fingerprint>`
-
-Removes a certificate from the trust store:
-
-```bash
-php vendor/bin/opcua-cli trust:remove ab:cd:12:34:... --trust-store=~/.opcua
-```
-
-### CLI Options
-
-| Option | Description |
-|--------|-------------|
-| `--trust-store=<path>` | Custom trust store path |
-| `--trust-policy=<policy>` | Set validation policy (fingerprint, fingerprint+expiry, full) |
-| `--no-trust-policy` | Disable trust validation for this command |
-
-When a command fails with `UntrustedCertificateException`, the CLI shows a helpful message suggesting `trust` and `--no-trust-policy`.

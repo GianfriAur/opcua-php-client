@@ -125,28 +125,7 @@ src/
 │   ├── Retry*.php                     # Retry events (2)
 │   └── ServerCertificate*.php         # Trust store events (5)
 │
-├── Cli/
-│   ├── Application.php                # CLI entry point and routing
-│   ├── ArgvParser.php                 # Zero-dep argument parser
-│   ├── CommandRunner.php              # Client configuration from CLI options
-│   ├── StreamLogger.php               # PSR-3 logger for streams
-│   ├── NodeSetParser.php              # NodeSet2.xml parser
-│   ├── CodeGenerator.php             # PHP code generator from parsed NodeSet
-│   ├── NodeSetXmlBuilder.php         # Build NodeSet2.xml from discovered nodes
-│   ├── Commands/
-│   │   ├── BrowseCommand.php          # Browse with tree rendering
-│   │   ├── ReadCommand.php            # Read node values/attributes
-│   │   ├── WriteCommand.php           # Write values to nodes
-│   │   ├── EndpointsCommand.php       # Discover endpoints
-│   │   ├── WatchCommand.php           # Real-time value watching
-│   │   ├── GenerateNodesetCommand.php # Generate PHP from NodeSet2.xml
-│   │   ├── DumpNodesetCommand.php     # Export server address space to NodeSet2.xml
-│   │   ├── TrustCommand.php           # Trust a server certificate
-│   │   ├── TrustListCommand.php       # List trusted certificates
-│   │   └── TrustRemoveCommand.php     # Remove a trusted certificate
-│   └── Output/
-│       ├── ConsoleOutput.php          # ANSI colors, tree chars
-│       └── JsonOutput.php             # JSON output
+│   # CLI tool moved to separate package: php-opcua/opcua-cli
 │
 ├── TrustStore/
 │   ├── TrustStoreInterface.php        # Trust store contract
