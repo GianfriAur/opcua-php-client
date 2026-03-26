@@ -9,7 +9,7 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/php-opcua/opcua-client/actions/workflows/integration-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/php-opcua/opcua-client/integration-tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
+  <a href="https://github.com/php-opcua/opcua-client/actions/workflows/tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/php-opcua/opcua-client/tests.yml?branch=master&label=tests&style=flat-square" alt="Tests"></a>
   <a href="https://codecov.io/gh/php-opcua/opcua-client"><img src="https://img.shields.io/codecov/c/github/php-opcua/opcua-client?style=flat-square&logo=codecov" alt="Coverage"></a>
   <a href="https://packagist.org/packages/php-opcua/opcua-client"><img src="https://img.shields.io/packagist/v/php-opcua/opcua-client?style=flat-square&label=packagist" alt="Latest Version"></a>
   <!-- <a href="https://packagist.org/packages/php-opcua/opcua-client"><img src="https://img.shields.io/packagist/dt/php-opcua/opcua-client?style=flat-square" alt="Total Downloads"></a> -->
